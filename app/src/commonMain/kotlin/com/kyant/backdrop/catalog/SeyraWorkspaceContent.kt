@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -72,6 +71,7 @@ import glass.app.generated.resources.ic_top_share_24px
 import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 private data class SeyraCard(
@@ -107,6 +107,9 @@ fun SeyraWorkspaceContent() {
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
     var outgoingTabIndex by remember { mutableStateOf<Int?>(null) }
+    var transitionDirection by remember { mutableIntStateOf(1) }
+    var transitionSerial by remember { mutableIntStateOf(0) }
+    var transitionJob by remember { mutableStateOf<Job?>(null) }
     val pageTransitionProgress = remember { Animatable(1f) }
     val pageStateHolder = rememberSaveableStateHolder()
     val coroutineScope = rememberCoroutineScope()
@@ -116,18 +119,24 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     fun switchTab(targetIndex: Int) {
         if (targetIndex == selectedTabIndex) return
         val previousIndex = selectedTabIndex
+        transitionDirection = if (targetIndex > previousIndex) 1 else -1
         outgoingTabIndex = previousIndex
         selectedTabIndex = targetIndex
-        coroutineScope.launch {
+        transitionSerial += 1
+        val serial = transitionSerial
+        transitionJob?.cancel()
+        transitionJob = coroutineScope.launch {
             pageTransitionProgress.snapTo(0f)
             pageTransitionProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 330,
+                    durationMillis = 300,
                     easing = FastOutSlowInEasing
                 )
             )
-            outgoingTabIndex = null
+            if (transitionSerial == serial) {
+                outgoingTabIndex = null
+            }
         }
     }
 
@@ -141,11 +150,8 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                     modifier = Modifier.graphicsLayer {
                         val progress = pageTransitionProgress.value
                         val exitProgress = pageSwitchExitProgress(progress)
-                        alpha = 1f - 0.82f * exitProgress
-                        scaleX = 1f - 0.03f * exitProgress
-                        scaleY = 1f - 0.03f * exitProgress
-                        val blurRadius = 9f.dp.toPx() * exitProgress
-                        renderEffect = if (blurRadius > 0.5f) BlurEffect(blurRadius, blurRadius) else null
+                        alpha = 1f - 0.08f * exitProgress
+                        translationX = -transitionDirection * 30f.dp.toPx() * exitProgress
                     }
                 )
             }
@@ -159,11 +165,8 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 modifier = Modifier.graphicsLayer {
                     val progress = pageTransitionProgress.value
                     val enterProgress = if (outgoingTabIndex == null) 1f else pageSwitchEnterProgress(progress)
-                    alpha = 0.72f + 0.28f * enterProgress
-                    scaleX = 0.97f + 0.03f * enterProgress
-                    scaleY = 0.97f + 0.03f * enterProgress
-                    val blurRadius = 7f.dp.toPx() * (1f - enterProgress)
-                    renderEffect = if (blurRadius > 0.5f) BlurEffect(blurRadius, blurRadius) else null
+                    alpha = 0.92f + 0.08f * enterProgress
+                    translationX = transitionDirection * 30f.dp.toPx() * (1f - enterProgress)
                 }
             )
         }
@@ -545,14 +548,13 @@ private fun SeyraLiquidCard(
 }
 
 private fun pageSwitchExitProgress(progress: Float): Float {
-    val value = (progress / 0.58f).coerceIn(0f, 1f)
+    val value = progress.coerceIn(0f, 1f)
     return value * value * (3f - 2f * value)
 }
 
 private fun pageSwitchEnterProgress(progress: Float): Float {
     val value = progress.coerceIn(0f, 1f)
-    val smooth = value * value * (3f - 2f * value)
-    return (smooth * 0.72f + value * 0.28f).coerceIn(0f, 1f)
+    return value * value * (3f - 2f * value)
 }
 
 @Composable
