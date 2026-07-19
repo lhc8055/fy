@@ -96,7 +96,7 @@ fun LiquidBottomTabs(
 
         val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
         val animationScope = rememberCoroutineScope()
-        var currentIndex by remember(selectedTabIndex) {
+        var currentIndex by remember {
             mutableIntStateOf(selectedTabIndex())
         }
         val dampedDragAnimation = remember(animationScope) {
@@ -130,11 +130,18 @@ fun LiquidBottomTabs(
                 }
             )
         }
-        LaunchedEffect(selectedTabIndex) {
-            snapshotFlow { selectedTabIndex() }
-                .collectLatest { index ->
-                    currentIndex = index
-                }
+        val targetSelectedIndex = selectedTabIndex()
+        LaunchedEffect(targetSelectedIndex, dampedDragAnimation) {
+            if (currentIndex != targetSelectedIndex ||
+                dampedDragAnimation.targetValue.fastRoundToInt() != targetSelectedIndex
+            ) {
+                currentIndex = targetSelectedIndex
+                dampedDragAnimation.animateToValue(targetSelectedIndex.toFloat())
+                offsetAnimation.animateTo(
+                    0f,
+                    spring(1f, 300f, 0.5f)
+                )
+            }
         }
         LaunchedEffect(dampedDragAnimation) {
             snapshotFlow { currentIndex }
