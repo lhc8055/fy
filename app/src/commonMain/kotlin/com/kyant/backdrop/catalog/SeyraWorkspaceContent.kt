@@ -153,6 +153,9 @@ private fun SeyraPageContent(
             item {
                 SeyraLiquidHeaderPanel(backdrop)
             }
+            item {
+                SeyraProfileInfoPanel(backdrop)
+            }
         } else if (tabIndex == 2) {
             items(workspaceCards.chunked(2)) { rowCards ->
                 Row(
