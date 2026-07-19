@@ -1,6 +1,7 @@
 package com.kyant.backdrop.catalog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -29,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,12 +44,24 @@ import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
+import glass.app.generated.resources.Res
+import glass.app.generated.resources.ic_dock_compass_40px
+import glass.app.generated.resources.ic_dock_folder_40px
+import glass.app.generated.resources.ic_dock_user_40px
+import glass.app.generated.resources.ic_dock_wrench_40px
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 private data class SeyraCard(
     val title: String,
     val subtitle: String,
     val symbol: String,
     val tint: Color
+)
+
+private data class SeyraDockTab(
+    val icon: DrawableResource,
+    val label: String
 )
 
 private val workspaceCards = listOf(
@@ -247,10 +261,10 @@ private fun SeyraDock(
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = listOf(
-        "⌂" to "工作",
-        "■" to "资源",
-        "▣" to "工具",
-        "●" to "我的"
+        SeyraDockTab(Res.drawable.ic_dock_compass_40px, "工作"),
+        SeyraDockTab(Res.drawable.ic_dock_folder_40px, "资源"),
+        SeyraDockTab(Res.drawable.ic_dock_wrench_40px, "工具"),
+        SeyraDockTab(Res.drawable.ic_dock_user_40px, "我的")
     )
 
     LiquidBottomTabs(
@@ -265,16 +279,14 @@ private fun SeyraDock(
             val color = if (selected) Color(0xFF159CFF) else Color(0xCC111827)
 
             LiquidBottomTab({ selectedTabIndex = index }) {
-                BasicText(
-                    tab.first,
-                    style = TextStyle(
-                        color = color,
-                        fontSize = 24f.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                Image(
+                    painter = painterResource(tab.icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(25f.dp),
+                    colorFilter = ColorFilter.tint(color)
                 )
                 BasicText(
-                    tab.second,
+                    tab.label,
                     style = TextStyle(
                         color = color,
                         fontSize = 12f.sp,
