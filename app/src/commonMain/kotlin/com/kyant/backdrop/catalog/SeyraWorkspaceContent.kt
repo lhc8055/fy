@@ -1,5 +1,8 @@
 package com.kyant.backdrop.catalog
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,7 +31,10 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +71,7 @@ import glass.app.generated.resources.ic_top_share_24px
 import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import kotlinx.coroutines.launch
 
 private data class SeyraCard(
     val title: String,
@@ -97,57 +105,71 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+    var outgoingTabIndex by remember { mutableStateOf<Int?>(null) }
+    var transitionDirection by remember { mutableIntStateOf(1) }
+    val pageTransitionProgress = remember { Animatable(1f) }
+    val pageStateHolder = rememberSaveableStateHolder()
+    val coroutineScope = rememberCoroutineScope()
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .displayCutoutPadding(),
-        contentPadding = PaddingValues(
-            start = 22f.dp,
-            top = if (selectedTabIndex == 3) 82f.dp else 100f.dp,
-            end = 22f.dp,
-            bottom = 124f.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(14f.dp)
-    ) {
-        if (selectedTabIndex == 0) {
-            item {
-                SeyraLiquidHeaderPanel(backdrop)
-            }
-        } else if (selectedTabIndex == 2) {
-            items(workspaceCards.chunked(2)) { rowCards ->
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14f.dp)
-                ) {
-                    rowCards.forEach { card ->
-                        SeyraLiquidCard(
-                            card = card,
-                            backdrop = backdrop,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    if (rowCards.size == 1) {
-                        Spacer(Modifier.weight(1f))
-                    }
-                }
-            }
-        } else if (selectedTabIndex == 3) {
-            item {
-                SeyraProfilePage(
+    fun switchTab(targetIndex: Int) {
+        if (targetIndex == selectedTabIndex) return
+        val previousIndex = selectedTabIndex
+        transitionDirection = if (targetIndex > previousIndex) 1 else -1
+        outgoingTabIndex = previousIndex
+        selectedTabIndex = targetIndex
+        coroutineScope.launch {
+            pageTransitionProgress.snapTo(0f)
+            pageTransitionProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 340,
+                    easing = FastOutSlowInEasing
+                )
+            )
+            outgoingTabIndex = null
+        }
+    }
+
+    Box(Modifier.fillMaxSize()) {
+        outgoingTabIndex?.let { tabIndex ->
+            pageStateHolder.SaveableStateProvider(tabIndex) {
+                SeyraPageContent(
+                    tabIndex = tabIndex,
                     backdrop = backdrop,
-                    onFeedbackClick = openFeedback
+                    onFeedbackClick = openFeedback,
+                    modifier = Modifier.graphicsLayer {
+                        val progress = pageTransitionProgress.value
+                        alpha = 1f - 0.42f * progress
+                        scaleX = 1f - 0.04f * progress
+                        scaleY = 1f - 0.04f * progress
+                        translationX = -transitionDirection * 30f.dp.toPx() * progress
+                    }
                 )
             }
+        }
+
+        pageStateHolder.SaveableStateProvider(selectedTabIndex) {
+            SeyraPageContent(
+                tabIndex = selectedTabIndex,
+                backdrop = backdrop,
+                onFeedbackClick = openFeedback,
+                modifier = Modifier.graphicsLayer {
+                    val progress = pageTransitionProgress.value
+                    val enterProgress = if (outgoingTabIndex == null) 1f else progress
+                    alpha = enterProgress
+                    scaleX = 0.96f + 0.04f * enterProgress
+                    scaleY = 0.96f + 0.04f * enterProgress
+                    translationX = transitionDirection * 30f.dp.toPx() * (1f - enterProgress)
+                }
+            )
         }
     }
 
     SeyraDock(
         selectedTabIndex = selectedTabIndex,
-        onTabSelected = { selectedTabIndex = it },
+        onTabSelected = ::switchTab,
         backdrop = backdrop,
         modifier = Modifier
             .align(Alignment.BottomCenter)
@@ -165,6 +187,59 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 .displayCutoutPadding()
                 .padding(top = 18f.dp, end = 22f.dp)
         )
+    }
+}
+
+@Composable
+private fun SeyraPageContent(
+    tabIndex: Int,
+    backdrop: LayerBackdrop,
+    onFeedbackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .displayCutoutPadding(),
+        contentPadding = PaddingValues(
+            start = 22f.dp,
+            top = if (tabIndex == 3) 82f.dp else 100f.dp,
+            end = 22f.dp,
+            bottom = 124f.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(14f.dp)
+    ) {
+        if (tabIndex == 0) {
+            item {
+                SeyraLiquidHeaderPanel(backdrop)
+            }
+        } else if (tabIndex == 2) {
+            items(workspaceCards.chunked(2)) { rowCards ->
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14f.dp)
+                ) {
+                    rowCards.forEach { card ->
+                        SeyraLiquidCard(
+                            card = card,
+                            backdrop = backdrop,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (rowCards.size == 1) {
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+        } else if (tabIndex == 3) {
+            item {
+                SeyraProfilePage(
+                    backdrop = backdrop,
+                    onFeedbackClick = onFeedbackClick
+                )
+            }
+        }
     }
 }
 
@@ -244,7 +319,7 @@ private fun SeyraProfileActionButton(
             .height(68f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
-                shape = { RoundedRectangle(16f.dp) },
+                shape = { RoundedRectangle(24f.dp) },
                 effects = {
                     vibrancy()
                     blur(10f.dp.toPx())
@@ -293,7 +368,7 @@ private fun SeyraProfileInfoPanel(
             .height(238f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
-                shape = { RoundedRectangle(16f.dp) },
+                shape = { RoundedRectangle(28f.dp) },
                 effects = {
                     vibrancy()
                     blur(12f.dp.toPx())
