@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RectangleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
@@ -44,6 +46,7 @@ import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.shapes.Capsule
@@ -129,6 +132,27 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         }
     }
 
+    SeyraGradientGlassScrim(
+        backdrop = backdrop,
+        edge = SeyraGlassScrimEdge.Top,
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .fillMaxWidth()
+            .height(148f.dp)
+            .statusBarsPadding()
+            .displayCutoutPadding()
+    )
+
+    SeyraGradientGlassScrim(
+        backdrop = backdrop,
+        edge = SeyraGlassScrimEdge.Bottom,
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .height(196f.dp)
+            .navigationBarsPadding()
+    )
+
     SeyraDock(
         selectedTabIndex = selectedTabIndex,
         onTabSelected = { selectedTabIndex = it },
@@ -146,6 +170,71 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .statusBarsPadding()
             .displayCutoutPadding()
             .padding(top = 18f.dp, end = 22f.dp)
+    )
+}
+
+private enum class SeyraGlassScrimEdge {
+    Top,
+    Bottom
+}
+
+@Composable
+private fun SeyraGradientGlassScrim(
+    backdrop: LayerBackdrop,
+    edge: SeyraGlassScrimEdge,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier.drawBackdrop(
+            backdrop = backdrop,
+            shape = { RectangleShape },
+            highlight = null,
+            shadow = null,
+            effects = {
+                vibrancy()
+                colorControls(saturation = 1.12f, contrast = 1.02f)
+                blur(14f.dp.toPx())
+            },
+            onDrawBackdrop = { drawBackdrop ->
+                drawBackdrop()
+                drawRect(
+                    brush = when (edge) {
+                        SeyraGlassScrimEdge.Top -> Brush.verticalGradient(
+                            0f to Color.White,
+                            0.42f to Color.White.copy(alpha = 0.68f),
+                            0.74f to Color.White.copy(alpha = 0.20f),
+                            1f to Color.Transparent
+                        )
+
+                        SeyraGlassScrimEdge.Bottom -> Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.38f to Color.White.copy(alpha = 0.22f),
+                            0.72f to Color.White.copy(alpha = 0.70f),
+                            1f to Color.White
+                        )
+                    },
+                    blendMode = BlendMode.DstIn
+                )
+            },
+            onDrawSurface = {
+                drawRect(
+                    brush = when (edge) {
+                        SeyraGlassScrimEdge.Top -> Brush.verticalGradient(
+                            0f to Color.White.copy(alpha = 0.24f),
+                            0.44f to Color.White.copy(alpha = 0.14f),
+                            1f to Color.Transparent
+                        )
+
+                        SeyraGlassScrimEdge.Bottom -> Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.54f to Color.White.copy(alpha = 0.13f),
+                            1f to Color.White.copy(alpha = 0.24f)
+                        )
+                    },
+                    blendMode = BlendMode.Screen
+                )
+            }
+        )
     )
 }
 
