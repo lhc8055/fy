@@ -96,11 +96,11 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         ),
         verticalArrangement = Arrangement.spacedBy(14f.dp)
     ) {
-        if (selectedTabIndex == 2) {
+        if (selectedTabIndex == 0) {
             item {
                 SeyraLiquidHeaderPanel(backdrop)
             }
-
+        } else if (selectedTabIndex == 2) {
             items(workspaceCards.chunked(2)) { rowCards ->
                 Row(
                     Modifier.fillMaxWidth(),
@@ -120,13 +120,11 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             }
         } else {
             item {
-                SeyraPlaceholderPage(
+                SeyraPlainPageTitle(
                     title = when (selectedTabIndex) {
-                        0 -> "探索"
                         1 -> "资源"
                         else -> "我的"
-                    },
-                    backdrop = backdrop
+                    }
                 )
             }
         }
@@ -144,34 +142,16 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
 }
 
 @Composable
-private fun SeyraPlaceholderPage(
-    title: String,
-    backdrop: LayerBackdrop
-) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(204f.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(32f.dp) },
-                effects = {
-                    vibrancy()
-                    lens(16f.dp.toPx(), 32f.dp.toPx())
-                }
-            )
-            .padding(26f.dp)
-    ) {
-        BasicText(
-            title,
-            Modifier.align(Alignment.CenterStart),
-            style = TextStyle(
-                color = Color(0xFF05070A),
-                fontSize = 34f.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+private fun SeyraPlainPageTitle(title: String) {
+    BasicText(
+        title,
+        Modifier.padding(top = 18f.dp, start = 4f.dp),
+        style = TextStyle(
+            color = Color(0xFF05070A),
+            fontSize = 34f.sp,
+            fontWeight = FontWeight.SemiBold
         )
-    }
+    )
 }
 
 @Composable

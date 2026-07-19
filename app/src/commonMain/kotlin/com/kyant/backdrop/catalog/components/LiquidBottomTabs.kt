@@ -67,11 +67,11 @@ fun LiquidBottomTabs(
 ) {
     val isLightTheme = !isSystemInDarkTheme()
     val accentColor =
-        if (isLightTheme) Color(0xFF0088FF)
+        if (isLightTheme) Color(0xFF0096FF)
         else Color(0xFF0091FF)
     val containerColor =
-        if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f)
-        else Color(0xFF000000).copy(0.82f)
+        if (isLightTheme) Color(0xFFEAF7FF).copy(0.52f)
+        else Color(0xFF000000).copy(0.78f)
 
     val tabsBackdrop = rememberLayerBackdrop()
 
@@ -281,11 +281,14 @@ fun LiquidBottomTabs(
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
                         drawRect(
-                            if (isLightTheme) Color.Black.copy(0.1f)
-                            else Color.White.copy(0.1f),
+                            if (isLightTheme) Color(0xFF68B7FF).copy(0.20f)
+                            else Color.White.copy(0.12f),
                             alpha = 1f - progress
                         )
-                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
+                        drawRect(
+                            if (isLightTheme) Color(0xFF2DA8FF).copy(alpha = 0.08f * progress)
+                            else Color.Black.copy(alpha = 0.03f * progress)
+                        )
                     }
                 )
                 .height(56f.dp)
