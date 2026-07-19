@@ -1,6 +1,5 @@
 package com.kyant.backdrop.catalog
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +41,6 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
 import glass.app.generated.resources.Res
 import glass.app.generated.resources.ic_dock_compass_40px
@@ -97,7 +95,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         verticalArrangement = Arrangement.spacedBy(14f.dp)
     ) {
         item {
-            SeyraHeaderGlass(backdrop)
+            SeyraLiquidHeaderPanel(backdrop)
         }
 
         items(workspaceCards.chunked(2)) { rowCards ->
@@ -129,70 +127,20 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
 }
 
 @Composable
-private fun SeyraHeaderGlass(backdrop: LayerBackdrop) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .height(170f.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(34f.dp) },
-                effects = {
-                    vibrancy()
-                    blur(16f.dp.toPx())
-                    lens(24f.dp.toPx(), 32f.dp.toPx())
-                },
-                onDrawSurface = {
-                    drawRect(Color(0x99FFFFFF))
-                    drawRect(Color(0x221C6CFF), blendMode = BlendMode.Screen)
-                }
-            )
-            .padding(24f.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6f.dp)) {
-            BasicText(
-                "Seyra",
-                style = TextStyle(
-                    color = Color(0xF20B1220),
-                    fontSize = 34f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-            BasicText(
-                "你的液态玻璃工作台",
-                style = TextStyle(
-                    color = Color(0xAA1B2A41),
-                    fontSize = 15f.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(10f.dp)) {
-            SeyraSmallGlassPill("今日")
-            SeyraSmallGlassPill("待办 6")
-        }
-    }
-}
-
-@Composable
-private fun SeyraSmallGlassPill(text: String) {
+private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
     Box(
         Modifier
-            .background(Color(0x33FFFFFF), Capsule())
-            .padding(horizontal = 14f.dp, vertical = 8f.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        BasicText(
-            text,
-            style = TextStyle(
-                color = Color(0xCC0D1828),
-                fontSize = 13f.sp,
-                fontWeight = FontWeight.Medium
+            .fillMaxWidth()
+            .height(204f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(32f.dp) },
+                effects = {
+                    vibrancy()
+                    lens(16f.dp.toPx(), 32f.dp.toPx())
+                }
             )
-        )
-    }
+    )
 }
 
 @Composable
