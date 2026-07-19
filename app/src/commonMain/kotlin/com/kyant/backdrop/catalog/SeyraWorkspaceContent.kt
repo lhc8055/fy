@@ -220,7 +220,7 @@ private fun SeyraDock(
     ) {
         tabs.forEachIndexed { index, tab ->
             val selected = selectedTabIndex == index
-            val color = if (selected) Color(0xFF1B9BEF) else Color(0xFF05070A)
+            val color = if (selected) Color(0xFF008DFF) else Color(0xFF05070A)
 
             LiquidBottomTab({ onTabSelected(index) }) {
                 Image(
