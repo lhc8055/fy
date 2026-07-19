@@ -71,7 +71,7 @@ fun LiquidBottomTabs(
         else Color(0xFF0091FF)
     val containerColor =
         if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f)
-        else Color(0xFF121212).copy(0.4f)
+        else Color(0xFF000000).copy(0.82f)
 
     val tabsBackdrop = rememberLayerBackdrop()
 

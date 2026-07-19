@@ -12,7 +12,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import glass.app.generated.resources.Res
-import glass.app.generated.resources.wallpaper_light
+import glass.app.generated.resources.seyra_background
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -27,7 +27,7 @@ actual fun BackdropDemoScaffold(
         val backdrop = rememberLayerBackdrop()
 
         Image(
-            painterResource(Res.drawable.wallpaper_light),
+            painterResource(Res.drawable.seyra_background),
             null,
             Modifier
                 .layerBackdrop(backdrop)

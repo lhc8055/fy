@@ -1,6 +1,5 @@
 package com.kyant.backdrop.catalog
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -28,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -71,18 +69,6 @@ fun SeyraWorkspaceContent() {
 
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    0f to Color(0x55EAF8FF),
-                    0.42f to Color(0x22B7A7FF),
-                    1f to Color(0x333F7DFF)
-                )
-            )
-    )
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -98,18 +84,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     ) {
         item {
             SeyraHeaderGlass(backdrop)
-        }
-
-        item {
-            BasicText(
-                "工作区",
-                Modifier.padding(top = 6f.dp, bottom = 2f.dp),
-                style = TextStyle(
-                    color = Color(0xEE101828),
-                    fontSize = 28f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
         }
 
         items(workspaceCards.chunked(2)) { rowCards ->
