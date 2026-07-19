@@ -102,7 +102,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             end = 22f.dp,
             bottom = 124f.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(14f.dp)
+        verticalArrangement = Arrangement.spacedBy(20f.dp)
     ) {
         if (selectedTabIndex == 0) {
             item {
@@ -112,7 +112,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             items(workspaceCards.chunked(2)) { rowCards ->
                 Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14f.dp)
+                    horizontalArrangement = Arrangement.spacedBy(20f.dp)
                 ) {
                     rowCards.forEach { card ->
                         SeyraLiquidCard(
