@@ -123,7 +123,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             pageTransitionProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 360,
+                    durationMillis = 330,
                     easing = FastOutSlowInEasing
                 )
             )
@@ -551,7 +551,8 @@ private fun pageSwitchExitProgress(progress: Float): Float {
 
 private fun pageSwitchEnterProgress(progress: Float): Float {
     val value = progress.coerceIn(0f, 1f)
-    return value * value * (3f - 2f * value)
+    val smooth = value * value * (3f - 2f * value)
+    return (smooth * 0.72f + value * 0.28f).coerceIn(0f, 1f)
 }
 
 @Composable
