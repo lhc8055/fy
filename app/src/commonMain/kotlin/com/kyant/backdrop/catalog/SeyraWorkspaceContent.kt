@@ -124,7 +124,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             pageTransitionProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 340,
+                    durationMillis = 380,
                     easing = FastOutSlowInEasing
                 )
             )
@@ -141,10 +141,11 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                     onFeedbackClick = openFeedback,
                     modifier = Modifier.graphicsLayer {
                         val progress = pageTransitionProgress.value
-                        alpha = 1f - 0.42f * progress
-                        scaleX = 1f - 0.04f * progress
-                        scaleY = 1f - 0.04f * progress
-                        translationX = -transitionDirection * 30f.dp.toPx() * progress
+                        val exitProgress = pageSwitchExitProgress(progress)
+                        alpha = 1f - 0.72f * exitProgress
+                        scaleX = 1f - 0.025f * exitProgress
+                        scaleY = 1f - 0.025f * exitProgress
+                        translationX = -transitionDirection * 18f.dp.toPx() * exitProgress
                     }
                 )
             }
@@ -157,11 +158,11 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 onFeedbackClick = openFeedback,
                 modifier = Modifier.graphicsLayer {
                     val progress = pageTransitionProgress.value
-                    val enterProgress = if (outgoingTabIndex == null) 1f else progress
-                    alpha = enterProgress
-                    scaleX = 0.96f + 0.04f * enterProgress
-                    scaleY = 0.96f + 0.04f * enterProgress
-                    translationX = transitionDirection * 30f.dp.toPx() * (1f - enterProgress)
+                    val enterProgress = if (outgoingTabIndex == null) 1f else pageSwitchEnterProgress(progress)
+                    alpha = 0.82f + 0.18f * enterProgress
+                    scaleX = 0.975f + 0.025f * enterProgress
+                    scaleY = 0.975f + 0.025f * enterProgress
+                    translationX = transitionDirection * 22f.dp.toPx() * (1f - enterProgress)
                 }
             )
         }
@@ -540,6 +541,16 @@ private fun SeyraLiquidCard(
             )
         }
     }
+}
+
+private fun pageSwitchExitProgress(progress: Float): Float {
+    val value = (progress / 0.58f).coerceIn(0f, 1f)
+    return value * value * (3f - 2f * value)
+}
+
+private fun pageSwitchEnterProgress(progress: Float): Float {
+    val value = progress.coerceIn(0f, 1f)
+    return value * value * (3f - 2f * value)
 }
 
 @Composable
