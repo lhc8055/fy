@@ -98,7 +98,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .displayCutoutPadding(),
         contentPadding = PaddingValues(
             start = 22f.dp,
-            top = 24f.dp,
+            top = 52f.dp,
             end = 22f.dp,
             bottom = 124f.dp
         ),
