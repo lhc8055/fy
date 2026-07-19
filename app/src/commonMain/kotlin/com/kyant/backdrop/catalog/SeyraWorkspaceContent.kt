@@ -1,7 +1,11 @@
 package com.kyant.backdrop.catalog
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,8 +30,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -37,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
+import com.kyant.backdrop.catalog.utils.BackHandler
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -97,14 +105,38 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+    var openedCard by remember { mutableStateOf<SeyraCard?>(null) }
+    val cardOpenProgress = remember { Animatable(0f) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
+
+    BackHandler(enabled = openedCard != null) {
+        openedCard = null
+    }
+
+    LaunchedEffect(openedCard) {
+        if (openedCard != null) {
+            cardOpenProgress.snapTo(0f)
+            cardOpenProgress.animateTo(
+                1f,
+                spring(dampingRatio = 0.62f, stiffness = 260f, visibilityThreshold = 0.001f)
+            )
+        } else {
+            cardOpenProgress.snapTo(0f)
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .displayCutoutPadding(),
+            .displayCutoutPadding()
+            .graphicsLayer {
+                val progress = if (selectedTabIndex == 2) cardOpenProgress.value else 0f
+                alpha = 1f - 0.42f * progress
+                scaleX = 1f - 0.018f * progress
+                scaleY = 1f - 0.018f * progress
+            },
         contentPadding = PaddingValues(
             start = 22f.dp,
             top = if (selectedTabIndex == 3) 82f.dp else 100f.dp,
@@ -127,6 +159,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                         SeyraLiquidCard(
                             card = card,
                             backdrop = backdrop,
+                            onClick = { openedCard = card },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -143,6 +176,15 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 )
             }
         }
+    }
+
+    openedCard?.takeIf { selectedTabIndex == 2 }?.let { card ->
+        SeyraCardOpenOverlay(
+            card = card,
+            backdrop = backdrop,
+            progress = cardOpenProgress.value,
+            onClose = { openedCard = null }
+        )
     }
 
     SeyraDock(
@@ -423,11 +465,24 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
 private fun SeyraLiquidCard(
     card: SeyraCard,
     backdrop: LayerBackdrop,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.965f else 1f,
+        animationSpec = spring(dampingRatio = 0.72f, stiffness = 420f),
+        label = "seyra_card_press_scale"
+    )
+
     Box(
         modifier
             .aspectRatio(1.58f)
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(24f.dp) },
@@ -440,6 +495,11 @@ private fun SeyraLiquidCard(
                     drawRect(Color(0x78FFFFFF))
                     drawRect(card.tint.copy(alpha = 0.20f), blendMode = BlendMode.Screen)
                 }
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
             )
             .padding(18f.dp)
     ) {
@@ -464,6 +524,93 @@ private fun SeyraLiquidCard(
                 )
             )
         }
+    }
+}
+
+@Composable
+private fun BoxScope.SeyraCardOpenOverlay(
+    card: SeyraCard,
+    backdrop: LayerBackdrop,
+    progress: Float,
+    onClose: () -> Unit
+) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                alpha = progress
+            }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClose
+            )
+    )
+
+    Box(
+        Modifier
+            .align(Alignment.TopStart)
+            .padding(start = 30f.dp, top = 198f.dp, end = 118f.dp)
+            .fillMaxWidth()
+            .height(210f.dp)
+            .graphicsLayer {
+                alpha = progress
+                val scale = 0.72f + 0.28f * progress
+                scaleX = scale
+                scaleY = scale
+                translationY = (1f - progress) * 92f
+                shadowElevation = 18f * progress
+            }
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(26f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(18f.dp.toPx())
+                    lens(18f.dp.toPx(), 30f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x8EFFFFFF))
+                    drawRect(card.tint.copy(alpha = 0.18f), blendMode = BlendMode.Screen)
+                }
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            )
+            .padding(22f.dp)
+    ) {
+        BasicText(
+            card.title,
+            modifier = Modifier.align(Alignment.TopStart),
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 18f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            card.subtitle,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 34f.dp),
+            style = TextStyle(
+                color = Color(0xB805070A),
+                fontSize = 13f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            workspaceCards.indexOf(card).takeIf { it >= 0 }?.toString().orEmpty(),
+            modifier = Modifier.align(Alignment.Center),
+            style = TextStyle(
+                color = Color(0x5205070A),
+                fontSize = 54f.sp,
+                fontWeight = FontWeight.Light,
+                textAlign = TextAlign.Center
+            )
+        )
     }
 }
 
