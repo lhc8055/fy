@@ -1,11 +1,7 @@
 package com.kyant.backdrop.catalog
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,40 +26,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.BlurEffect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
-import com.kyant.backdrop.catalog.utils.BackHandler
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -84,7 +64,6 @@ import glass.app.generated.resources.ic_top_share_24px
 import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import kotlinx.coroutines.launch
 
 private data class SeyraCard(
     val title: String,
@@ -95,18 +74,6 @@ private data class SeyraCard(
 private data class SeyraDockTab(
     val icon: DrawableResource,
     val label: String
-)
-
-private data class SeyraCardBounds(
-    val x: Float,
-    val y: Float,
-    val width: Float,
-    val height: Float
-)
-
-private data class SeyraOpeningCard(
-    val card: SeyraCard,
-    val bounds: SeyraCardBounds
 )
 
 private val workspaceCards = listOf(
@@ -130,67 +97,14 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
-    var rootSize by remember { mutableStateOf(IntSize.Zero) }
-    var openingCard by remember { mutableStateOf<SeyraOpeningCard?>(null) }
-    val openProgress = remember { Animatable(0f) }
-    val coroutineScope = rememberCoroutineScope()
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
-    val backgroundProgress = if (selectedTabIndex == 2) openProgress.value else 0f
-
-    fun closeOpeningCard() {
-        coroutineScope.launch {
-            openProgress.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = 0.86f,
-                    stiffness = 240f,
-                    visibilityThreshold = 0.001f
-                )
-            )
-            openingCard = null
-        }
-    }
-
-    BackHandler(enabled = openingCard != null) {
-        closeOpeningCard()
-    }
-
-    LaunchedEffect(openingCard) {
-        if (openingCard != null) {
-            openProgress.snapTo(0f)
-            openProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = 0.74f,
-                    stiffness = 82f,
-                    visibilityThreshold = 0.001f
-                )
-            )
-        }
-    }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .displayCutoutPadding()
-            .onSizeChanged { rootSize = it }
-            .graphicsLayer {
-                val blurRadius = 16f.dp.toPx() * iOSSmooth(backgroundProgress)
-                renderEffect = if (blurRadius > 0.5f) {
-                    BlurEffect(blurRadius, blurRadius)
-                } else {
-                    null
-                }
-            }
-            .drawWithContent {
-                drawContent()
-                val dim = 0.10f * iOSSmooth(backgroundProgress)
-                if (dim > 0f) {
-                    drawRect(Color.Black.copy(alpha = dim))
-                }
-            },
+            .displayCutoutPadding(),
         contentPadding = PaddingValues(
             start = 22f.dp,
             top = if (selectedTabIndex == 3) 82f.dp else 100f.dp,
@@ -213,11 +127,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                         SeyraLiquidCard(
                             card = card,
                             backdrop = backdrop,
-                            onClick = { bounds ->
-                                if (openingCard == null) {
-                                    openingCard = SeyraOpeningCard(card, bounds)
-                                }
-                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -236,12 +145,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         }
     }
 
-    val backgroundLayerModifier = Modifier.graphicsLayer {
-        val blurRadius = 12f.dp.toPx() * iOSSmooth(backgroundProgress)
-        renderEffect = if (blurRadius > 0.5f) BlurEffect(blurRadius, blurRadius) else null
-        alpha = 1f - 0.08f * iOSSmooth(backgroundProgress)
-    }
-
     SeyraDock(
         selectedTabIndex = selectedTabIndex,
         onTabSelected = { selectedTabIndex = it },
@@ -250,7 +153,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .align(Alignment.BottomCenter)
             .navigationBarsPadding()
             .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
-            .then(backgroundLayerModifier)
     )
 
     if (selectedTabIndex != 3) {
@@ -262,23 +164,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 .statusBarsPadding()
                 .displayCutoutPadding()
                 .padding(top = 18f.dp, end = 22f.dp)
-                .then(backgroundLayerModifier)
-        )
-    }
-
-    openingCard?.takeIf {
-        selectedTabIndex == 2 &&
-            rootSize.width > 0 &&
-            rootSize.height > 0 &&
-            it.bounds.width > 0f &&
-            it.bounds.height > 0f
-    }?.let { opening ->
-        SeyraCardLaunchTransition(
-            opening = opening,
-            rootSize = rootSize,
-            backdrop = backdrop,
-            progress = openProgress.value,
-            onClose = ::closeOpeningCard
         )
     }
 }
@@ -538,36 +423,11 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
 private fun SeyraLiquidCard(
     card: SeyraCard,
     backdrop: LayerBackdrop,
-    onClick: (SeyraCardBounds) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var cardBounds by remember { mutableStateOf<SeyraCardBounds?>(null) }
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val pressProgress by animateFloatAsState(
-        targetValue = if (pressed) 1f else 0f,
-        animationSpec = spring(dampingRatio = 0.68f, stiffness = 520f),
-        label = "seyra_card_press"
-    )
-
     Box(
         modifier
             .aspectRatio(1.58f)
-            .onGloballyPositioned { coordinates ->
-                val position = coordinates.positionInRoot()
-                val size = coordinates.size
-                cardBounds = SeyraCardBounds(
-                    x = position.x,
-                    y = position.y,
-                    width = size.width.toFloat(),
-                    height = size.height.toFloat()
-                )
-            }
-            .graphicsLayer {
-                val pressedInset = 0.018f * pressProgress
-                scaleX = 1f - pressedInset
-                scaleY = 1f - pressedInset
-            }
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(24f.dp) },
@@ -579,13 +439,6 @@ private fun SeyraLiquidCard(
                 onDrawSurface = {
                     drawRect(Color(0x78FFFFFF))
                     drawRect(card.tint.copy(alpha = 0.20f), blendMode = BlendMode.Screen)
-                }
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = {
-                    cardBounds?.let(onClick)
                 }
             )
             .padding(18f.dp)
@@ -612,181 +465,6 @@ private fun SeyraLiquidCard(
             )
         }
     }
-}
-
-@Composable
-private fun BoxScope.SeyraCardLaunchTransition(
-    opening: SeyraOpeningCard,
-    rootSize: IntSize,
-    backdrop: LayerBackdrop,
-    progress: Float,
-    onClose: () -> Unit
-) {
-    val density = LocalDensity.current
-    val frame = calculateLaunchFrame(
-        start = opening.bounds,
-        rootSize = rootSize,
-        progress = progress
-    )
-    val first = firstLaunchStage(progress)
-    val second = secondLaunchStage(progress)
-    val liquidProgress = iOSSmooth(second)
-    val cornerRadius = lerp(24f, 0f, liquidProgress)
-    val highlightX = lerp(-1.2f, 1.4f, iOSSmooth(progress))
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClose
-            )
-    )
-
-    Box(
-        Modifier
-            .offset { IntOffset(frame.x.toInt(), frame.y.toInt()) }
-            .width(with(density) { frame.width.toDp() })
-            .height(with(density) { frame.height.toDp() })
-            .graphicsLayer {
-                shadowElevation = lerp(8f, 36f, iOSSmooth(progress))
-                clip = false
-            }
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(cornerRadius.dp) },
-                effects = {
-                    vibrancy()
-                    blur(lerp(12f, 24f, iOSSmooth(progress)).dp.toPx())
-                    lens(
-                        lerp(18f, 28f, liquidProgress).dp.toPx(),
-                        lerp(28f, 42f, liquidProgress).dp.toPx()
-                    )
-                },
-                onDrawSurface = {
-                    drawRect(Color(0x78FFFFFF))
-                    drawRect(opening.card.tint.copy(alpha = 0.20f), blendMode = BlendMode.Screen)
-                    drawRect(Color.White.copy(alpha = 0.08f * iOSSmooth(progress)), blendMode = BlendMode.Screen)
-                    drawRect(
-                        brush = Brush.linearGradient(
-                            0f to Color.Transparent,
-                            0.48f to Color.White.copy(alpha = 0.20f * iOSSmooth(progress)),
-                            1f to Color.Transparent,
-                            start = Offset(size.width * (highlightX - 0.45f), 0f),
-                            end = Offset(size.width * (highlightX + 0.45f), size.height)
-                        ),
-                        blendMode = BlendMode.Screen
-                    )
-                }
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = {}
-            )
-            .padding(
-                horizontal = with(density) { lerp(18f, 30f, liquidProgress).toDp() },
-                vertical = with(density) { lerp(18f, 34f, liquidProgress).toDp() }
-            )
-    ) {
-        Column(
-            Modifier
-                .align(Alignment.CenterStart)
-                .graphicsLayer {
-                    val contentLift = iOSSmooth(first) * 0.06f - liquidProgress * 0.04f
-                    scaleX = 1f + contentLift
-                    scaleY = 1f + contentLift
-                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)
-                },
-            verticalArrangement = Arrangement.spacedBy(7f.dp)
-        ) {
-            BasicText(
-                opening.card.title,
-                style = TextStyle(
-                    color = Color(0xFF05070A),
-                    fontSize = 18f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-            BasicText(
-                opening.card.subtitle,
-                style = TextStyle(
-                    color = Color(0xEA111827),
-                    fontSize = 12.5f.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
-    }
-}
-
-private data class SeyraLaunchFrame(
-    val x: Float,
-    val y: Float,
-    val width: Float,
-    val height: Float
-)
-
-private fun calculateLaunchFrame(
-    start: SeyraCardBounds,
-    rootSize: IntSize,
-    progress: Float
-): SeyraLaunchFrame {
-    val first = iOSEaseOut(firstLaunchStage(progress))
-    val second = iOSSmooth(secondLaunchStage(progress))
-
-    val rootWidth = rootSize.width.toFloat()
-    val rootHeight = rootSize.height.toFloat()
-    val startLeft = start.x
-    val startTop = start.y
-    val startRight = start.x + start.width
-    val startBottom = start.y + start.height
-
-    val maxAspectScale = minOf(rootWidth / start.width, rootHeight / start.height) * 0.86f
-    val firstWidth = start.width * maxAspectScale
-    val firstHeight = start.height * maxAspectScale
-    val startCenterX = start.x + start.width / 2f
-    val startCenterY = start.y + start.height / 2f
-    val firstLeft = startCenterX + (rootWidth / 2f - startCenterX) * 0.42f - firstWidth / 2f
-    val firstTop = startCenterY + (rootHeight / 2f - startCenterY) * 0.42f - firstHeight / 2f
-    val firstRight = firstLeft + firstWidth
-    val firstBottom = firstTop + firstHeight
-
-    val left = if (progress < 0.56f) lerp(startLeft, firstLeft, first) else lerp(firstLeft, 0f, second)
-    val top = if (progress < 0.56f) lerp(startTop, firstTop, first) else lerp(firstTop, 0f, second)
-    val right = if (progress < 0.56f) lerp(startRight, firstRight, first) else lerp(firstRight, rootWidth, second)
-    val bottom = if (progress < 0.56f) lerp(startBottom, firstBottom, first) else lerp(firstBottom, rootHeight, second)
-
-    return SeyraLaunchFrame(
-        x = left,
-        y = top,
-        width = (right - left).coerceAtLeast(1f),
-        height = (bottom - top).coerceAtLeast(1f)
-    )
-}
-
-private fun firstLaunchStage(progress: Float): Float {
-    return (progress / 0.56f).coerceIn(0f, 1f)
-}
-
-private fun secondLaunchStage(progress: Float): Float {
-    return ((progress - 0.56f) / 0.44f).coerceIn(0f, 1f)
-}
-
-private fun iOSEaseOut(value: Float): Float {
-    val t = value.coerceIn(0f, 1f)
-    val inverse = 1f - t
-    return 1f - inverse * inverse * inverse * inverse
-}
-
-private fun iOSSmooth(value: Float): Float {
-    val t = value.coerceIn(0f, 1f)
-    return t * t * (3f - 2f * t)
-}
-
-private fun lerp(start: Float, stop: Float, fraction: Float): Float {
-    return start + (stop - start) * fraction.coerceIn(0f, 1f)
 }
 
 @Composable
