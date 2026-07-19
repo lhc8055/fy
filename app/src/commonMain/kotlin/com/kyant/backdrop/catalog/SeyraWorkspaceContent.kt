@@ -1,8 +1,5 @@
 package com.kyant.backdrop.catalog
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,10 +28,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,8 +64,6 @@ import glass.app.generated.resources.ic_top_share_24px
 import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 private data class SeyraCard(
     val title: String,
@@ -106,75 +97,18 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
-    var outgoingTabIndex by remember { mutableStateOf<Int?>(null) }
-    var transitionDirection by remember { mutableIntStateOf(1) }
-    var transitionSerial by remember { mutableIntStateOf(0) }
-    var transitionJob by remember { mutableStateOf<Job?>(null) }
-    val pageTransitionProgress = remember { Animatable(1f) }
-    val pageStateHolder = rememberSaveableStateHolder()
-    val coroutineScope = rememberCoroutineScope()
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
 
-    fun switchTab(targetIndex: Int) {
-        if (targetIndex == selectedTabIndex) return
-        val previousIndex = selectedTabIndex
-        transitionDirection = if (targetIndex > previousIndex) 1 else -1
-        outgoingTabIndex = previousIndex
-        selectedTabIndex = targetIndex
-        transitionSerial += 1
-        val serial = transitionSerial
-        transitionJob?.cancel()
-        transitionJob = coroutineScope.launch {
-            pageTransitionProgress.snapTo(0f)
-            pageTransitionProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = FastOutSlowInEasing
-                )
-            )
-            if (transitionSerial == serial) {
-                outgoingTabIndex = null
-            }
-        }
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        outgoingTabIndex?.let { tabIndex ->
-            pageStateHolder.SaveableStateProvider(tabIndex) {
-                SeyraPageContent(
-                    tabIndex = tabIndex,
-                    backdrop = backdrop,
-                    onFeedbackClick = openFeedback,
-                    modifier = Modifier.graphicsLayer {
-                        val progress = pageTransitionProgress.value
-                        val exitProgress = pageSwitchExitProgress(progress)
-                        alpha = 1f - 0.08f * exitProgress
-                        translationX = -transitionDirection * 30f.dp.toPx() * exitProgress
-                    }
-                )
-            }
-        }
-
-        pageStateHolder.SaveableStateProvider(selectedTabIndex) {
-            SeyraPageContent(
-                tabIndex = selectedTabIndex,
-                backdrop = backdrop,
-                onFeedbackClick = openFeedback,
-                modifier = Modifier.graphicsLayer {
-                    val progress = pageTransitionProgress.value
-                    val enterProgress = if (outgoingTabIndex == null) 1f else pageSwitchEnterProgress(progress)
-                    alpha = 0.92f + 0.08f * enterProgress
-                    translationX = transitionDirection * 30f.dp.toPx() * (1f - enterProgress)
-                }
-            )
-        }
-    }
+    SeyraPageContent(
+        tabIndex = selectedTabIndex,
+        backdrop = backdrop,
+        onFeedbackClick = openFeedback
+    )
 
     SeyraDock(
         selectedTabIndex = selectedTabIndex,
-        onTabSelected = ::switchTab,
+        onTabSelected = { selectedTabIndex = it },
         backdrop = backdrop,
         modifier = Modifier
             .align(Alignment.BottomCenter)
@@ -545,16 +479,6 @@ private fun SeyraLiquidCard(
             )
         }
     }
-}
-
-private fun pageSwitchExitProgress(progress: Float): Float {
-    val value = progress.coerceIn(0f, 1f)
-    return value * value * (3f - 2f * value)
-}
-
-private fun pageSwitchEnterProgress(progress: Float): Float {
-    val value = progress.coerceIn(0f, 1f)
-    return value * value * (3f - 2f * value)
 }
 
 @Composable
