@@ -1,6 +1,8 @@
 package com.kyant.backdrop.catalog
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,12 +20,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,12 +46,15 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
 import glass.app.generated.resources.Res
 import glass.app.generated.resources.ic_dock_compass_40px
 import glass.app.generated.resources.ic_dock_folder_40px
 import glass.app.generated.resources.ic_dock_user_40px
 import glass.app.generated.resources.ic_dock_wrench_40px
+import glass.app.generated.resources.ic_top_more_24px
+import glass.app.generated.resources.ic_top_share_24px
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -130,6 +138,75 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .navigationBarsPadding()
             .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
     )
+
+    SeyraTopActions(
+        backdrop = backdrop,
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .statusBarsPadding()
+            .displayCutoutPadding()
+            .padding(top = 18f.dp, end = 22f.dp)
+    )
+}
+
+@Composable
+private fun SeyraTopActions(
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier
+            .height(48f.dp)
+            .width(104f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { Capsule() },
+                effects = {
+                    vibrancy()
+                    blur(8f.dp.toPx())
+                    lens(18f.dp.toPx(), 26f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x9AFFFFFF))
+                    drawRect(Color(0x1F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(horizontal = 4f.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SeyraTopActionIcon(
+            icon = Res.drawable.ic_top_share_24px,
+            modifier = Modifier.weight(1f)
+        )
+        SeyraTopActionIcon(
+            icon = Res.drawable.ic_top_more_24px,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun SeyraTopActionIcon(
+    icon: DrawableResource,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier
+            .fillMaxHeight()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(24f.dp),
+            colorFilter = ColorFilter.tint(Color(0xFF05070A))
+        )
+    }
 }
 
 @Composable
