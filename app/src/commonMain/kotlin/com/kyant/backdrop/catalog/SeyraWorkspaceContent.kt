@@ -205,7 +205,7 @@ private fun SeyraDock(
     modifier: Modifier = Modifier
 ) {
     val tabs = listOf(
-        SeyraDockTab(Res.drawable.ic_dock_compass_40px, "探索"),
+        SeyraDockTab(Res.drawable.ic_dock_compass_40px, "发现"),
         SeyraDockTab(Res.drawable.ic_dock_folder_40px, "资源"),
         SeyraDockTab(Res.drawable.ic_dock_wrench_40px, "工具"),
         SeyraDockTab(Res.drawable.ic_dock_user_40px, "我的")
@@ -220,7 +220,7 @@ private fun SeyraDock(
     ) {
         tabs.forEachIndexed { index, tab ->
             val selected = selectedTabIndex == index
-            val color = if (selected) Color(0xFF008DFF) else Color(0xFF111827)
+            val color = if (selected) Color(0xFF1B9BEF) else Color(0xFF05070A)
 
             LiquidBottomTab({ onTabSelected(index) }) {
                 Image(
