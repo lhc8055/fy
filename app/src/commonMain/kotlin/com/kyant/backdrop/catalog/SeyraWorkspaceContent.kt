@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
@@ -32,11 +33,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -53,8 +56,12 @@ import glass.app.generated.resources.ic_dock_compass_40px
 import glass.app.generated.resources.ic_dock_folder_40px
 import glass.app.generated.resources.ic_dock_user_40px
 import glass.app.generated.resources.ic_dock_wrench_40px
+import glass.app.generated.resources.ic_profile_edit_32px
+import glass.app.generated.resources.ic_profile_photo_32px
+import glass.app.generated.resources.ic_profile_settings_32px
 import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
+import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -127,6 +134,10 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                     }
                 }
             }
+        } else if (selectedTabIndex == 3) {
+            item {
+                SeyraProfilePage(backdrop)
+            }
         }
     }
 
@@ -140,15 +151,180 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
     )
 
-    SeyraTopActions(
-        backdrop = backdrop,
-        onShareClick = shareApp,
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .statusBarsPadding()
-            .displayCutoutPadding()
-            .padding(top = 18f.dp, end = 22f.dp)
-    )
+    if (selectedTabIndex != 3) {
+        SeyraTopActions(
+            backdrop = backdrop,
+            onShareClick = shareApp,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .displayCutoutPadding()
+                .padding(top = 18f.dp, end = 22f.dp)
+        )
+    }
+}
+
+@Composable
+private fun SeyraProfilePage(backdrop: LayerBackdrop) {
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(Res.drawable.profile_avatar),
+            contentDescription = null,
+            modifier = Modifier
+                .size(122f.dp)
+                .clip(CircleShape)
+        )
+        BasicText(
+            "Seyra",
+            modifier = Modifier.padding(top = 22f.dp),
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 23f.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
+        )
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 62f.dp),
+            horizontalArrangement = Arrangement.spacedBy(10f.dp)
+        ) {
+            SeyraProfileActionButton(
+                icon = Res.drawable.ic_profile_photo_32px,
+                label = "设置照片",
+                backdrop = backdrop,
+                modifier = Modifier.weight(1f)
+            )
+            SeyraProfileActionButton(
+                icon = Res.drawable.ic_profile_edit_32px,
+                label = "编辑信息",
+                backdrop = backdrop,
+                modifier = Modifier.weight(1f)
+            )
+            SeyraProfileActionButton(
+                icon = Res.drawable.ic_profile_settings_32px,
+                label = "设置",
+                backdrop = backdrop,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        SeyraProfileInfoPanel(
+            backdrop = backdrop,
+            modifier = Modifier.padding(top = 22f.dp)
+        )
+    }
+}
+
+@Composable
+private fun SeyraProfileActionButton(
+    icon: DrawableResource,
+    label: String,
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .height(68f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(16f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(10f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x82FFFFFF))
+                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(28f.dp),
+            colorFilter = ColorFilter.tint(Color(0xFF05070A))
+        )
+        BasicText(
+            label,
+            modifier = Modifier.padding(top = 3f.dp),
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 12.5f.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
+        )
+    }
+}
+
+@Composable
+private fun SeyraProfileInfoPanel(
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .height(238f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(16f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(12f.dp.toPx())
+                    lens(14f.dp.toPx(), 24f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x70FFFFFF))
+                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(horizontal = 22f.dp, vertical = 17f.dp),
+        verticalArrangement = Arrangement.spacedBy(20f.dp)
+    ) {
+        SeyraProfileInfoItem("+1 (567) 229-5962", "手机")
+        SeyraProfileInfoItem("1", "个人简介")
+        SeyraProfileInfoItem("@wtb888tg", "用户名")
+    }
+}
+
+@Composable
+private fun SeyraProfileInfoItem(
+    value: String,
+    label: String
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6f.dp)) {
+        BasicText(
+            value,
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 20f.sp,
+                fontWeight = FontWeight.Normal
+            )
+        )
+        BasicText(
+            label,
+            style = TextStyle(
+                color = Color(0x8A05070A),
+                fontSize = 14f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
 }
 
 @Composable
@@ -257,7 +433,7 @@ private fun SeyraLiquidCard(
             .padding(18f.dp)
     ) {
         Column(
-            Modifier.align(Alignment.TopStart),
+            Modifier.align(Alignment.CenterStart),
             verticalArrangement = Arrangement.spacedBy(7f.dp)
         ) {
             BasicText(
