@@ -70,7 +70,7 @@ private data class SeyraDockTab(
 )
 
 private val workspaceCards = listOf(
-    SeyraCard("社工查询", "手机号/姓名/社交账号", Color(0xFF70D7FF)),
+    SeyraCard("社工查询", "综合信息查询", Color(0xFF70D7FF)),
     SeyraCard("三要素补齐", "姓名 手机号 身份证", Color(0xFF9B7CFF)),
     SeyraCard("手机号补齐", "姓名 手机号", Color(0xFFFFC56E)),
     SeyraCard("灵感盒子", "收藏碎片 / 快速保存", Color(0xFFFF8EC7)),
