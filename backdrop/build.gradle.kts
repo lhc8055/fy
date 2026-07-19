@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.compose)
-    id("com.vanniktech.maven.publish")
 }
 
 kotlin {
@@ -73,39 +72,6 @@ kotlin {
 
         val wasmJsMain = getByName("wasmJsMain") {
             dependsOn(skikoMain)
-        }
-    }
-}
-
-mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
-
-    coordinates("io.github.kyant0", "backdrop", "2.0.0")
-
-    pom {
-        name.set("Backdrop")
-        description.set("Compose Multiplatform Liquid Glass effects")
-        inceptionYear.set("2025")
-        url.set("https://github.com/Kyant0/AndroidLiquidGlass")
-        licenses {
-            license {
-                name.set("The Apache License, Version 2.0")
-                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                distribution.set("repo")
-            }
-        }
-        developers {
-            developer {
-                id.set("Kyant0")
-                name.set("Kyant")
-                url.set("https://github.com/Kyant0")
-            }
-        }
-        scm {
-            url.set("https://github.com/Kyant0/AndroidLiquidGlass")
-            connection.set("scm:git:git://github.com/Kyant0/AndroidLiquidGlass.git")
-            developerConnection.set("scm:git:ssh://git@github.com/Kyant0/AndroidLiquidGlass.git")
         }
     }
 }
