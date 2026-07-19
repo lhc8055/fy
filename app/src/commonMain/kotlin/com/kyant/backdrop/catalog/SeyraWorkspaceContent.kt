@@ -154,7 +154,10 @@ private fun SeyraPageContent(
                 SeyraLiquidHeaderPanel(backdrop)
             }
             item {
-                SeyraProfileInfoPanel(backdrop)
+                SeyraDiscoverFrostedPanel(
+                    backdrop = backdrop,
+                    modifier = Modifier.padding(top = 30f.dp)
+                )
             }
         } else if (tabIndex == 2) {
             items(workspaceCards.chunked(2)) { rowCards ->
@@ -297,6 +300,31 @@ private fun SeyraProfileActionButton(
             )
         )
     }
+}
+
+@Composable
+private fun SeyraDiscoverFrostedPanel(
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(270f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(28f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(12f.dp.toPx())
+                    lens(14f.dp.toPx(), 24f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x70FFFFFF))
+                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+    )
 }
 
 @Composable
