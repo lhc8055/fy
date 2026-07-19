@@ -33,8 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,7 @@ import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.shapes.Capsule
@@ -129,6 +132,27 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         }
     }
 
+    SeyraEdgeGlassFade(
+        backdrop = backdrop,
+        edge = SeyraGlassEdge.Top,
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .fillMaxWidth()
+            .height(84f.dp)
+            .statusBarsPadding()
+            .displayCutoutPadding()
+    )
+
+    SeyraEdgeGlassFade(
+        backdrop = backdrop,
+        edge = SeyraGlassEdge.Bottom,
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .height(136f.dp)
+            .navigationBarsPadding()
+    )
+
     SeyraDock(
         selectedTabIndex = selectedTabIndex,
         onTabSelected = { selectedTabIndex = it },
@@ -146,6 +170,69 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .statusBarsPadding()
             .displayCutoutPadding()
             .padding(top = 18f.dp, end = 22f.dp)
+    )
+}
+
+private enum class SeyraGlassEdge {
+    Top,
+    Bottom
+}
+
+@Composable
+private fun SeyraEdgeGlassFade(
+    backdrop: LayerBackdrop,
+    edge: SeyraGlassEdge,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier.drawBackdrop(
+            backdrop = backdrop,
+            shape = { RectangleShape },
+            highlight = null,
+            shadow = null,
+            effects = {
+                vibrancy()
+                colorControls(saturation = 1.04f, contrast = 1.01f)
+                blur(10f.dp.toPx())
+            },
+            onDrawBackdrop = { drawBackdrop ->
+                drawBackdrop()
+                drawRect(
+                    brush = when (edge) {
+                        SeyraGlassEdge.Top -> Brush.verticalGradient(
+                            0f to Color.White.copy(alpha = 0.46f),
+                            0.46f to Color.White.copy(alpha = 0.18f),
+                            1f to Color.Transparent
+                        )
+
+                        SeyraGlassEdge.Bottom -> Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.52f to Color.White.copy(alpha = 0.16f),
+                            1f to Color.White.copy(alpha = 0.44f)
+                        )
+                    },
+                    blendMode = BlendMode.DstIn
+                )
+            },
+            onDrawSurface = {
+                drawRect(
+                    brush = when (edge) {
+                        SeyraGlassEdge.Top -> Brush.verticalGradient(
+                            0f to Color.White.copy(alpha = 0.055f),
+                            0.56f to Color.White.copy(alpha = 0.025f),
+                            1f to Color.Transparent
+                        )
+
+                        SeyraGlassEdge.Bottom -> Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.46f to Color.White.copy(alpha = 0.024f),
+                            1f to Color.White.copy(alpha = 0.06f)
+                        )
+                    },
+                    blendMode = BlendMode.Screen
+                )
+            }
+        )
     )
 }
 
