@@ -118,15 +118,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                     }
                 }
             }
-        } else {
-            item {
-                SeyraPlainPageTitle(
-                    title = when (selectedTabIndex) {
-                        1 -> "资源"
-                        else -> "我的"
-                    }
-                )
-            }
         }
     }
 
@@ -138,19 +129,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .align(Alignment.BottomCenter)
             .navigationBarsPadding()
             .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
-    )
-}
-
-@Composable
-private fun SeyraPlainPageTitle(title: String) {
-    BasicText(
-        title,
-        Modifier.padding(top = 18f.dp, start = 4f.dp),
-        style = TextStyle(
-            color = Color(0xFF05070A),
-            fontSize = 34f.sp,
-            fontWeight = FontWeight.SemiBold
-        )
     )
 }
 
