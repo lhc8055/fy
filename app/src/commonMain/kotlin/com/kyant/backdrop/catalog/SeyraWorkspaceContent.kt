@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -106,7 +107,6 @@ fun SeyraWorkspaceContent() {
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
     var outgoingTabIndex by remember { mutableStateOf<Int?>(null) }
-    var transitionDirection by remember { mutableIntStateOf(1) }
     val pageTransitionProgress = remember { Animatable(1f) }
     val pageStateHolder = rememberSaveableStateHolder()
     val coroutineScope = rememberCoroutineScope()
@@ -116,7 +116,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     fun switchTab(targetIndex: Int) {
         if (targetIndex == selectedTabIndex) return
         val previousIndex = selectedTabIndex
-        transitionDirection = if (targetIndex > previousIndex) 1 else -1
         outgoingTabIndex = previousIndex
         selectedTabIndex = targetIndex
         coroutineScope.launch {
@@ -124,7 +123,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             pageTransitionProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 380,
+                    durationMillis = 360,
                     easing = FastOutSlowInEasing
                 )
             )
@@ -142,10 +141,11 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                     modifier = Modifier.graphicsLayer {
                         val progress = pageTransitionProgress.value
                         val exitProgress = pageSwitchExitProgress(progress)
-                        alpha = 1f - 0.72f * exitProgress
-                        scaleX = 1f - 0.025f * exitProgress
-                        scaleY = 1f - 0.025f * exitProgress
-                        translationX = -transitionDirection * 18f.dp.toPx() * exitProgress
+                        alpha = 1f - 0.82f * exitProgress
+                        scaleX = 1f - 0.03f * exitProgress
+                        scaleY = 1f - 0.03f * exitProgress
+                        val blurRadius = 9f.dp.toPx() * exitProgress
+                        renderEffect = if (blurRadius > 0.5f) BlurEffect(blurRadius, blurRadius) else null
                     }
                 )
             }
@@ -159,10 +159,11 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 modifier = Modifier.graphicsLayer {
                     val progress = pageTransitionProgress.value
                     val enterProgress = if (outgoingTabIndex == null) 1f else pageSwitchEnterProgress(progress)
-                    alpha = 0.82f + 0.18f * enterProgress
-                    scaleX = 0.975f + 0.025f * enterProgress
-                    scaleY = 0.975f + 0.025f * enterProgress
-                    translationX = transitionDirection * 22f.dp.toPx() * (1f - enterProgress)
+                    alpha = 0.72f + 0.28f * enterProgress
+                    scaleX = 0.97f + 0.03f * enterProgress
+                    scaleY = 0.97f + 0.03f * enterProgress
+                    val blurRadius = 7f.dp.toPx() * (1f - enterProgress)
+                    renderEffect = if (blurRadius > 0.5f) BlurEffect(blurRadius, blurRadius) else null
                 }
             )
         }
