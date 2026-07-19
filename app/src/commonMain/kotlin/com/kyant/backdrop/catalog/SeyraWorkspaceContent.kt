@@ -81,6 +81,8 @@ fun SeyraWorkspaceContent() {
 
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -94,36 +96,82 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         ),
         verticalArrangement = Arrangement.spacedBy(14f.dp)
     ) {
-        item {
-            SeyraLiquidHeaderPanel(backdrop)
-        }
+        if (selectedTabIndex == 2) {
+            item {
+                SeyraLiquidHeaderPanel(backdrop)
+            }
 
-        items(workspaceCards.chunked(2)) { rowCards ->
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14f.dp)
-            ) {
-                rowCards.forEach { card ->
-                    SeyraLiquidCard(
-                        card = card,
-                        backdrop = backdrop,
-                        modifier = Modifier.weight(1f)
-                    )
+            items(workspaceCards.chunked(2)) { rowCards ->
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14f.dp)
+                ) {
+                    rowCards.forEach { card ->
+                        SeyraLiquidCard(
+                            card = card,
+                            backdrop = backdrop,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (rowCards.size == 1) {
+                        Spacer(Modifier.weight(1f))
+                    }
                 }
-                if (rowCards.size == 1) {
-                    Spacer(Modifier.weight(1f))
-                }
+            }
+        } else {
+            item {
+                SeyraPlaceholderPage(
+                    title = when (selectedTabIndex) {
+                        0 -> "探索"
+                        1 -> "资源"
+                        else -> "我的"
+                    },
+                    backdrop = backdrop
+                )
             }
         }
     }
 
     SeyraDock(
+        selectedTabIndex = selectedTabIndex,
+        onTabSelected = { selectedTabIndex = it },
         backdrop = backdrop,
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .navigationBarsPadding()
             .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
     )
+}
+
+@Composable
+private fun SeyraPlaceholderPage(
+    title: String,
+    backdrop: LayerBackdrop
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(204f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(32f.dp) },
+                effects = {
+                    vibrancy()
+                    lens(16f.dp.toPx(), 32f.dp.toPx())
+                }
+            )
+            .padding(26f.dp)
+    ) {
+        BasicText(
+            title,
+            Modifier.align(Alignment.CenterStart),
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 34f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+    }
 }
 
 @Composable
@@ -174,7 +222,7 @@ private fun SeyraLiquidCard(
             BasicText(
                 card.title,
                 style = TextStyle(
-                    color = Color(0xF20E1726),
+                    color = Color(0xFF05070A),
                     fontSize = 18f.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -182,7 +230,7 @@ private fun SeyraLiquidCard(
             BasicText(
                 card.subtitle,
                 style = TextStyle(
-                    color = Color(0xAA1B2A41),
+                    color = Color(0xEA111827),
                     fontSize = 12.5f.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -193,12 +241,13 @@ private fun SeyraLiquidCard(
 
 @Composable
 private fun SeyraDock(
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit,
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = listOf(
-        SeyraDockTab(Res.drawable.ic_dock_compass_40px, "工作"),
+        SeyraDockTab(Res.drawable.ic_dock_compass_40px, "探索"),
         SeyraDockTab(Res.drawable.ic_dock_folder_40px, "资源"),
         SeyraDockTab(Res.drawable.ic_dock_wrench_40px, "工具"),
         SeyraDockTab(Res.drawable.ic_dock_user_40px, "我的")
@@ -206,16 +255,16 @@ private fun SeyraDock(
 
     LiquidBottomTabs(
         selectedTabIndex = { selectedTabIndex },
-        onTabSelected = { selectedTabIndex = it },
+        onTabSelected = onTabSelected,
         backdrop = backdrop,
         tabsCount = tabs.size,
         modifier = modifier.fillMaxWidth()
     ) {
         tabs.forEachIndexed { index, tab ->
             val selected = selectedTabIndex == index
-            val color = if (selected) Color(0xFF159CFF) else Color(0xCC111827)
+            val color = if (selected) Color(0xFF008DFF) else Color(0xFF111827)
 
-            LiquidBottomTab({ selectedTabIndex = index }) {
+            LiquidBottomTab({ onTabSelected(index) }) {
                 Image(
                     painter = painterResource(tab.icon),
                     contentDescription = null,
