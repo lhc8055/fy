@@ -70,9 +70,9 @@ private data class SeyraDockTab(
 )
 
 private val workspaceCards = listOf(
-    SeyraCard("智能笔记", "整理想法 / 任务记录", Color(0xFF70D7FF)),
-    SeyraCard("文件收纳", "资源分类 / 快速查找", Color(0xFF9B7CFF)),
-    SeyraCard("日程面板", "今日安排 / 提醒事项", Color(0xFFFFC56E)),
+    SeyraCard("社工查询", "手机号/姓名/社交账号", Color(0xFF70D7FF)),
+    SeyraCard("三要素补齐", "姓名 手机号 身份证", Color(0xFF9B7CFF)),
+    SeyraCard("手机号补齐", "姓名 手机号", Color(0xFFFFC56E)),
     SeyraCard("灵感盒子", "收藏碎片 / 快速保存", Color(0xFFFF8EC7)),
     SeyraCard("快捷工具", "常用操作 / 一键启动", Color(0xFF6EF0BC)),
     SeyraCard("数据概览", "进度统计 / 状态查看", Color(0xFF7EA8FF)),
@@ -90,6 +90,7 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+    val shareApp = rememberShareAppAction()
 
     LazyColumn(
         modifier = Modifier
@@ -141,6 +142,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
 
     SeyraTopActions(
         backdrop = backdrop,
+        onShareClick = shareApp,
         modifier = Modifier
             .align(Alignment.TopEnd)
             .statusBarsPadding()
@@ -152,6 +154,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
 @Composable
 private fun SeyraTopActions(
     backdrop: LayerBackdrop,
+    onShareClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -176,10 +179,12 @@ private fun SeyraTopActions(
     ) {
         SeyraTopActionIcon(
             icon = Res.drawable.ic_top_share_24px,
+            onClick = onShareClick,
             modifier = Modifier.weight(1f)
         )
         SeyraTopActionIcon(
             icon = Res.drawable.ic_top_more_24px,
+            onClick = {},
             modifier = Modifier.weight(1f)
         )
     }
@@ -188,6 +193,7 @@ private fun SeyraTopActions(
 @Composable
 private fun SeyraTopActionIcon(
     icon: DrawableResource,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -196,7 +202,7 @@ private fun SeyraTopActionIcon(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = {}
+                onClick = onClick
             ),
         contentAlignment = Alignment.Center
     ) {

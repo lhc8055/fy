@@ -57,6 +57,7 @@ kotlin {
 
         val androidMain = getByName("androidMain") {
             dependencies {
+                implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.activity.compose)
             }
         }
