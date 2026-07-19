@@ -56,8 +56,8 @@ import glass.app.generated.resources.ic_dock_compass_40px
 import glass.app.generated.resources.ic_dock_folder_40px
 import glass.app.generated.resources.ic_dock_user_40px
 import glass.app.generated.resources.ic_dock_wrench_40px
-import glass.app.generated.resources.ic_profile_edit_32px
-import glass.app.generated.resources.ic_profile_photo_32px
+import glass.app.generated.resources.ic_profile_contact_32px
+import glass.app.generated.resources.ic_profile_feedback_32px
 import glass.app.generated.resources.ic_profile_settings_32px
 import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
@@ -98,6 +98,7 @@ fun SeyraWorkspaceContent() {
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
     val shareApp = rememberShareAppAction()
+    val openFeedback = rememberOpenFeedbackAction()
 
     LazyColumn(
         modifier = Modifier
@@ -106,7 +107,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             .displayCutoutPadding(),
         contentPadding = PaddingValues(
             start = 22f.dp,
-            top = 100f.dp,
+            top = if (selectedTabIndex == 3) 82f.dp else 100f.dp,
             end = 22f.dp,
             bottom = 124f.dp
         ),
@@ -136,7 +137,10 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             }
         } else if (selectedTabIndex == 3) {
             item {
-                SeyraProfilePage(backdrop)
+                SeyraProfilePage(
+                    backdrop = backdrop,
+                    onFeedbackClick = openFeedback
+                )
             }
         }
     }
@@ -165,7 +169,10 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
 }
 
 @Composable
-private fun SeyraProfilePage(backdrop: LayerBackdrop) {
+private fun SeyraProfilePage(
+    backdrop: LayerBackdrop,
+    onFeedbackClick: () -> Unit
+) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -195,21 +202,24 @@ private fun SeyraProfilePage(backdrop: LayerBackdrop) {
             horizontalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
             SeyraProfileActionButton(
-                icon = Res.drawable.ic_profile_photo_32px,
-                label = "设置照片",
+                icon = Res.drawable.ic_profile_contact_32px,
+                label = "合作联系",
                 backdrop = backdrop,
+                onClick = {},
                 modifier = Modifier.weight(1f)
             )
             SeyraProfileActionButton(
-                icon = Res.drawable.ic_profile_edit_32px,
-                label = "编辑信息",
+                icon = Res.drawable.ic_profile_feedback_32px,
+                label = "软件反馈",
                 backdrop = backdrop,
+                onClick = onFeedbackClick,
                 modifier = Modifier.weight(1f)
             )
             SeyraProfileActionButton(
                 icon = Res.drawable.ic_profile_settings_32px,
                 label = "设置",
                 backdrop = backdrop,
+                onClick = {},
                 modifier = Modifier.weight(1f)
             )
         }
@@ -226,6 +236,7 @@ private fun SeyraProfileActionButton(
     icon: DrawableResource,
     label: String,
     backdrop: LayerBackdrop,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -247,7 +258,7 @@ private fun SeyraProfileActionButton(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = {}
+                onClick = onClick
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

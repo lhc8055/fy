@@ -7,3 +7,8 @@ import androidx.compose.runtime.remember
 actual fun rememberShareAppAction(): () -> Unit {
     return remember { {} }
 }
+
+@Composable
+actual fun rememberOpenFeedbackAction(): () -> Unit {
+    return remember { {} }
+}

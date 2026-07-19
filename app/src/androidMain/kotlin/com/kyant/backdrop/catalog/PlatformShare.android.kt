@@ -18,6 +18,19 @@ actual fun rememberShareAppAction(): () -> Unit {
     }
 }
 
+@Composable
+actual fun rememberOpenFeedbackAction(): () -> Unit {
+    val context = LocalContext.current
+    return remember(context) {
+        {
+            val intent = Intent(context, SeyraFeedbackActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        }
+    }
+}
+
 private fun shareCurrentApp(context: Context) {
     val sourceApk = File(context.applicationInfo.sourceDir)
     val shareDir = File(context.cacheDir, "shared")
