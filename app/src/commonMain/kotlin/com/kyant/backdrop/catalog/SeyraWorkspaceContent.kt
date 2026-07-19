@@ -55,7 +55,6 @@ import org.jetbrains.compose.resources.painterResource
 private data class SeyraCard(
     val title: String,
     val subtitle: String,
-    val symbol: String,
     val tint: Color
 )
 
@@ -65,14 +64,14 @@ private data class SeyraDockTab(
 )
 
 private val workspaceCards = listOf(
-    SeyraCard("智能笔记", "整理想法 / 任务记录", "✦", Color(0xFF70D7FF)),
-    SeyraCard("文件收纳", "资源分类 / 快速查找", "▣", Color(0xFF9B7CFF)),
-    SeyraCard("日程面板", "今日安排 / 提醒事项", "◷", Color(0xFFFFC56E)),
-    SeyraCard("灵感盒子", "收藏碎片 / 快速保存", "◇", Color(0xFFFF8EC7)),
-    SeyraCard("快捷工具", "常用操作 / 一键启动", "⌘", Color(0xFF6EF0BC)),
-    SeyraCard("数据概览", "进度统计 / 状态查看", "◌", Color(0xFF7EA8FF)),
-    SeyraCard("工作流", "步骤管理 / 自动流程", "↗", Color(0xFFFF9D78)),
-    SeyraCard("个人空间", "偏好设置 / 账号信息", "●", Color(0xFF8EE7FF))
+    SeyraCard("智能笔记", "整理想法 / 任务记录", Color(0xFF70D7FF)),
+    SeyraCard("文件收纳", "资源分类 / 快速查找", Color(0xFF9B7CFF)),
+    SeyraCard("日程面板", "今日安排 / 提醒事项", Color(0xFFFFC56E)),
+    SeyraCard("灵感盒子", "收藏碎片 / 快速保存", Color(0xFFFF8EC7)),
+    SeyraCard("快捷工具", "常用操作 / 一键启动", Color(0xFF6EF0BC)),
+    SeyraCard("数据概览", "进度统计 / 状态查看", Color(0xFF7EA8FF)),
+    SeyraCard("工作流", "步骤管理 / 自动流程", Color(0xFFFF9D78)),
+    SeyraCard("个人空间", "偏好设置 / 账号信息", Color(0xFF8EE7FF))
 )
 
 @Composable
@@ -241,16 +240,6 @@ private fun SeyraLiquidCard(
                 )
             )
         }
-
-        BasicText(
-            card.symbol,
-            Modifier.align(Alignment.BottomEnd),
-            style = TextStyle(
-                color = card.tint.copy(alpha = 0.86f),
-                fontSize = 38f.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
     }
 }
 
