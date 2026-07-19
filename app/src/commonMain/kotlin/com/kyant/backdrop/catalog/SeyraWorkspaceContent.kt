@@ -123,7 +123,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             pageTransitionProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 360,
+                    durationMillis = 300,
                     easing = FastOutSlowInEasing
                 )
             )
@@ -162,7 +162,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                     alpha = 0.72f + 0.28f * enterProgress
                     scaleX = 0.97f + 0.03f * enterProgress
                     scaleY = 0.97f + 0.03f * enterProgress
-                    val blurRadius = 7f.dp.toPx() * (1f - enterProgress)
+                    val blurRadius = 5f.dp.toPx() * (1f - enterProgress)
                     renderEffect = if (blurRadius > 0.5f) BlurEffect(blurRadius, blurRadius) else null
                 }
             )
@@ -551,7 +551,8 @@ private fun pageSwitchExitProgress(progress: Float): Float {
 
 private fun pageSwitchEnterProgress(progress: Float): Float {
     val value = progress.coerceIn(0f, 1f)
-    return value * value * (3f - 2f * value)
+    val inverse = 1f - value
+    return 1f - inverse * inverse * inverse
 }
 
 @Composable
