@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
@@ -42,7 +41,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -75,8 +73,6 @@ import glass.app.generated.resources.ic_profile_settings_32px
 import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
 import glass.app.generated.resources.profile_avatar
-import glass.app.generated.resources.resource_library_banner
-import glass.app.generated.resources.resource_template_banner
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.coroutines.launch
@@ -514,7 +510,7 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     Column(
         Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(24f.dp)
+        verticalArrangement = Arrangement.spacedBy(18f.dp)
     ) {
         BasicText(
             "工具",
@@ -1111,12 +1107,6 @@ private fun SeyraLiquidCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val imageResource = when (card.title) {
-        "资料库" -> Res.drawable.resource_library_banner
-        "模板中心" -> Res.drawable.resource_template_banner
-        else -> null
-    }
-
     Box(
         modifier
             .aspectRatio(1.58f)
@@ -1138,40 +1128,28 @@ private fun SeyraLiquidCard(
                 indication = null,
                 onClick = onClick
             )
+            .padding(18f.dp)
     ) {
-        if (imageResource != null) {
-            Image(
-                painter = painterResource(imageResource),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(24f.dp)),
-                contentScale = ContentScale.Crop
+        Column(
+            Modifier.align(Alignment.CenterStart),
+            verticalArrangement = Arrangement.spacedBy(7f.dp)
+        ) {
+            BasicText(
+                card.title,
+                style = TextStyle(
+                    color = Color(0xFF05070A),
+                    fontSize = 18f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        } else {
-            Column(
-                Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(18f.dp),
-                verticalArrangement = Arrangement.spacedBy(7f.dp)
-            ) {
-                BasicText(
-                    card.title,
-                    style = TextStyle(
-                        color = Color(0xFF05070A),
-                        fontSize = 18f.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+            BasicText(
+                card.subtitle,
+                style = TextStyle(
+                    color = Color(0xEA111827),
+                    fontSize = 12.5f.sp,
+                    fontWeight = FontWeight.Medium
                 )
-                BasicText(
-                    card.subtitle,
-                    style = TextStyle(
-                        color = Color(0xEA111827),
-                        fontSize = 12.5f.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            }
+            )
         }
     }
 }
