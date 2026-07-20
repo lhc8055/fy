@@ -1,10 +1,14 @@
 package com.kyant.backdrop.catalog
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,6 +42,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +56,7 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.catalog.utils.BackHandler
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
 import glass.app.generated.resources.Res
@@ -64,6 +72,7 @@ import glass.app.generated.resources.ic_top_share_24px
 import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import kotlinx.coroutines.launch
 
 private data class SeyraCard(
     val title: String,
@@ -160,22 +169,8 @@ private fun SeyraPageContent(
                 )
             }
         } else if (tabIndex == 2) {
-            items(workspaceCards.chunked(2)) { rowCards ->
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14f.dp)
-                ) {
-                    rowCards.forEach { card ->
-                        SeyraLiquidCard(
-                            card = card,
-                            backdrop = backdrop,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    if (rowCards.size == 1) {
-                        Spacer(Modifier.weight(1f))
-                    }
-                }
+            item {
+                SeyraToolNavigationStack(backdrop)
             }
         } else if (tabIndex == 3) {
             item {
@@ -185,6 +180,168 @@ private fun SeyraPageContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
+    var activeCardIndex by rememberSaveable { mutableIntStateOf(-1) }
+    var visibleDetailIndex by rememberSaveable { mutableIntStateOf(-1) }
+    val progress = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun openCard(index: Int) {
+        if (activeCardIndex != -1) return
+        activeCardIndex = index
+        visibleDetailIndex = index
+        coroutineScope.launch {
+            progress.snapTo(0f)
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 320,
+                    easing = FastOutSlowInEasing
+                )
+            )
+        }
+    }
+
+    fun closeCard() {
+        if (activeCardIndex == -1) return
+        coroutineScope.launch {
+            progress.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    durationMillis = 280,
+                    easing = FastOutSlowInEasing
+                )
+            )
+            activeCardIndex = -1
+            visibleDetailIndex = -1
+        }
+    }
+
+    BackHandler(enabled = activeCardIndex != -1, onBack = { closeCard() })
+
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val density = LocalDensity.current
+        val widthPx = with(density) { maxWidth.toPx() }
+        val detailProgress = if (visibleDetailIndex == -1) 0f else progress.value
+
+        SeyraToolCardGrid(
+            backdrop = backdrop,
+            onCardClick = { openCard(it) },
+            modifier = Modifier.graphicsLayer {
+                translationX = -widthPx * 0.18f * detailProgress
+                alpha = 1f - 0.08f * detailProgress
+                scaleX = 1f - 0.02f * detailProgress
+                scaleY = 1f - 0.02f * detailProgress
+            }
+        )
+
+        if (visibleDetailIndex != -1) {
+            SeyraToolDetailPage(
+                card = workspaceCards[visibleDetailIndex],
+                backdrop = backdrop,
+                onBack = { closeCard() },
+                modifier = Modifier.graphicsLayer {
+                    translationX = widthPx * (1f - detailProgress)
+                    alpha = 0.96f + 0.04f * detailProgress
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SeyraToolCardGrid(
+    backdrop: LayerBackdrop,
+    onCardClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier,
+        verticalArrangement = Arrangement.spacedBy(14f.dp)
+    ) {
+        workspaceCards.chunked(2).forEachIndexed { rowIndex, rowCards ->
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14f.dp)
+            ) {
+                rowCards.forEachIndexed { columnIndex, card ->
+                    val cardIndex = rowIndex * 2 + columnIndex
+                    SeyraLiquidCard(
+                        card = card,
+                        backdrop = backdrop,
+                        onClick = { onCardClick(cardIndex) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (rowCards.size == 1) {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeyraToolDetailPage(
+    card: SeyraCard,
+    backdrop: LayerBackdrop,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .height(532f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(30f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(14f.dp.toPx())
+                    lens(18f.dp.toPx(), 30f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x82FFFFFF))
+                    drawRect(card.tint.copy(alpha = 0.18f), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(24f.dp),
+        verticalArrangement = Arrangement.spacedBy(16f.dp)
+    ) {
+        BasicText(
+            "‹ 返回",
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onBack
+            ),
+            style = TextStyle(
+                color = Color(0xFF008DFF),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+        BasicText(
+            card.title,
+            modifier = Modifier.padding(top = 16f.dp),
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 26f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+        BasicText(
+            card.subtitle,
+            style = TextStyle(
+                color = Color(0xD0111827),
+                fontSize = 15f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
     }
 }
 
@@ -468,6 +625,7 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
 private fun SeyraLiquidCard(
     card: SeyraCard,
     backdrop: LayerBackdrop,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -485,6 +643,11 @@ private fun SeyraLiquidCard(
                     drawRect(Color(0x78FFFFFF))
                     drawRect(card.tint.copy(alpha = 0.20f), blendMode = BlendMode.Screen)
                 }
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
             )
             .padding(18f.dp)
     ) {
