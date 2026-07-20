@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,9 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.awaitFirstDown
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.waitForUpOrCancellation
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -113,7 +117,7 @@ private val resourceCards = listOf(
 
 private const val libraryBannerUrl = "https://new.cayfpay.cn/upload/b1/b254c8a3a0f456509323fb9cca14d8.png"
 private const val templateBannerUrl = "https://new.cayfpay.cn/upload/7f/1a5a889286415362519e60a999883f.png"
-private const val profileAvatarUrl = "https://new.cayfpay.cn/merchant/shop"
+private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/82/58b302b3da28bf37d35079395b53e9.png"
 
 @Composable
 fun SeyraWorkspaceContent() {
@@ -136,6 +140,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var showSettingsPage by rememberSaveable { mutableStateOf(false) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
+    val preloadImages = rememberPreloadRemoteImagesAction()
 
     BackHandler(enabled = showSettingsPage, onBack = { showSettingsPage = false })
 
@@ -152,6 +157,14 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         SeyraDock(
             selectedTabIndex = selectedTabIndex,
             onTabSelected = { selectedTabIndex = it },
+            onResourcePressed = {
+                preloadImages(
+                    listOf(
+                        libraryBannerUrl,
+                        templateBannerUrl
+                    )
+                )
+            },
             backdrop = backdrop,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -1187,6 +1200,7 @@ private fun SeyraLiquidCard(
 private fun SeyraDock(
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit,
+    onResourcePressed: () -> Unit,
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
@@ -1207,8 +1221,22 @@ private fun SeyraDock(
         tabs.forEachIndexed { index, tab ->
             val selected = selectedTabIndex == index
             val color = if (selected) Color(0xFF008DFF) else Color(0xFF05070A)
+            val pressModifier = if (index == 1) {
+                Modifier.pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false)
+                        onResourcePressed()
+                        waitForUpOrCancellation()
+                    }
+                }
+            } else {
+                Modifier
+            }
 
-            LiquidBottomTab({ onTabSelected(index) }) {
+            LiquidBottomTab(
+                onClick = { onTabSelected(index) },
+                modifier = pressModifier
+            ) {
                 Image(
                     painter = painterResource(tab.icon),
                     contentDescription = null,

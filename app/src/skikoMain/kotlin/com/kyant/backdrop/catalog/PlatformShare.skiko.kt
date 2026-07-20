@@ -29,6 +29,11 @@ actual fun SeyraPreloadRemoteImages(urls: List<String>) {
 }
 
 @Composable
+actual fun rememberPreloadRemoteImagesAction(): (List<String>) -> Unit {
+    return remember { {} }
+}
+
+@Composable
 actual fun SeyraRemoteImage(
     url: String,
     maxBitmapSize: Int,

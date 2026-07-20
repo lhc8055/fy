@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -20,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.HttpURLConnection
@@ -88,6 +90,23 @@ actual fun SeyraPreloadRemoteImages(urls: List<String>) {
             urls.forEach { url ->
                 runCatching {
                     getCachedRemoteImageFile(context, url)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+actual fun rememberPreloadRemoteImagesAction(): (List<String>) -> Unit {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    return remember(context, scope) {
+        { urls ->
+            scope.launch(Dispatchers.IO) {
+                urls.forEach { url ->
+                    runCatching {
+                        getCachedRemoteImageFile(context, url)
+                    }
                 }
             }
         }

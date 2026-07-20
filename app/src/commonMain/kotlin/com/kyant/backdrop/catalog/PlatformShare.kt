@@ -18,6 +18,9 @@ expect suspend fun requestXrayResult(message: String): String
 expect fun SeyraPreloadRemoteImages(urls: List<String>)
 
 @Composable
+expect fun rememberPreloadRemoteImagesAction(): (List<String>) -> Unit
+
+@Composable
 expect fun SeyraRemoteImage(
     url: String,
     maxBitmapSize: Int,
