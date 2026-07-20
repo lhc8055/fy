@@ -380,7 +380,7 @@ private fun SeyraProfilePage(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(top = 62f.dp),
+                .padding(top = 42f.dp),
             horizontalArrangement = Arrangement.spacedBy(10f.dp)
         ) {
             SeyraProfileActionButton(
