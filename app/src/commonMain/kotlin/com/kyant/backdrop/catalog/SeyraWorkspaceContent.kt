@@ -163,25 +163,38 @@ private fun SeyraDockPagerHost(
         pageOffset.animateTo(
             targetValue = tabIndex.toFloat(),
             animationSpec = tween(
-                durationMillis = 340,
+                durationMillis = 380,
                 easing = FastOutSlowInEasing
             )
         )
     }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val density = LocalDensity.current
-        val widthPx = with(density) { maxWidth.toPx() }
+        val pageWidth = maxWidth
+        val trackWidth = pageWidth * 4f
+        val pageWidthPx = with(LocalDensity.current) { pageWidth.toPx() }
 
-        repeat(4) { pageIndex ->
-            SeyraPageContent(
-                tabIndex = pageIndex,
-                backdrop = backdrop,
-                onFeedbackClick = onFeedbackClick,
-                modifier = Modifier.graphicsLayer {
-                    translationX = (pageIndex - pageOffset.value) * widthPx
+        Row(
+            Modifier
+                .width(trackWidth)
+                .fillMaxHeight()
+                .graphicsLayer {
+                    translationX = -pageOffset.value * pageWidthPx
                 }
-            )
+        ) {
+            repeat(4) { pageIndex ->
+                Box(
+                    Modifier
+                        .width(pageWidth)
+                        .fillMaxHeight()
+                ) {
+                    SeyraPageContent(
+                        tabIndex = pageIndex,
+                        backdrop = backdrop,
+                        onFeedbackClick = onFeedbackClick
+                    )
+                }
+            }
         }
     }
 }
