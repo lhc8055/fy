@@ -151,6 +151,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     }
 }
 
+@Composable
 private fun SeyraPageContent(
     tabIndex: Int,
     backdrop: LayerBackdrop,
