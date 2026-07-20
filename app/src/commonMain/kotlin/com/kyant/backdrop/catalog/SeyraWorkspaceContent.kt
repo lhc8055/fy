@@ -119,18 +119,25 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+    var previousTabIndex by rememberSaveable { mutableIntStateOf(2) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
 
-    SeyraPageContent(
+    SeyraDockPageTransitionHost(
         tabIndex = selectedTabIndex,
+        previousTabIndex = previousTabIndex,
         backdrop = backdrop,
         onFeedbackClick = openFeedback
     )
 
     SeyraDock(
         selectedTabIndex = selectedTabIndex,
-        onTabSelected = { selectedTabIndex = it },
+        onTabSelected = {
+            if (selectedTabIndex != it) {
+                previousTabIndex = selectedTabIndex
+                selectedTabIndex = it
+            }
+        },
         backdrop = backdrop,
         modifier = Modifier
             .align(Alignment.BottomCenter)
@@ -147,6 +154,65 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 .statusBarsPadding()
                 .displayCutoutPadding()
                 .padding(top = 18f.dp, end = 22f.dp)
+        )
+    }
+}
+
+@Composable
+private fun SeyraDockPageTransitionHost(
+    tabIndex: Int,
+    previousTabIndex: Int,
+    backdrop: LayerBackdrop,
+    onFeedbackClick: () -> Unit
+) {
+    var outgoingTabIndex by rememberSaveable { mutableIntStateOf(-1) }
+    var transitionDirection by rememberSaveable { mutableIntStateOf(1) }
+    val progress = remember { Animatable(1f) }
+
+    LaunchedEffect(tabIndex) {
+        if (previousTabIndex != tabIndex) {
+            outgoingTabIndex = previousTabIndex
+            transitionDirection = if (tabIndex > previousTabIndex) 1 else -1
+            progress.snapTo(0f)
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 320,
+                    easing = FastOutSlowInEasing
+                )
+            )
+            outgoingTabIndex = -1
+        }
+    }
+
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val widthPx = with(density) { maxWidth.toPx() }
+        val pageProgress = if (outgoingTabIndex == -1) 1f else progress.value
+        val direction = transitionDirection.toFloat()
+
+        if (outgoingTabIndex != -1) {
+            SeyraPageContent(
+                tabIndex = outgoingTabIndex,
+                backdrop = backdrop,
+                onFeedbackClick = onFeedbackClick,
+                modifier = Modifier.graphicsLayer {
+                    translationX = -direction * widthPx * 0.18f * pageProgress
+                    alpha = 1f - 0.08f * pageProgress
+                    scaleX = 1f - 0.02f * pageProgress
+                    scaleY = 1f - 0.02f * pageProgress
+                }
+            )
+        }
+
+        SeyraPageContent(
+            tabIndex = tabIndex,
+            backdrop = backdrop,
+            onFeedbackClick = onFeedbackClick,
+            modifier = Modifier.graphicsLayer {
+                translationX = direction * widthPx * (1f - pageProgress)
+                alpha = 0.96f + 0.04f * pageProgress
+            }
         )
     }
 }
