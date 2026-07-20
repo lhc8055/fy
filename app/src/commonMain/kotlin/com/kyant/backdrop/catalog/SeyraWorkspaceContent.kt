@@ -219,7 +219,7 @@ private fun SeyraPageContent(
             item {
                 SeyraDiscoverFrostedPanel(
                     backdrop = backdrop,
-                    modifier = Modifier.padding(top = 24f.dp)
+                    modifier = Modifier.padding(top = 12f.dp)
                 )
             }
         } else if (tabIndex == 1) {
@@ -989,8 +989,8 @@ private fun SeyraProfileInfoPanel(
                     drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
                 }
             )
-            .padding(horizontal = 24f.dp, vertical = 24f.dp),
-        verticalArrangement = Arrangement.spacedBy(18f.dp)
+            .padding(horizontal = 30f.dp),
+        verticalArrangement = Arrangement.spacedBy(22f.dp, Alignment.CenterVertically)
     ) {
         BasicText(
             "TG@sspyj",
@@ -1027,7 +1027,7 @@ private fun SeyraDiscoverFrostedPanel(
     Box(
         modifier
             .fillMaxWidth()
-            .height(270f.dp)
+            .height(318f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(28f.dp) },
