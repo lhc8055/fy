@@ -165,6 +165,7 @@ private fun SeyraPageContent(
         contentPadding = PaddingValues(
             start = 22f.dp,
             top = when (tabIndex) {
+                1 -> 86f.dp
                 2 -> 82f.dp
                 3 -> 82f.dp
                 else -> 100f.dp
@@ -224,14 +225,6 @@ private fun SeyraResourcePage(backdrop: LayerBackdrop) {
         Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14f.dp)
     ) {
-        BasicText(
-            "资源",
-            style = TextStyle(
-                color = Color(0xFF05070A),
-                fontSize = 28f.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
         SeyraSearchField(
             value = query,
             onValueChange = { query = it },
@@ -332,32 +325,16 @@ private fun SeyraCategoryChips(
                 category,
                 modifier = Modifier
                     .weight(1f)
-                    .height(40f.dp)
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { Capsule() },
-                        effects = {
-                            vibrancy()
-                            blur(8f.dp.toPx())
-                            lens(10f.dp.toPx(), 18f.dp.toPx())
-                        },
-                        onDrawSurface = {
-                            drawRect(if (selected) Color(0xA8DDF3FF) else Color(0x70FFFFFF))
-                            drawRect(
-                                if (selected) Color(0x4236BFFF) else Color(0x0F6EBBFF),
-                                blendMode = BlendMode.Screen
-                            )
-                        }
-                    )
+                    .height(34f.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = { onCategorySelected(category) }
                     )
-                    .padding(top = 10f.dp),
+                    .padding(top = 7f.dp),
                 style = TextStyle(
-                    color = if (selected) Color(0xFF008DFF) else Color(0xFF05070A),
-                    fontSize = 13f.sp,
+                    color = if (selected) Color(0xFF008DFF) else Color(0xB805070A),
+                    fontSize = 14f.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center
                 )
@@ -475,33 +452,47 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     BackHandler(enabled = activeCardIndex != -1, onBack = { closeCard() })
 
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val density = LocalDensity.current
-        val widthPx = with(density) { maxWidth.toPx() }
-        val fullExitDistancePx = widthPx + with(density) { 72f.dp.toPx() }
-        val detailProgress = if (visibleDetailIndex == -1) 0f else progress.value
-
-        SeyraToolCardGrid(
-            backdrop = backdrop,
-            onCardClick = { openCard(it) },
-            modifier = Modifier.graphicsLayer {
-                translationX = -widthPx * 0.18f * detailProgress
-                alpha = 1f - 0.08f * detailProgress
-                scaleX = 1f - 0.02f * detailProgress
-                scaleY = 1f - 0.02f * detailProgress
-            }
+    Column(
+        Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(18f.dp)
+    ) {
+        BasicText(
+            "工具",
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 28f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         )
 
-        if (visibleDetailIndex != -1) {
-            SeyraToolDetailPage(
-                card = workspaceCards[visibleDetailIndex],
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val density = LocalDensity.current
+            val widthPx = with(density) { maxWidth.toPx() }
+            val fullExitDistancePx = widthPx + with(density) { 72f.dp.toPx() }
+            val detailProgress = if (visibleDetailIndex == -1) 0f else progress.value
+
+            SeyraToolCardGrid(
                 backdrop = backdrop,
-                onBack = { closeCard() },
+                onCardClick = { openCard(it) },
                 modifier = Modifier.graphicsLayer {
-                    translationX = fullExitDistancePx * (1f - detailProgress)
-                    alpha = 0.96f + 0.04f * detailProgress
+                    translationX = -widthPx * 0.18f * detailProgress
+                    alpha = 1f - 0.08f * detailProgress
+                    scaleX = 1f - 0.02f * detailProgress
+                    scaleY = 1f - 0.02f * detailProgress
                 }
             )
+
+            if (visibleDetailIndex != -1) {
+                SeyraToolDetailPage(
+                    card = workspaceCards[visibleDetailIndex],
+                    backdrop = backdrop,
+                    onBack = { closeCard() },
+                    modifier = Modifier.graphicsLayer {
+                        translationX = fullExitDistancePx * (1f - detailProgress)
+                        alpha = 0.96f + 0.04f * detailProgress
+                    }
+                )
+            }
         }
     }
 }
