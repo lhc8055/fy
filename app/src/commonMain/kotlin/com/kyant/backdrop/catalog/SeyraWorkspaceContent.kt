@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
@@ -510,7 +511,7 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     Column(
         Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(18f.dp)
+        verticalArrangement = Arrangement.spacedBy(24f.dp)
     ) {
         BasicText(
             "工具",
@@ -1107,6 +1108,12 @@ private fun SeyraLiquidCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val imageUrl = when (card.title) {
+        "资料库" -> "https://new.cayfpay.cn/upload/b1/b254c8a3a0f456509323fb9cca14d8.png"
+        "模板中心" -> "https://new.cayfpay.cn/upload/7f/1a5a889286415362519e60a999883f.png"
+        else -> null
+    }
+
     Box(
         modifier
             .aspectRatio(1.58f)
@@ -1128,28 +1135,38 @@ private fun SeyraLiquidCard(
                 indication = null,
                 onClick = onClick
             )
-            .padding(18f.dp)
     ) {
-        Column(
-            Modifier.align(Alignment.CenterStart),
-            verticalArrangement = Arrangement.spacedBy(7f.dp)
-        ) {
-            BasicText(
-                card.title,
-                style = TextStyle(
-                    color = Color(0xFF05070A),
-                    fontSize = 18f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+        if (imageUrl != null) {
+            SeyraRemoteImage(
+                url = imageUrl,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(24f.dp))
             )
-            BasicText(
-                card.subtitle,
-                style = TextStyle(
-                    color = Color(0xEA111827),
-                    fontSize = 12.5f.sp,
-                    fontWeight = FontWeight.Medium
+        } else {
+            Column(
+                Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(18f.dp),
+                verticalArrangement = Arrangement.spacedBy(7f.dp)
+            ) {
+                BasicText(
+                    card.title,
+                    style = TextStyle(
+                        color = Color(0xFF05070A),
+                        fontSize = 18f.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 )
-            )
+                BasicText(
+                    card.subtitle,
+                    style = TextStyle(
+                        color = Color(0xEA111827),
+                        fontSize = 12.5f.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
         }
     }
 }

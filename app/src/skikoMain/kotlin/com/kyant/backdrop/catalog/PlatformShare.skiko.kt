@@ -1,7 +1,9 @@
 package com.kyant.backdrop.catalog
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 
 @Composable
 actual fun rememberShareAppAction(): () -> Unit {
@@ -20,4 +22,12 @@ actual fun rememberCopyTextAction(): (String) -> Unit {
 
 actual suspend fun requestXrayResult(message: String): String {
     return ""
+}
+
+@Composable
+actual fun SeyraRemoteImage(
+    url: String,
+    modifier: Modifier
+) {
+    Box(modifier)
 }
