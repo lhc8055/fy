@@ -49,7 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -1146,32 +1145,107 @@ private fun SeyraContactDialog(
     val isLightTheme = !isSystemInDarkTheme()
     val contentColor = if (isLightTheme) Color.Black else Color.White
     val accentColor = if (isLightTheme) Color(0xFF0A8CFF) else Color(0xFF1495FF)
-    val containerColor = if (isLightTheme) Color(0xFFFAFAFA).copy(alpha = 0.62f) else Color(0xFF121212).copy(alpha = 0.42f)
-    val dimColor = if (isLightTheme) Color(0xFF202033).copy(alpha = 0.22f) else Color(0xFF000000).copy(alpha = 0.52f)
+    val containerColor = if (isLightTheme) Color(0xFFFAFAFA).copy(alpha = 0.46f) else Color(0xFF121212).copy(alpha = 0.34f)
+    val dimColor = if (isLightTheme) Color(0xFF202033).copy(alpha = 0.16f) else Color(0xFF000000).copy(alpha = 0.44f)
+    val overlayAlpha = remember { Animatable(0f) }
+    val dialogAlpha = remember { Animatable(0f) }
+    val dialogScale = remember { Animatable(0.92f) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        launch {
+            overlayAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing)
+            )
+        }
+        launch {
+            dialogAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 260, easing = FastOutSlowInEasing)
+            )
+        }
+        launch {
+            dialogScale.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
+            )
+        }
+    }
+
+    fun closeWithAnimation(afterClose: () -> Unit) {
+        scope.launch {
+            val overlayJob = launch {
+                overlayAlpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 170, easing = FastOutSlowInEasing)
+                )
+            }
+            val alphaJob = launch {
+                dialogAlpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(durationMillis = 150, easing = FastOutSlowInEasing)
+                )
+            }
+            val scaleJob = launch {
+                dialogScale.animateTo(
+                    targetValue = 0.94f,
+                    animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
+                )
+            }
+            overlayJob.join()
+            alphaJob.join()
+            scaleJob.join()
+            afterClose()
+        }
+    }
 
     Box(
         Modifier
             .fillMaxSize()
-            .drawWithContent {
-                drawContent()
-                drawRect(dimColor)
-            },
         contentAlignment = Alignment.Center
     ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer { alpha = overlayAlpha.value }
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { RoundedRectangle(0f.dp) },
+                    effects = {
+                        colorControls(
+                            brightness = if (isLightTheme) 0.08f else -0.04f,
+                            saturation = 1.28f
+                        )
+                        blur(if (isLightTheme) 22f.dp.toPx() else 16f.dp.toPx())
+                    },
+                    highlight = { Highlight.Plain },
+                    onDrawSurface = {
+                        drawRect(Color(0x22FFFFFF))
+                        drawRect(dimColor)
+                    }
+                )
+        )
+
         Column(
             modifier
                 .padding(horizontal = 52f.dp)
                 .fillMaxWidth()
+                .graphicsLayer {
+                    alpha = dialogAlpha.value
+                    scaleX = dialogScale.value
+                    scaleY = dialogScale.value
+                }
                 .drawBackdrop(
                     backdrop = backdrop,
                     shape = { RoundedRectangle(46f.dp) },
                     effects = {
                         colorControls(
-                            brightness = if (isLightTheme) 0.18f else 0f,
-                            saturation = 1.45f
+                            brightness = if (isLightTheme) 0.1f else 0f,
+                            saturation = 1.62f
                         )
-                        blur(if (isLightTheme) 16f.dp.toPx() else 8f.dp.toPx())
-                        lens(24f.dp.toPx(), 46f.dp.toPx(), depthEffect = true)
+                        blur(if (isLightTheme) 24f.dp.toPx() else 14f.dp.toPx())
+                        lens(28f.dp.toPx(), 52f.dp.toPx(), depthEffect = true)
                     },
                     highlight = { Highlight.Plain },
                     onDrawSurface = { drawRect(containerColor) }
@@ -1215,7 +1289,7 @@ private fun SeyraContactDialog(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = onCancel
+                            onClick = { closeWithAnimation(onCancel) }
                         )
                         .height(52f.dp)
                         .weight(1f),
@@ -1238,7 +1312,7 @@ private fun SeyraContactDialog(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = onCopy
+                            onClick = { closeWithAnimation(onCopy) }
                         )
                         .height(52f.dp)
                         .weight(1f),
