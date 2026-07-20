@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
@@ -110,6 +112,117 @@ private val resourceCards = listOf(
     SeyraCard("文件分组", "分类整理 / 目录管理", Color(0xFF6EF0BC), "资料"),
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接")
 )
+
+private fun formatXrayResult(raw: String): String {
+    val decoded = decodeEscapedText(extractContentText(raw))
+        .replace("\\n", "\n")
+        .replace("\\t", " ")
+        .replace("\r", "\n")
+    val normalizedLines = decoded
+        .replace("**", "")
+        .split('\n', ';', '；')
+        .map { it.trim().trim(',', '，') }
+        .filter { it.isNotBlank() }
+        .distinct()
+
+    if (normalizedLines.isEmpty()) {
+        return raw.trim()
+    }
+
+    val sortedLines = normalizedLines.sortedWith(
+        compareBy<String> { xraySortPriority(it) }.thenBy { it }
+    )
+    return sortedLines.joinToString("\n")
+}
+
+private fun extractContentText(raw: String): String {
+    val key = "\"content\""
+    val keyIndex = raw.indexOf(key)
+    if (keyIndex == -1) return raw
+    val colonIndex = raw.indexOf(':', startIndex = keyIndex + key.length)
+    if (colonIndex == -1) return raw
+    val firstQuoteIndex = raw.indexOf('"', startIndex = colonIndex + 1)
+    if (firstQuoteIndex == -1) return raw
+
+    val builder = StringBuilder()
+    var escaped = false
+    var index = firstQuoteIndex + 1
+    while (index < raw.length) {
+        val char = raw[index]
+        if (escaped) {
+            builder.append('\\').append(char)
+            escaped = false
+        } else if (char == '\\') {
+            escaped = true
+        } else if (char == '"') {
+            break
+        } else {
+            builder.append(char)
+        }
+        index++
+    }
+    return builder.toString()
+}
+
+private fun decodeEscapedText(value: String): String {
+    val builder = StringBuilder()
+    var index = 0
+    while (index < value.length) {
+        val char = value[index]
+        if (char == '\\' && index + 1 < value.length) {
+            when (val next = value[index + 1]) {
+                'n' -> {
+                    builder.append('\n')
+                    index += 2
+                }
+                't' -> {
+                    builder.append(' ')
+                    index += 2
+                }
+                'r' -> {
+                    builder.append('\n')
+                    index += 2
+                }
+                'u' -> {
+                    val hex = value.substring(index + 2, (index + 6).coerceAtMost(value.length))
+                    if (hex.length == 4 && hex.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) {
+                        builder.append(hex.toInt(16).toChar())
+                        index += 6
+                    } else {
+                        builder.append(next)
+                        index += 2
+                    }
+                }
+                '\\', '"', '/' -> {
+                    builder.append(next)
+                    index += 2
+                }
+                else -> {
+                    builder.append(next)
+                    index += 2
+                }
+            }
+        } else {
+            builder.append(char)
+            index++
+        }
+    }
+    return builder.toString()
+}
+
+private fun xraySortPriority(line: String): Int {
+    return when {
+        line.contains("姓名") || line.contains("名字") -> 0
+        line.contains("手机") || line.contains("电话") || Regex("""1\d{10}""").containsMatchIn(line) -> 1
+        line.contains("身份证") || Regex("""\d{17}[\dXx]""").containsMatchIn(line) -> 2
+        line.contains("性别") -> 3
+        line.contains("年龄") || line.contains("出生") -> 4
+        line.contains("户籍") || line.contains("地址") || line.contains("地区") || line.contains("省") -> 5
+        line.contains("QQ", ignoreCase = true) || line.contains("微信") -> 6
+        line.contains("邮箱") || line.contains("@") -> 7
+        else -> 20
+    }
+}
 
 @Composable
 fun SeyraWorkspaceContent() {
@@ -602,7 +715,7 @@ private fun SeyraToolDetailPage(
     Column(
         modifier
             .fillMaxWidth()
-            .height(532f.dp)
+            .height(620f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(30f.dp) },
@@ -669,9 +782,10 @@ private fun SeyraToolDetailPage(
                             isLoading = true
                             result = "查询中..."
                             result = runCatching {
-                                withContext(Dispatchers.Default) {
+                                val rawResult = withContext(Dispatchers.Default) {
                                     requestXrayResult(query)
                                 }
+                                formatXrayResult(rawResult)
                             }.getOrElse { "请求失败：${it.message ?: "未知错误"}" }
                             isLoading = false
                         }
@@ -797,10 +911,12 @@ private fun SeyraXrayResultPanel(
     result: String,
     backdrop: LayerBackdrop
 ) {
+    val scrollState = rememberScrollState()
+
     Box(
         Modifier
             .fillMaxWidth()
-            .height(176f.dp)
+            .height(248f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(22f.dp) },
@@ -818,6 +934,9 @@ private fun SeyraXrayResultPanel(
     ) {
         BasicText(
             result.ifBlank { "输出结果会显示在这里" },
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             style = TextStyle(
                 color = if (result.isBlank()) Color(0x6605070A) else Color(0xE005070A),
                 fontSize = 14f.sp,
@@ -964,8 +1083,8 @@ private fun SeyraProfileInfoPanel(
                     drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
                 }
             )
-            .padding(horizontal = 24f.dp, vertical = 24f.dp),
-        verticalArrangement = Arrangement.spacedBy(18f.dp)
+            .padding(horizontal = 30f.dp, vertical = 30f.dp),
+        verticalArrangement = Arrangement.spacedBy(24f.dp)
     ) {
         BasicText(
             "TG@sspyj",
