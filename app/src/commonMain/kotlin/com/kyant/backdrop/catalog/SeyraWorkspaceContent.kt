@@ -29,9 +29,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -77,7 +79,8 @@ import kotlinx.coroutines.launch
 private data class SeyraCard(
     val title: String,
     val subtitle: String,
-    val tint: Color
+    val tint: Color,
+    val category: String
 )
 
 private data class SeyraDockTab(
@@ -86,14 +89,23 @@ private data class SeyraDockTab(
 )
 
 private val workspaceCards = listOf(
-    SeyraCard("社工查询", "综合信息查询", Color(0xFF70D7FF)),
-    SeyraCard("三要素补齐", "姓名 手机号 身份证", Color(0xFF9B7CFF)),
-    SeyraCard("手机号补齐", "姓名 手机号", Color(0xFFFFC56E)),
-    SeyraCard("灵感盒子", "收藏碎片 / 快速保存", Color(0xFFFF8EC7)),
-    SeyraCard("快捷工具", "常用操作 / 一键启动", Color(0xFF6EF0BC)),
-    SeyraCard("数据概览", "进度统计 / 状态查看", Color(0xFF7EA8FF)),
-    SeyraCard("工作流", "步骤管理 / 自动流程", Color(0xFFFF9D78)),
-    SeyraCard("个人空间", "偏好设置 / 账号信息", Color(0xFF8EE7FF))
+    SeyraCard("社工查询", "综合信息查询", Color(0xFF70D7FF), "查询"),
+    SeyraCard("三要素补齐", "姓名 手机号 身份证", Color(0xFF9B7CFF), "查询"),
+    SeyraCard("手机号补齐", "姓名 手机号", Color(0xFFFFC56E), "查询"),
+    SeyraCard("灵感盒子", "收藏碎片 / 快速保存", Color(0xFFFF8EC7), "收藏"),
+    SeyraCard("快捷工具", "常用操作 / 一键启动", Color(0xFF6EF0BC), "工具"),
+    SeyraCard("数据概览", "进度统计 / 状态查看", Color(0xFF7EA8FF), "数据"),
+    SeyraCard("工作流", "步骤管理 / 自动流程", Color(0xFFFF9D78), "流程"),
+    SeyraCard("个人空间", "偏好设置 / 账号信息", Color(0xFF8EE7FF), "账号")
+)
+
+private val resourceCards = listOf(
+    SeyraCard("资料库", "常用资料 / 快速查找", Color(0xFF70D7FF), "资料"),
+    SeyraCard("模板中心", "文案模板 / 表格模板", Color(0xFF9B7CFF), "模板"),
+    SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
+    SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近"),
+    SeyraCard("文件分组", "分类整理 / 目录管理", Color(0xFF6EF0BC), "资料"),
+    SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接")
 )
 
 @Composable
@@ -172,6 +184,10 @@ private fun SeyraPageContent(
                     modifier = Modifier.padding(top = 30f.dp)
                 )
             }
+        } else if (tabIndex == 1) {
+            item {
+                SeyraResourcePage(backdrop)
+            }
         } else if (tabIndex == 2) {
             item {
                 SeyraToolNavigationStack(backdrop)
@@ -184,6 +200,238 @@ private fun SeyraPageContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SeyraResourcePage(backdrop: LayerBackdrop) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var selectedCategory by rememberSaveable { mutableStateOf("全部") }
+    val categories = remember { listOf("全部", "资料", "模板", "收藏", "最近") }
+    val filteredCards = remember(query, selectedCategory) {
+        val keyword = query.trim()
+        resourceCards.filter { card ->
+            val categoryMatched = selectedCategory == "全部" || card.category == selectedCategory
+            val keywordMatched = keyword.isEmpty() ||
+                card.title.contains(keyword, ignoreCase = true) ||
+                card.subtitle.contains(keyword, ignoreCase = true) ||
+                card.category.contains(keyword, ignoreCase = true)
+            categoryMatched && keywordMatched
+        }
+    }
+
+    Column(
+        Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(14f.dp)
+    ) {
+        BasicText(
+            "资源",
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 28f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+        SeyraSearchField(
+            value = query,
+            onValueChange = { query = it },
+            backdrop = backdrop
+        )
+        SeyraCategoryChips(
+            categories = categories,
+            selectedCategory = selectedCategory,
+            onCategorySelected = { selectedCategory = it },
+            backdrop = backdrop
+        )
+        SeyraCardGrid(
+            cards = filteredCards,
+            backdrop = backdrop,
+            onCardClick = {}
+        )
+    }
+}
+
+@Composable
+private fun SeyraSearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = TextStyle(
+            color = Color(0xFF05070A),
+            fontSize = 16f.sp,
+            fontWeight = FontWeight.Medium
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(54f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(22f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(10f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x76FFFFFF))
+                    drawRect(Color(0x126EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(horizontal = 18f.dp),
+        decorationBox = { innerTextField ->
+            Row(
+                Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicText(
+                    "搜索",
+                    style = TextStyle(
+                        color = Color(0x8A05070A),
+                        fontSize = 15f.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                Box(Modifier.padding(start = 12f.dp).weight(1f)) {
+                    if (value.isEmpty()) {
+                        BasicText(
+                            "输入关键词查找资源",
+                            style = TextStyle(
+                                color = Color(0x6605070A),
+                                fontSize = 15f.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun SeyraCategoryChips(
+    categories: List<String>,
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit,
+    backdrop: LayerBackdrop
+) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8f.dp)
+    ) {
+        categories.forEach { category ->
+            val selected = category == selectedCategory
+            BasicText(
+                category,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40f.dp)
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { Capsule() },
+                        effects = {
+                            vibrancy()
+                            blur(8f.dp.toPx())
+                            lens(10f.dp.toPx(), 18f.dp.toPx())
+                        },
+                        onDrawSurface = {
+                            drawRect(if (selected) Color(0xA8DDF3FF) else Color(0x70FFFFFF))
+                            drawRect(
+                                if (selected) Color(0x4236BFFF) else Color(0x0F6EBBFF),
+                                blendMode = BlendMode.Screen
+                            )
+                        }
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { onCategorySelected(category) }
+                    )
+                    .padding(top = 10f.dp),
+                style = TextStyle(
+                    color = if (selected) Color(0xFF008DFF) else Color(0xFF05070A),
+                    fontSize = 13f.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun SeyraCardGrid(
+    cards: List<SeyraCard>,
+    backdrop: LayerBackdrop,
+    onCardClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier,
+        verticalArrangement = Arrangement.spacedBy(14f.dp)
+    ) {
+        if (cards.isEmpty()) {
+            SeyraEmptyResourcePanel(backdrop)
+        } else {
+            cards.chunked(2).forEachIndexed { rowIndex, rowCards ->
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14f.dp)
+                ) {
+                    rowCards.forEachIndexed { columnIndex, card ->
+                        val cardIndex = rowIndex * 2 + columnIndex
+                        SeyraLiquidCard(
+                            card = card,
+                            backdrop = backdrop,
+                            onClick = { onCardClick(cardIndex) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (rowCards.size == 1) {
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeyraEmptyResourcePanel(backdrop: LayerBackdrop) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(120f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(24f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(10f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x68FFFFFF))
+                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        BasicText(
+            "没有找到相关资源",
+            style = TextStyle(
+                color = Color(0x9905070A),
+                fontSize = 15f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
     }
 }
 
