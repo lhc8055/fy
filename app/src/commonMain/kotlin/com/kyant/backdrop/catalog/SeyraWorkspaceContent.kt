@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -223,9 +224,14 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     BackHandler(enabled = activeCardIndex != -1, onBack = { closeCard() })
 
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .clipToBounds()
+    ) {
         val density = LocalDensity.current
         val widthPx = with(density) { maxWidth.toPx() }
+        val fullExitDistancePx = widthPx + with(density) { 72f.dp.toPx() }
         val detailProgress = if (visibleDetailIndex == -1) 0f else progress.value
 
         SeyraToolCardGrid(
@@ -245,7 +251,7 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
                 backdrop = backdrop,
                 onBack = { closeCard() },
                 modifier = Modifier.graphicsLayer {
-                    translationX = widthPx * (1f - detailProgress)
+                    translationX = fullExitDistancePx * (1f - detailProgress)
                     alpha = 0.96f + 0.04f * detailProgress
                 }
             )
@@ -489,7 +495,7 @@ private fun SeyraProfileInfoPanel(
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier
             .fillMaxWidth()
             .height(238f.dp)
@@ -506,38 +512,7 @@ private fun SeyraProfileInfoPanel(
                     drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
                 }
             )
-            .padding(horizontal = 22f.dp, vertical = 17f.dp),
-        verticalArrangement = Arrangement.spacedBy(20f.dp)
-    ) {
-        SeyraProfileInfoItem("+1 (567) 229-5962", "手机")
-        SeyraProfileInfoItem("1", "个人简介")
-        SeyraProfileInfoItem("@wtb888tg", "用户名")
-    }
-}
-
-@Composable
-private fun SeyraProfileInfoItem(
-    value: String,
-    label: String
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(6f.dp)) {
-        BasicText(
-            value,
-            style = TextStyle(
-                color = Color(0xFF05070A),
-                fontSize = 20f.sp,
-                fontWeight = FontWeight.Normal
-            )
-        )
-        BasicText(
-            label,
-            style = TextStyle(
-                color = Color(0x8A05070A),
-                fontSize = 14f.sp,
-                fontWeight = FontWeight.Medium
-            )
-        )
-    }
+    )
 }
 
 @Composable
