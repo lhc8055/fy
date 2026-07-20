@@ -83,13 +83,13 @@ actual suspend fun requestXrayResult(message: String): String {
 }
 
 @Composable
-actual fun SeyraPreloadRemoteImages(urls: List<String>) {
+actual fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>) {
     val context = LocalContext.current
-    LaunchedEffect(urls) {
+    LaunchedEffect(requests) {
         withContext(Dispatchers.IO) {
-            urls.forEach { url ->
+            requests.forEach { (url, maxBitmapSize) ->
                 runCatching {
-                    getCachedRemoteImageFile(context, url)
+                    preloadRemoteImage(context, url, maxBitmapSize)
                 }
             }
         }
@@ -97,15 +97,15 @@ actual fun SeyraPreloadRemoteImages(urls: List<String>) {
 }
 
 @Composable
-actual fun rememberPreloadRemoteImagesAction(): (List<String>) -> Unit {
+actual fun rememberPreloadRemoteImagesAction(): (List<Pair<String, Int>>) -> Unit {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     return remember(context, scope) {
-        { urls ->
+        { requests ->
             scope.launch(Dispatchers.IO) {
-                urls.forEach { url ->
+                requests.forEach { (url, maxBitmapSize) ->
                     runCatching {
-                        getCachedRemoteImageFile(context, url)
+                        preloadRemoteImage(context, url, maxBitmapSize)
                     }
                 }
             }
@@ -120,14 +120,18 @@ actual fun SeyraRemoteImage(
     modifier: Modifier
 ) {
     val context = LocalContext.current
-    var bitmap by remember(url) { mutableStateOf<Bitmap?>(null) }
+    var bitmap by remember(url, maxBitmapSize) {
+        mutableStateOf(getMemoryCachedBitmap(url, maxBitmapSize))
+    }
 
     LaunchedEffect(url, maxBitmapSize) {
-        bitmap = withContext(Dispatchers.IO) {
-            runCatching {
-                val file = getCachedRemoteImageFile(context, url)
-                decodeSampledBitmap(file, maxBitmapSize)
-            }.getOrNull()
+        if (bitmap == null) {
+            bitmap = withContext(Dispatchers.IO) {
+                runCatching {
+                    preloadRemoteImage(context, url, maxBitmapSize)
+                    getMemoryCachedBitmap(url, maxBitmapSize)
+                }.getOrNull()
+            }
         }
     }
 
@@ -144,8 +148,42 @@ actual fun SeyraRemoteImage(
     }
 }
 
+private const val maxMemoryCacheEntries = 8
+private val remoteBitmapMemoryCache = object : LinkedHashMap<String, Bitmap>(8, 0.75f, true) {
+    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Bitmap>?): Boolean {
+        return size > maxMemoryCacheEntries
+    }
+}
+
+private fun preloadRemoteImage(context: Context, url: String, maxBitmapSize: Int) {
+    if (getMemoryCachedBitmap(url, maxBitmapSize) != null) {
+        return
+    }
+    val file = getCachedRemoteImageFile(context, url)
+    val bitmap = decodeSampledBitmap(file, maxBitmapSize)
+    if (bitmap != null) {
+        putMemoryCachedBitmap(url, maxBitmapSize, bitmap)
+    }
+}
+
+private fun getMemoryCachedBitmap(url: String, maxBitmapSize: Int): Bitmap? {
+    return synchronized(remoteBitmapMemoryCache) {
+        remoteBitmapMemoryCache[memoryCacheKey(url, maxBitmapSize)]
+    }
+}
+
+private fun putMemoryCachedBitmap(url: String, maxBitmapSize: Int, bitmap: Bitmap) {
+    synchronized(remoteBitmapMemoryCache) {
+        remoteBitmapMemoryCache[memoryCacheKey(url, maxBitmapSize)] = bitmap
+    }
+}
+
+private fun memoryCacheKey(url: String, maxBitmapSize: Int): String {
+    return "${sha256(url)}_$maxBitmapSize"
+}
+
 private fun getCachedRemoteImageFile(context: Context, url: String): File {
-    val cacheDir = File(context.cacheDir, "remote_images").apply { mkdirs() }
+    val cacheDir = File(context.filesDir, "remote_images").apply { mkdirs() }
     val cacheFile = File(cacheDir, "${sha256(url)}.img")
     if (cacheFile.exists() && cacheFile.length() > 0L) {
         return cacheFile
@@ -187,7 +225,6 @@ private fun decodeSampledBitmap(file: File, maxBitmapSize: Int): Bitmap? {
 
     val options = BitmapFactory.Options().apply {
         inSampleSize = sampleSize
-        inPreferredConfig = Bitmap.Config.RGB_565
     }
     return BitmapFactory.decodeFile(file.absolutePath, options)
 }

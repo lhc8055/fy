@@ -25,11 +25,11 @@ actual suspend fun requestXrayResult(message: String): String {
 }
 
 @Composable
-actual fun SeyraPreloadRemoteImages(urls: List<String>) {
+actual fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>) {
 }
 
 @Composable
-actual fun rememberPreloadRemoteImagesAction(): (List<String>) -> Unit {
+actual fun rememberPreloadRemoteImagesAction(): (List<Pair<String, Int>>) -> Unit {
     return remember { {} }
 }
 

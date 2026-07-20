@@ -15,10 +15,10 @@ expect fun rememberCopyTextAction(): (String) -> Unit
 expect suspend fun requestXrayResult(message: String): String
 
 @Composable
-expect fun SeyraPreloadRemoteImages(urls: List<String>)
+expect fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>)
 
 @Composable
-expect fun rememberPreloadRemoteImagesAction(): (List<String>) -> Unit
+expect fun rememberPreloadRemoteImagesAction(): (List<Pair<String, Int>>) -> Unit
 
 @Composable
 expect fun SeyraRemoteImage(

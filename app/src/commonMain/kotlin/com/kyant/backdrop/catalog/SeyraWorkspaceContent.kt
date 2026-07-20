@@ -123,9 +123,9 @@ private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/82/58b302b3d
 fun SeyraWorkspaceContent() {
     SeyraPreloadRemoteImages(
         listOf(
-            libraryBannerUrl,
-            templateBannerUrl,
-            profileAvatarUrl
+            libraryBannerUrl to 900,
+            templateBannerUrl to 900,
+            profileAvatarUrl to 256
         )
     )
 
@@ -160,8 +160,8 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             onResourcePressed = {
                 preloadImages(
                     listOf(
-                        libraryBannerUrl,
-                        templateBannerUrl
+                        libraryBannerUrl to 900,
+                        templateBannerUrl to 900
                     )
                 )
             },
