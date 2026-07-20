@@ -76,6 +76,8 @@ import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private data class SeyraCard(
     val title: String,
@@ -192,7 +194,7 @@ private fun SeyraPageContent(
             item {
                 SeyraDiscoverFrostedPanel(
                     backdrop = backdrop,
-                    modifier = Modifier.padding(top = 30f.dp)
+                    modifier = Modifier.padding(top = 24f.dp)
                 )
             }
         } else if (tabIndex == 1) {
@@ -590,6 +592,13 @@ private fun SeyraToolDetailPage(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var result by rememberSaveable { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val copyText = rememberCopyTextAction()
+    val isXrayTool = card.title == "社工查询"
+
     Column(
         modifier
             .fillMaxWidth()
@@ -637,6 +646,181 @@ private fun SeyraToolDetailPage(
             style = TextStyle(
                 color = Color(0xD0111827),
                 fontSize = 15f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        if (isXrayTool) {
+            SeyraXrayInputField(
+                value = query,
+                onValueChange = { query = it },
+                backdrop = backdrop,
+                modifier = Modifier.padding(top = 10f.dp)
+            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10f.dp)
+            ) {
+                SeyraTextActionButton(
+                    text = if (isLoading) "查询中" else "查询",
+                    backdrop = backdrop,
+                    enabled = query.isNotBlank() && !isLoading,
+                    onClick = {
+                        scope.launch {
+                            isLoading = true
+                            result = "查询中..."
+                            result = runCatching {
+                                withContext(Dispatchers.Default) {
+                                    requestXrayResult(query)
+                                }
+                            }.getOrElse { "请求失败：${it.message ?: "未知错误"}" }
+                            isLoading = false
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                SeyraTextActionButton(
+                    text = "复制",
+                    backdrop = backdrop,
+                    enabled = result.isNotBlank() && result != "查询中...",
+                    onClick = { copyText(result) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            SeyraXrayResultPanel(
+                result = result,
+                backdrop = backdrop
+            )
+        }
+    }
+}
+
+@Composable
+private fun SeyraXrayInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = TextStyle(
+            color = Color(0xFF05070A),
+            fontSize = 15f.sp,
+            fontWeight = FontWeight.Medium
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(20f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(10f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x70FFFFFF))
+                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(horizontal = 16f.dp),
+        decorationBox = { innerTextField ->
+            Box(
+                Modifier.fillMaxSize(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (value.isEmpty()) {
+                    BasicText(
+                        "请输入查询内容",
+                        style = TextStyle(
+                            color = Color(0x6605070A),
+                            fontSize = 15f.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+                innerTextField()
+            }
+        }
+    )
+}
+
+@Composable
+private fun SeyraTextActionButton(
+    text: String,
+    backdrop: LayerBackdrop,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier
+            .height(44f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { Capsule() },
+                effects = {
+                    vibrancy()
+                    blur(8f.dp.toPx())
+                    lens(10f.dp.toPx(), 18f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(if (enabled) Color(0x7DFFFFFF) else Color(0x45FFFFFF))
+                    drawRect(Color(0x146EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .clickable(
+                enabled = enabled,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        BasicText(
+            text,
+            style = TextStyle(
+                color = if (enabled) Color(0xFF008DFF) else Color(0x7005070A),
+                fontSize = 14f.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
+        )
+    }
+}
+
+@Composable
+private fun SeyraXrayResultPanel(
+    result: String,
+    backdrop: LayerBackdrop
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(176f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(22f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(10f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x62FFFFFF))
+                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(16f.dp)
+    ) {
+        BasicText(
+            result.ifBlank { "输出结果会显示在这里" },
+            style = TextStyle(
+                color = if (result.isBlank()) Color(0x6605070A) else Color(0xE005070A),
+                fontSize = 14f.sp,
                 fontWeight = FontWeight.Medium
             )
         )
@@ -759,14 +943,14 @@ private fun SeyraProfileActionButton(
 }
 
 @Composable
-private fun SeyraDiscoverFrostedPanel(
+private fun SeyraProfileInfoPanel(
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Column(
         modifier
             .fillMaxWidth()
-            .height(270f.dp)
+            .height(238f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(28f.dp) },
@@ -780,18 +964,45 @@ private fun SeyraDiscoverFrostedPanel(
                     drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
                 }
             )
-    )
+            .padding(horizontal = 24f.dp, vertical = 24f.dp),
+        verticalArrangement = Arrangement.spacedBy(18f.dp)
+    ) {
+        BasicText(
+            "TG@sspyj",
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 18f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+        BasicText(
+            "下载管理",
+            style = TextStyle(
+                color = Color(0xE005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            "分享软件",
+            style = TextStyle(
+                color = Color(0xE005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
 }
 
 @Composable
-private fun SeyraProfileInfoPanel(
+private fun SeyraDiscoverFrostedPanel(
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier
             .fillMaxWidth()
-            .height(238f.dp)
+            .height(270f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(28f.dp) },
@@ -877,7 +1088,7 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(204f.dp)
+            .height(176f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(32f.dp) },

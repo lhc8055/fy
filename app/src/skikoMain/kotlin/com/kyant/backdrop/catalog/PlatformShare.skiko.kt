@@ -12,3 +12,12 @@ actual fun rememberShareAppAction(): () -> Unit {
 actual fun rememberOpenFeedbackAction(): () -> Unit {
     return remember { {} }
 }
+
+@Composable
+actual fun rememberCopyTextAction(): (String) -> Unit {
+    return remember { {} }
+}
+
+actual suspend fun requestXrayResult(message: String): String {
+    return ""
+}
