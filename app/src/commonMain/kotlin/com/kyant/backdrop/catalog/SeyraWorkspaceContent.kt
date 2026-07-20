@@ -119,26 +119,34 @@ fun SeyraWorkspaceContent() {
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+    var showSettingsPage by rememberSaveable { mutableStateOf(false) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
 
-    SeyraPageContent(
-        tabIndex = selectedTabIndex,
-        backdrop = backdrop,
-        onFeedbackClick = openFeedback
-    )
+    BackHandler(enabled = showSettingsPage, onBack = { showSettingsPage = false })
 
-    SeyraDock(
-        selectedTabIndex = selectedTabIndex,
-        onTabSelected = { selectedTabIndex = it },
-        backdrop = backdrop,
-        modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .navigationBarsPadding()
-            .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
-    )
+    if (!showSettingsPage) {
+        SeyraPageContent(
+            tabIndex = selectedTabIndex,
+            backdrop = backdrop,
+            onFeedbackClick = openFeedback,
+            onSettingsClick = { showSettingsPage = true }
+        )
+    }
 
-    if (selectedTabIndex != 3) {
+    if (!showSettingsPage) {
+        SeyraDock(
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = { selectedTabIndex = it },
+            backdrop = backdrop,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(start = 38f.dp, end = 38f.dp, bottom = 12f.dp)
+        )
+    }
+
+    if (!showSettingsPage && selectedTabIndex != 3) {
         SeyraTopActions(
             backdrop = backdrop,
             onShareClick = shareApp,
@@ -156,6 +164,7 @@ private fun SeyraPageContent(
     tabIndex: Int,
     backdrop: LayerBackdrop,
     onFeedbackClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -198,7 +207,8 @@ private fun SeyraPageContent(
             item {
                 SeyraProfilePage(
                     backdrop = backdrop,
-                    onFeedbackClick = onFeedbackClick
+                    onFeedbackClick = onFeedbackClick,
+                    onSettingsClick = onSettingsClick
                 )
             }
         }
@@ -636,7 +646,8 @@ private fun SeyraToolDetailPage(
 @Composable
 private fun SeyraProfilePage(
     backdrop: LayerBackdrop,
-    onFeedbackClick: () -> Unit
+    onFeedbackClick: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     Column(
         Modifier.fillMaxWidth(),
@@ -684,7 +695,7 @@ private fun SeyraProfilePage(
                 icon = Res.drawable.ic_profile_settings_32px,
                 label = "设置",
                 backdrop = backdrop,
-                onClick = {},
+                onClick = onSettingsClick,
                 modifier = Modifier.weight(1f)
             )
         }
