@@ -73,7 +73,6 @@ import glass.app.generated.resources.ic_profile_feedback_32px
 import glass.app.generated.resources.ic_profile_settings_32px
 import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
-import glass.app.generated.resources.profile_avatar
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.coroutines.launch
@@ -112,8 +111,20 @@ private val resourceCards = listOf(
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接")
 )
 
+private const val libraryBannerUrl = "https://new.cayfpay.cn/upload/b1/b254c8a3a0f456509323fb9cca14d8.png"
+private const val templateBannerUrl = "https://new.cayfpay.cn/upload/7f/1a5a889286415362519e60a999883f.png"
+private const val profileAvatarUrl = "https://new.cayfpay.cn/merchant/shop"
+
 @Composable
 fun SeyraWorkspaceContent() {
+    SeyraPreloadRemoteImages(
+        listOf(
+            libraryBannerUrl,
+            templateBannerUrl,
+            profileAvatarUrl
+        )
+    )
+
     BackdropDemoScaffold {
         SeyraWorkspace(it)
     }
@@ -838,9 +849,9 @@ private fun SeyraProfilePage(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(Res.drawable.profile_avatar),
-            contentDescription = null,
+        SeyraRemoteImage(
+            url = profileAvatarUrl,
+            maxBitmapSize = 256,
             modifier = Modifier
                 .size(122f.dp)
                 .clip(CircleShape)
@@ -1109,8 +1120,8 @@ private fun SeyraLiquidCard(
     modifier: Modifier = Modifier
 ) {
     val imageUrl = when (card.title) {
-        "资料库" -> "https://new.cayfpay.cn/upload/b1/b254c8a3a0f456509323fb9cca14d8.png"
-        "模板中心" -> "https://new.cayfpay.cn/upload/7f/1a5a889286415362519e60a999883f.png"
+        "资料库" -> libraryBannerUrl
+        "模板中心" -> templateBannerUrl
         else -> null
     }
 
@@ -1139,6 +1150,7 @@ private fun SeyraLiquidCard(
         if (imageUrl != null) {
             SeyraRemoteImage(
                 url = imageUrl,
+                maxBitmapSize = 900,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(24f.dp))

@@ -25,6 +25,7 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.net.URL
+import java.security.MessageDigest
 
 @Composable
 actual fun rememberShareAppAction(): () -> Unit {
@@ -80,18 +81,33 @@ actual suspend fun requestXrayResult(message: String): String {
 }
 
 @Composable
+actual fun SeyraPreloadRemoteImages(urls: List<String>) {
+    val context = LocalContext.current
+    LaunchedEffect(urls) {
+        withContext(Dispatchers.IO) {
+            urls.forEach { url ->
+                runCatching {
+                    getCachedRemoteImageFile(context, url)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 actual fun SeyraRemoteImage(
     url: String,
+    maxBitmapSize: Int,
     modifier: Modifier
 ) {
+    val context = LocalContext.current
     var bitmap by remember(url) { mutableStateOf<Bitmap?>(null) }
 
-    LaunchedEffect(url) {
+    LaunchedEffect(url, maxBitmapSize) {
         bitmap = withContext(Dispatchers.IO) {
             runCatching {
-                URL(url).openStream().use { stream ->
-                    BitmapFactory.decodeStream(stream)
-                }
+                val file = getCachedRemoteImageFile(context, url)
+                decodeSampledBitmap(file, maxBitmapSize)
             }.getOrNull()
         }
     }
@@ -107,6 +123,59 @@ actual fun SeyraRemoteImage(
     } else {
         Box(modifier)
     }
+}
+
+private fun getCachedRemoteImageFile(context: Context, url: String): File {
+    val cacheDir = File(context.cacheDir, "remote_images").apply { mkdirs() }
+    val cacheFile = File(cacheDir, "${sha256(url)}.img")
+    if (cacheFile.exists() && cacheFile.length() > 0L) {
+        return cacheFile
+    }
+
+    val tempFile = File(cacheDir, "${cacheFile.name}.tmp")
+    val connection = URL(url).openConnection() as HttpURLConnection
+    try {
+        connection.connectTimeout = 12_000
+        connection.readTimeout = 12_000
+        connection.inputStream.use { input ->
+            tempFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+        tempFile.renameTo(cacheFile)
+    } finally {
+        connection.disconnect()
+        if (tempFile.exists()) {
+            tempFile.delete()
+        }
+    }
+    return cacheFile
+}
+
+private fun decodeSampledBitmap(file: File, maxBitmapSize: Int): Bitmap? {
+    val bounds = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeFile(file.absolutePath, bounds)
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+        return null
+    }
+
+    var sampleSize = 1
+    while (bounds.outWidth / sampleSize > maxBitmapSize || bounds.outHeight / sampleSize > maxBitmapSize) {
+        sampleSize *= 2
+    }
+
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = sampleSize
+        inPreferredConfig = Bitmap.Config.RGB_565
+    }
+    return BitmapFactory.decodeFile(file.absolutePath, options)
+}
+
+private fun sha256(value: String): String {
+    val digest = MessageDigest.getInstance("SHA-256").digest(value.toByteArray())
+    return digest.joinToString("") { byte -> "%02x".format(byte) }
 }
 
 private fun shareCurrentApp(context: Context) {

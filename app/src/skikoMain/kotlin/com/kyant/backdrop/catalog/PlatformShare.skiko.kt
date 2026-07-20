@@ -25,8 +25,13 @@ actual suspend fun requestXrayResult(message: String): String {
 }
 
 @Composable
+actual fun SeyraPreloadRemoteImages(urls: List<String>) {
+}
+
+@Composable
 actual fun SeyraRemoteImage(
     url: String,
+    maxBitmapSize: Int,
     modifier: Modifier
 ) {
     Box(modifier)
