@@ -122,7 +122,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
 
-    SeyraDockPagerHost(
+    SeyraPageContent(
         tabIndex = selectedTabIndex,
         backdrop = backdrop,
         onFeedbackClick = openFeedback
@@ -151,45 +151,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     }
 }
 
-@Composable
-private fun SeyraDockPagerHost(
-    tabIndex: Int,
-    backdrop: LayerBackdrop,
-    onFeedbackClick: () -> Unit
-) {
-    val pageOffset = remember { Animatable(tabIndex.toFloat()) }
-
-    LaunchedEffect(tabIndex) {
-        pageOffset.animateTo(
-            targetValue = tabIndex.toFloat(),
-            animationSpec = tween(
-                durationMillis = 380,
-                easing = FastOutSlowInEasing
-            )
-        )
-    }
-
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val pageWidthPx = with(LocalDensity.current) { maxWidth.toPx() }
-        val currentOffset = pageOffset.value
-
-        repeat(4) { pageIndex ->
-            val pageDistance = pageIndex - currentOffset
-            if (pageDistance > -1.15f && pageDistance < 1.15f) {
-                SeyraPageContent(
-                    tabIndex = pageIndex,
-                    backdrop = backdrop,
-                    onFeedbackClick = onFeedbackClick,
-                    modifier = Modifier.graphicsLayer {
-                        translationX = pageDistance * pageWidthPx
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun SeyraPageContent(
     tabIndex: Int,
     backdrop: LayerBackdrop,
