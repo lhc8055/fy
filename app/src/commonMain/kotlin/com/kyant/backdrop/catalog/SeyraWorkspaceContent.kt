@@ -4,7 +4,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -64,8 +67,10 @@ import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.catalog.utils.BackHandler
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
@@ -329,9 +334,11 @@ fun SeyraWorkspaceContent() {
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
     var showSettingsPage by rememberSaveable { mutableStateOf(false) }
+    var showContactDialog by rememberSaveable { mutableStateOf(false) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
     val preloadImages = rememberPreloadRemoteImagesAction()
+    val copyText = rememberCopyTextAction()
 
     BackHandler(enabled = showSettingsPage, onBack = { showSettingsPage = false })
 
@@ -339,6 +346,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         SeyraPageContent(
             tabIndex = selectedTabIndex,
             backdrop = backdrop,
+            onContactClick = { showContactDialog = true },
             onFeedbackClick = openFeedback,
             onSettingsClick = { showSettingsPage = true }
         )
@@ -375,12 +383,25 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 .padding(top = 18f.dp, end = 22f.dp)
         )
     }
+
+    if (showContactDialog) {
+        SeyraContactDialog(
+            backdrop = backdrop,
+            onCancel = { showContactDialog = false },
+            onCopy = {
+                copyText("@sspyj")
+                showContactDialog = false
+            },
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
 }
 
 @Composable
 private fun SeyraPageContent(
     tabIndex: Int,
     backdrop: LayerBackdrop,
+    onContactClick: () -> Unit,
     onFeedbackClick: () -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -425,6 +446,7 @@ private fun SeyraPageContent(
             item {
                 SeyraProfilePage(
                     backdrop = backdrop,
+                    onContactClick = onContactClick,
                     onFeedbackClick = onFeedbackClick,
                     onSettingsClick = onSettingsClick
                 )
@@ -1052,6 +1074,7 @@ private fun SeyraXrayResultPanel(
 @Composable
 private fun SeyraProfilePage(
     backdrop: LayerBackdrop,
+    onContactClick: () -> Unit,
     onFeedbackClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
@@ -1087,7 +1110,7 @@ private fun SeyraProfilePage(
                 icon = Res.drawable.ic_profile_contact_32px,
                 label = "合作联系",
                 backdrop = backdrop,
-                onClick = {},
+                onClick = onContactClick,
                 modifier = Modifier.weight(1f)
             )
             SeyraProfileActionButton(
@@ -1110,6 +1133,128 @@ private fun SeyraProfilePage(
             backdrop = backdrop,
             modifier = Modifier.padding(top = 22f.dp)
         )
+    }
+}
+
+@Composable
+private fun SeyraContactDialog(
+    backdrop: LayerBackdrop,
+    onCancel: () -> Unit,
+    onCopy: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isLightTheme = !isSystemInDarkTheme()
+    val contentColor = if (isLightTheme) Color.Black else Color.White
+    val accentColor = if (isLightTheme) Color(0xFF0A8CFF) else Color(0xFF1495FF)
+    val containerColor = if (isLightTheme) Color(0xFFFAFAFA).copy(alpha = 0.62f) else Color(0xFF121212).copy(alpha = 0.42f)
+    val dimColor = if (isLightTheme) Color(0xFF202033).copy(alpha = 0.22f) else Color(0xFF000000).copy(alpha = 0.52f)
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .drawWithContent {
+                drawContent()
+                drawRect(dimColor)
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier
+                .padding(horizontal = 52f.dp)
+                .fillMaxWidth()
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { RoundedRectangle(46f.dp) },
+                    effects = {
+                        colorControls(
+                            brightness = if (isLightTheme) 0.18f else 0f,
+                            saturation = 1.45f
+                        )
+                        blur(if (isLightTheme) 16f.dp.toPx() else 8f.dp.toPx())
+                        lens(24f.dp.toPx(), 46f.dp.toPx(), depthEffect = true)
+                    },
+                    highlight = { Highlight.Plain },
+                    onDrawSurface = { drawRect(containerColor) }
+                )
+        ) {
+            BasicText(
+                "温馨提示",
+                modifier = Modifier.padding(start = 28f.dp, top = 26f.dp, end = 28f.dp),
+                style = TextStyle(
+                    color = contentColor,
+                    fontSize = 24f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+
+            BasicText(
+                "联系开发者：TG搜索 @sspyj，点击一键复制。",
+                modifier = Modifier
+                    .then(
+                        if (isLightTheme) Modifier else Modifier.graphicsLayer(blendMode = BlendMode.Plus)
+                    )
+                    .padding(start = 28f.dp, top = 24f.dp, end = 28f.dp),
+                style = TextStyle(
+                    color = contentColor.copy(alpha = 0.72f),
+                    fontSize = 16f.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            )
+
+            Row(
+                Modifier
+                    .padding(start = 24f.dp, top = 26f.dp, end = 24f.dp, bottom = 24f.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16f.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier
+                        .clip(Capsule())
+                        .background(containerColor.copy(alpha = 0.24f))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onCancel
+                        )
+                        .height(52f.dp)
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BasicText(
+                        "取消",
+                        style = TextStyle(
+                            color = contentColor,
+                            fontSize = 16f.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+
+                Box(
+                    Modifier
+                        .clip(Capsule())
+                        .background(accentColor)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onCopy
+                        )
+                        .height(52f.dp)
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BasicText(
+                        "复制",
+                        style = TextStyle(
+                            color = Color.White,
+                            fontSize = 16f.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -1187,7 +1332,7 @@ private fun SeyraProfileInfoPanel(
                 }
             )
             .padding(horizontal = 30f.dp),
-        verticalArrangement = Arrangement.spacedBy(17f.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.spacedBy(24f.dp, Alignment.CenterVertically)
     ) {
         BasicText(
             "TG@sspyj",
