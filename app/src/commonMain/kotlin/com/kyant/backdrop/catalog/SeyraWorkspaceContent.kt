@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -315,30 +316,73 @@ private fun SeyraCategoryChips(
     onCategorySelected: (String) -> Unit,
     backdrop: LayerBackdrop
 ) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8f.dp)
-    ) {
-        categories.forEach { category ->
-            val selected = category == selectedCategory
-            BasicText(
-                category,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(34f.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { onCategorySelected(category) }
-                    )
-                    .padding(top = 7f.dp),
-                style = TextStyle(
-                    color = if (selected) Color(0xFF008DFF) else Color(0xB805070A),
-                    fontSize = 14f.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center
-                )
+    val selectedIndex = categories.indexOf(selectedCategory).coerceAtLeast(0)
+    val selectedOffset = remember { Animatable(selectedIndex.toFloat()) }
+
+    LaunchedEffect(selectedIndex) {
+        selectedOffset.animateTo(
+            targetValue = selectedIndex.toFloat(),
+            animationSpec = tween(
+                durationMillis = 260,
+                easing = FastOutSlowInEasing
             )
+        )
+    }
+
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .height(40f.dp)
+    ) {
+        val density = LocalDensity.current
+        val itemWidthPx = with(density) {
+            maxWidth.toPx() / categories.size.coerceAtLeast(1)
+        }
+
+        Box(
+            Modifier
+                .graphicsLayer {
+                    translationX = selectedOffset.value * itemWidthPx
+                }
+                .fillMaxWidth(1f / categories.size.coerceAtLeast(1))
+                .height(38f.dp)
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { Capsule() },
+                    effects = {
+                        vibrancy()
+                        blur(8f.dp.toPx())
+                        lens(10f.dp.toPx(), 14f.dp.toPx(), chromaticAberration = true)
+                    },
+                    onDrawSurface = {
+                        drawRect(Color(0x42FFFFFF))
+                        drawRect(Color(0x1A2DA8FF), blendMode = BlendMode.Screen)
+                    }
+                )
+        )
+
+        Row(Modifier.fillMaxSize()) {
+            categories.forEach { category ->
+                val selected = category == selectedCategory
+                BasicText(
+                    category,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = { onCategorySelected(category) }
+                        )
+                        .padding(top = 10f.dp),
+                    style = TextStyle(
+                        color = if (selected) Color(0xFF008DFF) else Color(0xC805070A),
+                        fontSize = 14f.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
         }
     }
 }
