@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -153,7 +152,11 @@ private fun SeyraPageContent(
             .displayCutoutPadding(),
         contentPadding = PaddingValues(
             start = 22f.dp,
-            top = if (tabIndex == 3) 82f.dp else 100f.dp,
+            top = when (tabIndex) {
+                2 -> 82f.dp
+                3 -> 82f.dp
+                else -> 100f.dp
+            },
             end = 22f.dp,
             bottom = 124f.dp
         ),
@@ -224,11 +227,7 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     BackHandler(enabled = activeCardIndex != -1, onBack = { closeCard() })
 
-    BoxWithConstraints(
-        Modifier
-            .fillMaxWidth()
-            .clipToBounds()
-    ) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
         val density = LocalDensity.current
         val widthPx = with(density) { maxWidth.toPx() }
         val fullExitDistancePx = widthPx + with(density) { 72f.dp.toPx() }
