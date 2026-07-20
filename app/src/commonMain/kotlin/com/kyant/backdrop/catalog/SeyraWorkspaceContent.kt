@@ -1202,7 +1202,7 @@ private fun SeyraContactDialog(
 
     Box(
         Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Box(
