@@ -9,6 +9,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preloadSeyraStartupImages(this)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
