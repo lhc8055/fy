@@ -170,30 +170,20 @@ private fun SeyraDockPagerHost(
     }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val pageWidth = maxWidth
-        val trackWidth = pageWidth * 4f
-        val pageWidthPx = with(LocalDensity.current) { pageWidth.toPx() }
+        val pageWidthPx = with(LocalDensity.current) { maxWidth.toPx() }
+        val currentOffset = pageOffset.value
 
-        Row(
-            Modifier
-                .width(trackWidth)
-                .fillMaxHeight()
-                .graphicsLayer {
-                    translationX = -pageOffset.value * pageWidthPx
-                }
-        ) {
-            repeat(4) { pageIndex ->
-                Box(
-                    Modifier
-                        .width(pageWidth)
-                        .fillMaxHeight()
-                ) {
-                    SeyraPageContent(
-                        tabIndex = pageIndex,
-                        backdrop = backdrop,
-                        onFeedbackClick = onFeedbackClick
-                    )
-                }
+        repeat(4) { pageIndex ->
+            val pageDistance = pageIndex - currentOffset
+            if (pageDistance > -1.15f && pageDistance < 1.15f) {
+                SeyraPageContent(
+                    tabIndex = pageIndex,
+                    backdrop = backdrop,
+                    onFeedbackClick = onFeedbackClick,
+                    modifier = Modifier.graphicsLayer {
+                        translationX = pageDistance * pageWidthPx
+                    }
+                )
             }
         }
     }
