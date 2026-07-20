@@ -124,6 +124,9 @@ private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1ba
 private fun formatXrayResult(raw: String): String {
     val content = extractJsonStringValue(raw, "content") ?: raw
     val decoded = decodeEscapedText(content)
+        .replace("},{", "}\n{")
+        .replace("}, {", "}\n{")
+        .replace("}，{", "}\n{")
         .replace("\\n", "\n")
         .replace("\\r", "\n")
         .replace("\\t", " ")
@@ -142,9 +145,7 @@ private fun formatXrayResult(raw: String): String {
         return raw.trim()
     }
 
-    return lines
-        .sortedWith(compareBy<String> { xrayLinePriority(it) }.thenBy { it })
-        .joinToString("\n")
+    return groupXrayLinesByPerson(lines)
 }
 
 private fun extractJsonStringValue(raw: String, key: String): String? {
@@ -224,9 +225,75 @@ private fun decodeEscapedText(value: String): String {
 
 private fun normalizeXrayLine(line: String): String {
     return line
+        .replace(Regex("""(?i)\b(name|realname|username)\b"""), "姓名")
+        .replace(Regex("""(?i)\b(phone|mobile|tel|telephone|mobilephone)\b"""), "手机")
+        .replace(Regex("""(?i)\b(idcard|cardno|identity|identitycard|sfz)\b"""), "身份证")
+        .replace(Regex("""(?i)\b(address|addr)\b"""), "地址")
+        .replace(Regex("""(?i)\b(email|mail)\b"""), "邮箱")
         .replace(Regex("""\s*[:：]\s*"""), "：")
         .replace(Regex("""\s+"""), " ")
         .trim()
+}
+
+private fun groupXrayLinesByPerson(lines: List<String>): String {
+    val groups = mutableListOf<List<String>>()
+    val current = mutableListOf<String>()
+
+    fun flushCurrent() {
+        if (current.isNotEmpty()) {
+            groups.add(current.toList())
+            current.clear()
+        }
+    }
+
+    lines.forEach { line ->
+        if (shouldStartNewXrayPerson(line, current)) {
+            flushCurrent()
+        }
+        current.add(line)
+    }
+    flushCurrent()
+
+    if (groups.size <= 1) {
+        return sortXrayGroup(lines).joinToString("\n")
+    }
+
+    return groups.mapIndexed { index, group ->
+        val title = "人员 ${index + 1}"
+        title + "\n" + sortXrayGroup(group).joinToString("\n")
+    }.joinToString("\n\n")
+}
+
+private fun shouldStartNewXrayPerson(line: String, current: List<String>): Boolean {
+    if (current.isEmpty()) return false
+    val currentText = current.joinToString(" ")
+    val lineHasName = hasXrayName(line)
+    val lineHasPhone = hasXrayPhone(line)
+    val lineHasId = hasXrayIdCard(line)
+
+    return when {
+        lineHasName && hasXrayName(currentText) -> true
+        lineHasId && hasXrayIdCard(currentText) -> true
+        lineHasPhone && hasXrayPhone(currentText) && (lineHasName || lineHasId || hasXrayName(currentText) || hasXrayIdCard(currentText)) -> true
+        else -> false
+    }
+}
+
+private fun sortXrayGroup(group: List<String>): List<String> {
+    return group.distinct()
+        .sortedWith(compareBy<String> { xrayLinePriority(it) }.thenBy { it })
+}
+
+private fun hasXrayName(value: String): Boolean {
+    return value.contains("姓名") || value.contains("名字")
+}
+
+private fun hasXrayPhone(value: String): Boolean {
+    return Regex("""1\d{10}""").containsMatchIn(value) || value.contains("手机") || value.contains("电话")
+}
+
+private fun hasXrayIdCard(value: String): Boolean {
+    return Regex("""\d{17}[\dXx]""").containsMatchIn(value) || value.contains("身份证")
 }
 
 private fun xrayLinePriority(line: String): Int {
@@ -1120,7 +1187,7 @@ private fun SeyraProfileInfoPanel(
                 }
             )
             .padding(horizontal = 30f.dp),
-        verticalArrangement = Arrangement.spacedBy(22f.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.spacedBy(17f.dp, Alignment.CenterVertically)
     ) {
         BasicText(
             "TG@sspyj",
@@ -1140,6 +1207,14 @@ private fun SeyraProfileInfoPanel(
         )
         BasicText(
             "分享软件",
+            style = TextStyle(
+                color = Color(0xE005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            "我的收藏",
             style = TextStyle(
                 color = Color(0xE005070A),
                 fontSize = 16f.sp,
