@@ -24,27 +24,6 @@ actual suspend fun requestXrayResult(message: String): String {
     return ""
 }
 
-actual suspend fun requestMusicResult(input: String, platform: String): SeyraMusicResult {
-    error("当前平台暂不支持音乐解析")
-}
-
-@Composable
-actual fun rememberSeyraMusicPlayerController(): SeyraMusicPlayerController {
-    return remember {
-        object : SeyraMusicPlayerController {
-            override val isPlaying: Boolean = false
-            override fun play(url: String) = Unit
-            override fun pause() = Unit
-            override fun resume() = Unit
-        }
-    }
-}
-
-@Composable
-actual fun rememberShowToastAction(): (String) -> Unit {
-    return remember { {} }
-}
-
 @Composable
 actual fun SeyraEmbeddedWebPage(
     url: String,

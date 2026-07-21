@@ -340,24 +340,34 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
     var showSettingsPage by rememberSaveable { mutableStateOf(false) }
     var showContactDialog by rememberSaveable { mutableStateOf(false) }
+    var showMusicWebsitePage by rememberSaveable { mutableStateOf(false) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
     val preloadImages = rememberPreloadRemoteImagesAction()
     val copyText = rememberCopyTextAction()
 
     BackHandler(enabled = showSettingsPage, onBack = { showSettingsPage = false })
+    BackHandler(enabled = showMusicWebsitePage, onBack = { showMusicWebsitePage = false })
 
-    if (!showSettingsPage) {
+    if (!showSettingsPage && !showMusicWebsitePage) {
         SeyraPageContent(
             tabIndex = selectedTabIndex,
             backdrop = backdrop,
             onContactClick = { showContactDialog = true },
             onFeedbackClick = openFeedback,
-            onSettingsClick = { showSettingsPage = true }
+            onSettingsClick = { showSettingsPage = true },
+            onMusicWebsiteClick = { showMusicWebsitePage = true }
         )
     }
 
-    if (!showSettingsPage) {
+    if (showMusicWebsitePage && !showSettingsPage) {
+        SeyraMusicWebsiteFullPage(
+            onBack = { showMusicWebsitePage = false },
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+
+    if (!showSettingsPage && !showMusicWebsitePage) {
         SeyraDock(
             selectedTabIndex = selectedTabIndex,
             onTabSelected = { selectedTabIndex = it },
@@ -403,12 +413,51 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
 }
 
 @Composable
+private fun SeyraMusicWebsiteFullPage(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .displayCutoutPadding()
+            .padding(start = 14f.dp, top = 82f.dp, end = 14f.dp, bottom = 14f.dp),
+        verticalArrangement = Arrangement.spacedBy(10f.dp)
+    ) {
+        BasicText(
+            "‹ 返回",
+            modifier = Modifier
+                .padding(start = 4f.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onBack
+                ),
+            style = TextStyle(
+                color = Color(0xFF008DFF),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+        SeyraEmbeddedWebPage(
+            url = "https://yy.luodian.net.cn/",
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .clip(RoundedCornerShape(18f.dp))
+        )
+    }
+}
+
+@Composable
 private fun SeyraPageContent(
     tabIndex: Int,
     backdrop: LayerBackdrop,
     onContactClick: () -> Unit,
     onFeedbackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onMusicWebsiteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -445,7 +494,10 @@ private fun SeyraPageContent(
             }
         } else if (tabIndex == 2) {
             item {
-                SeyraToolNavigationStack(backdrop)
+                SeyraToolNavigationStack(
+                    backdrop = backdrop,
+                    onMusicWebsiteClick = onMusicWebsiteClick
+                )
             }
         } else if (tabIndex == 3) {
             item {
@@ -712,15 +764,20 @@ private fun SeyraEmptyResourcePanel(backdrop: LayerBackdrop) {
 }
 
 @Composable
-private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
+private fun SeyraToolNavigationStack(
+    backdrop: LayerBackdrop,
+    onMusicWebsiteClick: () -> Unit
+) {
     var activeCardIndex by rememberSaveable { mutableIntStateOf(-1) }
     var visibleDetailIndex by rememberSaveable { mutableIntStateOf(-1) }
     val progress = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
-    val isMusicPageVisible = activeCardIndex != -1 &&
-        workspaceCards.getOrNull(activeCardIndex)?.title == "网易云解析"
 
     fun openCard(index: Int) {
+        if (workspaceCards.getOrNull(index)?.title == "网易云解析") {
+            onMusicWebsiteClick()
+            return
+        }
         if (activeCardIndex != -1) return
         activeCardIndex = index
         visibleDetailIndex = index
@@ -755,18 +812,16 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     Column(
         Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(if (isMusicPageVisible) 0f.dp else 24f.dp)
+        verticalArrangement = Arrangement.spacedBy(24f.dp)
     ) {
-        if (!isMusicPageVisible) {
-            BasicText(
-                "工具",
-                style = TextStyle(
-                    color = Color(0xFF05070A),
-                    fontSize = 28f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+        BasicText(
+            "工具",
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 28f.sp,
+                fontWeight = FontWeight.SemiBold
             )
-        }
+        )
 
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val density = LocalDensity.current
@@ -787,26 +842,15 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
             if (visibleDetailIndex != -1) {
                 val visibleCard = workspaceCards[visibleDetailIndex]
-                if (visibleCard.title == "网易云解析") {
-                    SeyraMusicWebsitePage(
-                        backdrop = backdrop,
-                        onBack = { closeCard() },
-                        modifier = Modifier.graphicsLayer {
-                            translationX = fullExitDistancePx * (1f - detailProgress)
-                            alpha = 0.96f + 0.04f * detailProgress
-                        }
-                    )
-                } else {
-                    SeyraToolDetailPage(
-                        card = visibleCard,
-                        backdrop = backdrop,
-                        onBack = { closeCard() },
-                        modifier = Modifier.graphicsLayer {
-                            translationX = fullExitDistancePx * (1f - detailProgress)
-                            alpha = 0.96f + 0.04f * detailProgress
-                        }
-                    )
-                }
+                SeyraToolDetailPage(
+                    card = visibleCard,
+                    backdrop = backdrop,
+                    onBack = { closeCard() },
+                    modifier = Modifier.graphicsLayer {
+                        translationX = fullExitDistancePx * (1f - detailProgress)
+                        alpha = 0.96f + 0.04f * detailProgress
+                    }
+                )
             }
         }
     }
@@ -841,57 +885,6 @@ private fun SeyraToolCardGrid(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SeyraMusicWebsitePage(
-    backdrop: LayerBackdrop,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .height(680f.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(30f.dp) },
-                effects = {
-                    vibrancy()
-                    blur(14f.dp.toPx())
-                    lens(18f.dp.toPx(), 30f.dp.toPx())
-                },
-                onDrawSurface = {
-                    drawRect(Color(0x82FFFFFF))
-                    drawRect(Color(0x18FF5B58), blendMode = BlendMode.Screen)
-                }
-            )
-            .padding(14f.dp),
-        verticalArrangement = Arrangement.spacedBy(10f.dp)
-    ) {
-        BasicText(
-            "‹ 返回",
-            modifier = Modifier
-                .padding(start = 4f.dp, top = 2f.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onBack
-                ),
-            style = TextStyle(
-                color = Color(0xFF008DFF),
-                fontSize = 16f.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
-        SeyraEmbeddedWebPage(
-            url = "https://yy.luodian.net.cn/",
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(22f.dp))
-        )
     }
 }
 
@@ -1060,66 +1053,6 @@ private fun SeyraXrayInputField(
 }
 
 @Composable
-private fun SeyraMusicPlatformSelector(
-    selectedPlatform: String,
-    onPlatformSelected: (String) -> Unit,
-    backdrop: LayerBackdrop
-) {
-    val platforms = listOf(
-        "netease" to "网易云",
-        "qq" to "QQ",
-        "kugou" to "酷狗",
-        "kuwo" to "酷我"
-    )
-
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8f.dp)
-    ) {
-        platforms.forEach { (platform, label) ->
-            val selected = selectedPlatform == platform
-            Box(
-                Modifier
-                    .height(40f.dp)
-                    .weight(1f)
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { Capsule() },
-                        effects = {
-                            vibrancy()
-                            blur(8f.dp.toPx())
-                            lens(10f.dp.toPx(), 18f.dp.toPx())
-                        },
-                        onDrawSurface = {
-                            drawRect(if (selected) Color(0x9EFFFFFF) else Color(0x58FFFFFF))
-                            drawRect(
-                                if (selected) Color(0x3035B8FF) else Color(0x0F6EBBFF),
-                                blendMode = BlendMode.Screen
-                            )
-                        }
-                    )
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { onPlatformSelected(platform) }
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                BasicText(
-                    label,
-                    style = TextStyle(
-                        color = if (selected) Color(0xFF008DFF) else Color(0xCC05070A),
-                        fontSize = 13f.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun SeyraTextActionButton(
     text: String,
     backdrop: LayerBackdrop,
@@ -1160,54 +1093,6 @@ private fun SeyraTextActionButton(
                 textAlign = TextAlign.Center
             )
         )
-    }
-}
-
-@Composable
-private fun SeyraMusicResultPanel(
-    music: SeyraMusicResult?,
-    backdrop: LayerBackdrop
-) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(126f.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(22f.dp) },
-                effects = {
-                    vibrancy()
-                    blur(10f.dp.toPx())
-                    lens(12f.dp.toPx(), 20f.dp.toPx())
-                },
-                onDrawSurface = {
-                    drawRect(Color(0x62FFFFFF))
-                    drawRect(Color(0x14FF5B58), blendMode = BlendMode.Screen)
-                }
-            )
-            .padding(18f.dp)
-    ) {
-        Column(
-            Modifier.align(Alignment.CenterStart),
-            verticalArrangement = Arrangement.spacedBy(9f.dp)
-        ) {
-            BasicText(
-                music?.name ?: "搜索后会显示歌曲名称",
-                style = TextStyle(
-                    color = if (music == null) Color(0x6605070A) else Color(0xFF05070A),
-                    fontSize = 18f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-            BasicText(
-                music?.author ?: "支持网易云、QQ、酷狗、酷我",
-                style = TextStyle(
-                    color = if (music == null) Color(0x6605070A) else Color(0xD0111827),
-                    fontSize = 14f.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
     }
 }
 
