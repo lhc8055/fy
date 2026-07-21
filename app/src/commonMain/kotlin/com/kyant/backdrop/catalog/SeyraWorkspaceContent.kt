@@ -85,6 +85,7 @@ import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -103,7 +104,7 @@ private data class SeyraDockTab(
 
 private val workspaceCards = listOf(
     SeyraCard("社工查询", "综合信息查询", Color(0xFF70D7FF), "查询"),
-    SeyraCard("三要素补齐", "姓名 手机号 身份证", Color(0xFF9B7CFF), "查询"),
+    SeyraCard("网易云解析", "音乐搜索 / 在线播放", Color(0xFFFF5B58), "音乐"),
     SeyraCard("手机号补齐", "姓名 手机号", Color(0xFFFFC56E), "查询"),
     SeyraCard("灵感盒子", "收藏碎片 / 快速保存", Color(0xFFFF8EC7), "收藏"),
     SeyraCard("快捷工具", "常用操作 / 一键启动", Color(0xFF6EF0BC), "工具"),
@@ -838,9 +839,15 @@ private fun SeyraToolDetailPage(
     var query by rememberSaveable { mutableStateOf("") }
     var result by rememberSaveable { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
+    var selectedMusicPlatform by rememberSaveable { mutableStateOf("netease") }
+    var musicResult by remember { mutableStateOf<SeyraMusicResult?>(null) }
+    var isMusicCooldown by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val copyText = rememberCopyTextAction()
+    val showToast = rememberShowToastAction()
+    val musicPlayer = rememberSeyraMusicPlayerController()
     val isXrayTool = card.title == "社工查询"
+    val isMusicTool = card.title == "网易云解析"
 
     Column(
         modifier
@@ -934,6 +941,70 @@ private fun SeyraToolDetailPage(
                 result = result,
                 backdrop = backdrop
             )
+        } else if (isMusicTool) {
+            SeyraXrayInputField(
+                value = query,
+                onValueChange = { query = it },
+                backdrop = backdrop,
+                modifier = Modifier.padding(top = 10f.dp)
+            )
+            SeyraMusicPlatformSelector(
+                selectedPlatform = selectedMusicPlatform,
+                onPlatformSelected = { selectedMusicPlatform = it },
+                backdrop = backdrop
+            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10f.dp)
+            ) {
+                SeyraTextActionButton(
+                    text = if (isLoading) "搜索中" else "搜索播放",
+                    backdrop = backdrop,
+                    enabled = query.isNotBlank() && !isLoading && !isMusicCooldown,
+                    onClick = {
+                        scope.launch {
+                            if (isMusicCooldown) {
+                                showToast("请稍等 1.5 秒后再搜索")
+                                return@launch
+                            }
+                            isMusicCooldown = true
+                            launch {
+                                delay(1500)
+                                isMusicCooldown = false
+                            }
+                            isLoading = true
+                            runCatching {
+                                requestMusicResult(query, selectedMusicPlatform)
+                            }.onSuccess { music ->
+                                musicResult = music
+                                musicPlayer.play(music.audioUrl)
+                                showToast("开始播放：${music.name}")
+                            }.onFailure {
+                                showToast(it.message ?: "搜索失败，请稍后重试")
+                            }
+                            isLoading = false
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                SeyraTextActionButton(
+                    text = if (musicPlayer.isPlaying) "暂停" else "播放",
+                    backdrop = backdrop,
+                    enabled = musicResult != null && !isLoading,
+                    onClick = {
+                        if (musicPlayer.isPlaying) {
+                            musicPlayer.pause()
+                        } else {
+                            musicPlayer.resume()
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            SeyraMusicResultPanel(
+                music = musicResult,
+                backdrop = backdrop
+            )
         }
     }
 }
@@ -993,6 +1064,66 @@ private fun SeyraXrayInputField(
 }
 
 @Composable
+private fun SeyraMusicPlatformSelector(
+    selectedPlatform: String,
+    onPlatformSelected: (String) -> Unit,
+    backdrop: LayerBackdrop
+) {
+    val platforms = listOf(
+        "netease" to "网易云",
+        "qq" to "QQ",
+        "kugou" to "酷狗",
+        "kuwo" to "酷我"
+    )
+
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8f.dp)
+    ) {
+        platforms.forEach { (platform, label) ->
+            val selected = selectedPlatform == platform
+            Box(
+                Modifier
+                    .height(40f.dp)
+                    .weight(1f)
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { Capsule() },
+                        effects = {
+                            vibrancy()
+                            blur(8f.dp.toPx())
+                            lens(10f.dp.toPx(), 18f.dp.toPx())
+                        },
+                        onDrawSurface = {
+                            drawRect(if (selected) Color(0x9EFFFFFF) else Color(0x58FFFFFF))
+                            drawRect(
+                                if (selected) Color(0x3035B8FF) else Color(0x0F6EBBFF),
+                                blendMode = BlendMode.Screen
+                            )
+                        }
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { onPlatformSelected(platform) }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                BasicText(
+                    label,
+                    style = TextStyle(
+                        color = if (selected) Color(0xFF008DFF) else Color(0xCC05070A),
+                        fontSize = 13f.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun SeyraTextActionButton(
     text: String,
     backdrop: LayerBackdrop,
@@ -1033,6 +1164,54 @@ private fun SeyraTextActionButton(
                 textAlign = TextAlign.Center
             )
         )
+    }
+}
+
+@Composable
+private fun SeyraMusicResultPanel(
+    music: SeyraMusicResult?,
+    backdrop: LayerBackdrop
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(126f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(22f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(10f.dp.toPx())
+                    lens(12f.dp.toPx(), 20f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x62FFFFFF))
+                    drawRect(Color(0x14FF5B58), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(18f.dp)
+    ) {
+        Column(
+            Modifier.align(Alignment.CenterStart),
+            verticalArrangement = Arrangement.spacedBy(9f.dp)
+        ) {
+            BasicText(
+                music?.name ?: "搜索后会显示歌曲名称",
+                style = TextStyle(
+                    color = if (music == null) Color(0x6605070A) else Color(0xFF05070A),
+                    fontSize = 18f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            BasicText(
+                music?.author ?: "支持网易云、QQ、酷狗、酷我",
+                style = TextStyle(
+                    color = if (music == null) Color(0x6605070A) else Color(0xD0111827),
+                    fontSize = 14f.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            )
+        }
     }
 }
 
@@ -1572,7 +1751,7 @@ private fun SeyraLiquidCard(
 ) {
     val imageUrl = when (card.title) {
         "社工查询" -> xrayBannerUrl
-        "三要素补齐" -> threeElementsBannerUrl
+        "网易云解析" -> threeElementsBannerUrl
         "辅助" -> libraryBannerUrl
         "玩机" -> templateBannerUrl
         "文件分组" -> fileGroupBannerUrl
