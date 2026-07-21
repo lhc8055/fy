@@ -113,14 +113,15 @@ private val workspaceCards = listOf(
 )
 
 private val resourceCards = listOf(
-    SeyraCard("资料库", "常用资料 / 快速查找", Color(0xFF70D7FF), "资料"),
-    SeyraCard("模板中心", "文案模板 / 表格模板", Color(0xFF9B7CFF), "模板"),
+    SeyraCard("辅助", "常用辅助 / 快速查找", Color(0xFF70D7FF), "辅助"),
+    SeyraCard("玩机", "玩机模块 / 实用工具", Color(0xFF9B7CFF), "玩机"),
     SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
     SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近"),
-    SeyraCard("文件分组", "分类整理 / 目录管理", Color(0xFF6EF0BC), "资料"),
+    SeyraCard("文件分组", "分类整理 / 目录管理", Color(0xFF6EF0BC), "辅助"),
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接")
 )
 
+private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/03/3a28d567b1cc89aa3ecedd9f75e1b0.jpg"
 private const val libraryBannerUrl = "https://new.cayfpay.cn/upload/6e/a51caa736cb797e7d332d4a9836b2d.jpg"
 private const val templateBannerUrl = "https://new.cayfpay.cn/upload/7c/eb98dce3d508111dd40ef26c46de45.jpg"
 private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg"
@@ -318,6 +319,7 @@ private fun xrayLinePriority(line: String): Int {
 fun SeyraWorkspaceContent() {
     SeyraPreloadRemoteImages(
         listOf(
+            xrayBannerUrl to 900,
             libraryBannerUrl to 900,
             templateBannerUrl to 900,
             profileAvatarUrl to 256
@@ -458,7 +460,7 @@ private fun SeyraPageContent(
 private fun SeyraResourcePage(backdrop: LayerBackdrop) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("全部") }
-    val categories = remember { listOf("全部", "资料", "模板", "收藏", "最近") }
+    val categories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
     val filteredCards = remember(query, selectedCategory) {
         val keyword = query.trim()
         resourceCards.filter { card ->
@@ -1406,7 +1408,7 @@ private fun SeyraProfileInfoPanel(
                 }
             )
             .padding(horizontal = 30f.dp),
-        verticalArrangement = Arrangement.spacedBy(24f.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.spacedBy(18f.dp, Alignment.CenterVertically)
     ) {
         BasicText(
             "TG@sspyj",
@@ -1414,6 +1416,14 @@ private fun SeyraProfileInfoPanel(
                 color = Color(0xFF05070A),
                 fontSize = 18f.sp,
                 fontWeight = FontWeight.SemiBold
+            )
+        )
+        BasicText(
+            "当前版本1.0.0",
+            style = TextStyle(
+                color = Color(0xD005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
             )
         )
         BasicText(
@@ -1557,8 +1567,9 @@ private fun SeyraLiquidCard(
     modifier: Modifier = Modifier
 ) {
     val imageUrl = when (card.title) {
-        "资料库" -> libraryBannerUrl
-        "模板中心" -> templateBannerUrl
+        "社工查询" -> xrayBannerUrl
+        "辅助" -> libraryBannerUrl
+        "玩机" -> templateBannerUrl
         else -> null
     }
 

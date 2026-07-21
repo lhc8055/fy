@@ -37,6 +37,7 @@ fun preloadSeyraStartupImages(context: Context) {
     val appContext = context.applicationContext
     startupImagePreloadScope.launch {
         listOf(
+            "https://new.cayfpay.cn/upload/03/3a28d567b1cc89aa3ecedd9f75e1b0.jpg" to 900,
             "https://new.cayfpay.cn/upload/6e/a51caa736cb797e7d332d4a9836b2d.jpg" to 900,
             "https://new.cayfpay.cn/upload/7c/eb98dce3d508111dd40ef26c46de45.jpg" to 900,
             "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg" to 256
