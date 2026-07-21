@@ -122,8 +122,10 @@ private val resourceCards = listOf(
 )
 
 private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/03/3a28d567b1cc89aa3ecedd9f75e1b0.jpg"
+private const val threeElementsBannerUrl = "https://new.cayfpay.cn/upload/43/dd11e5da776272c8fa7eebd84b42f1.jpg"
 private const val libraryBannerUrl = "https://new.cayfpay.cn/upload/6e/a51caa736cb797e7d332d4a9836b2d.jpg"
 private const val templateBannerUrl = "https://new.cayfpay.cn/upload/7c/eb98dce3d508111dd40ef26c46de45.jpg"
+private const val fileGroupBannerUrl = "https://new.cayfpay.cn/upload/37/99a5019baa95224ce9adaeed14b633.jpg"
 private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg"
 
 private fun formatXrayResult(raw: String): String {
@@ -320,8 +322,10 @@ fun SeyraWorkspaceContent() {
     SeyraPreloadRemoteImages(
         listOf(
             xrayBannerUrl to 900,
+            threeElementsBannerUrl to 900,
             libraryBannerUrl to 900,
             templateBannerUrl to 900,
+            fileGroupBannerUrl to 900,
             profileAvatarUrl to 256
         )
     )
@@ -1408,7 +1412,7 @@ private fun SeyraProfileInfoPanel(
                 }
             )
             .padding(horizontal = 30f.dp),
-        verticalArrangement = Arrangement.spacedBy(18f.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.spacedBy(20f.dp, Alignment.CenterVertically)
     ) {
         BasicText(
             "TG@sspyj",
@@ -1419,7 +1423,7 @@ private fun SeyraProfileInfoPanel(
             )
         )
         BasicText(
-            "当前版本1.0.0",
+            "版本更新",
             style = TextStyle(
                 color = Color(0xD005070A),
                 fontSize = 16f.sp,
@@ -1568,8 +1572,10 @@ private fun SeyraLiquidCard(
 ) {
     val imageUrl = when (card.title) {
         "社工查询" -> xrayBannerUrl
+        "三要素补齐" -> threeElementsBannerUrl
         "辅助" -> libraryBannerUrl
         "玩机" -> templateBannerUrl
+        "文件分组" -> fileGroupBannerUrl
         else -> null
     }
 
