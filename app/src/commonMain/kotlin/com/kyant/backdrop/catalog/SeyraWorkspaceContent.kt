@@ -509,6 +509,20 @@ private fun SeyraPageContent(
     val containerHeight = remember { mutableIntStateOf(0) }
     val containerTop = remember { mutableIntStateOf(0) }
     val dockFadeZonePx = with(density) { 100f.dp.toPx() }
+    val resourceQuery = rememberSaveable { mutableStateOf("") }
+    val resourceCategory = rememberSaveable { mutableStateOf("全部") }
+    val resourceCategories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
+    val filteredResourceCards = remember(resourceQuery.value, resourceCategory.value) {
+        val keyword = resourceQuery.value.trim()
+        resourceCards.filter { card ->
+            val categoryMatched = resourceCategory.value == "全部" || card.category == resourceCategory.value
+            val keywordMatched = keyword.isEmpty() ||
+                card.title.contains(keyword, ignoreCase = true) ||
+                card.subtitle.contains(keyword, ignoreCase = true) ||
+                card.category.contains(keyword, ignoreCase = true)
+            categoryMatched && keywordMatched
+        }
+    }
 
     LazyColumn(
         state = listState,
@@ -553,20 +567,6 @@ private fun SeyraPageContent(
                     else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
                 }
             }
-            val resourceQuery = rememberSaveable { mutableStateOf("") }
-            val resourceCategory = rememberSaveable { mutableStateOf("全部") }
-            val categories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
-            val filteredCards = remember(resourceQuery.value, resourceCategory.value) {
-                val keyword = resourceQuery.value.trim()
-                resourceCards.filter { card ->
-                    val categoryMatched = resourceCategory.value == "全部" || card.category == resourceCategory.value
-                    val keywordMatched = keyword.isEmpty() ||
-                        card.title.contains(keyword, ignoreCase = true) ||
-                        card.subtitle.contains(keyword, ignoreCase = true) ||
-                        card.category.contains(keyword, ignoreCase = true)
-                    categoryMatched && keywordMatched
-                }
-            }
 
             stickyHeader(key = "search") {
                 SeyraSearchField(
@@ -577,7 +577,7 @@ private fun SeyraPageContent(
             }
             stickyHeader(key = "chips") {
                 SeyraCategoryChips(
-                    categories = categories,
+                    categories = resourceCategories,
                     selectedCategory = resourceCategory.value,
                     onCategorySelected = { resourceCategory.value = it },
                     backdrop = backdrop
@@ -585,7 +585,7 @@ private fun SeyraPageContent(
             }
             item {
                 SeyraCardGrid(
-                    cards = filteredCards,
+                    cards = filteredResourceCards,
                     backdrop = backdrop,
                     onCardClick = {},
                     cardRowAlpha = alphaProvider
