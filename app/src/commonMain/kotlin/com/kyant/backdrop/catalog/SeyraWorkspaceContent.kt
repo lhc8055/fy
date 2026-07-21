@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -380,6 +381,14 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     }
 
     if (!showSettingsPage && !showMusicWebsitePage) {
+        SeyraDockGradientMist(
+            backdrop = backdrop,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 2f.dp)
+        )
+
         SeyraDock(
             selectedTabIndex = selectedTabIndex,
             onTabSelected = { selectedTabIndex = it },
@@ -427,6 +436,47 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             modifier = Modifier.align(Alignment.Center)
         )
     }
+}
+
+@Composable
+private fun SeyraDockGradientMist(
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(214f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(42f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(26f.dp.toPx())
+                    lens(8f.dp.toPx(), 18f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(
+                        Brush.verticalGradient(
+                            0.00f to Color.Transparent,
+                            0.26f to Color(0x1FFFFFFF),
+                            0.58f to Color(0x70FFFFFF),
+                            0.82f to Color(0x52FFFFFF),
+                            1.00f to Color.Transparent
+                        )
+                    )
+                    drawRect(
+                        Brush.verticalGradient(
+                            0.00f to Color.Transparent,
+                            0.48f to Color(0x1235B8FF),
+                            0.72f to Color(0x18FFFFFF),
+                            1.00f to Color.Transparent
+                        ),
+                        blendMode = BlendMode.Screen
+                    )
+                }
+            )
+    )
 }
 
 @Composable
