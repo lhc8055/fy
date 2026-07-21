@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -58,11 +59,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.coerceIn
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
@@ -496,11 +499,22 @@ private fun SeyraPageContent(
     onMusicWebsiteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val density = LocalDensity.current
+    val listState = rememberLazyListState()
+    val containerHeight = remember { mutableIntStateOf(0) }
+    val containerTop = remember { mutableIntStateOf(0) }
+    val dockFadeZonePx = with(density) { 100f.dp.toPx() }
+
     LazyColumn(
+        state = listState,
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .displayCutoutPadding(),
+            .displayCutoutPadding()
+            .onGloballyPositioned { coordinates ->
+                containerHeight.intValue = coordinates.size.height
+                containerTop.intValue = coordinates.positionInRoot().y.toInt()
+            },
         contentPadding = PaddingValues(
             start = 22f.dp,
             top = when (tabIndex) {
@@ -526,7 +540,16 @@ private fun SeyraPageContent(
             }
         } else if (tabIndex == 1) {
             item {
-                SeyraResourcePage(backdrop)
+                val alphaProvider: (Int) -> Float = { itemBottomPx ->
+                    val dockTopPx = containerTop.intValue + containerHeight.intValue - dockFadeZonePx
+                    val distance = dockTopPx - itemBottomPx
+                    when {
+                        distance >= dockFadeZonePx -> 1f
+                        distance <= 0f -> 0.5f
+                        else -> 1f - (1f - distance / dockFadeZonePx) * 0.5f
+                    }.coerceIn(0.5f, 1f)
+                }
+                SeyraResourcePage(backdrop, cardRowAlpha = alphaProvider)
             }
         } else if (tabIndex == 2) {
             item {
@@ -549,7 +572,10 @@ private fun SeyraPageContent(
 }
 
 @Composable
-private fun SeyraResourcePage(backdrop: LayerBackdrop) {
+private fun SeyraResourcePage(
+    backdrop: LayerBackdrop,
+    cardRowAlpha: (Int) -> Float = { 1f }
+) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("全部") }
     val categories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
@@ -583,7 +609,8 @@ private fun SeyraResourcePage(backdrop: LayerBackdrop) {
         SeyraCardGrid(
             cards = filteredCards,
             backdrop = backdrop,
-            onCardClick = {}
+            onCardClick = {},
+            cardRowAlpha = cardRowAlpha
         )
     }
 }
@@ -735,7 +762,8 @@ private fun SeyraCardGrid(
     cards: List<SeyraCard>,
     backdrop: LayerBackdrop,
     onCardClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardRowAlpha: (Int) -> Float = { 1f }
 ) {
     Column(
         modifier,
@@ -745,8 +773,15 @@ private fun SeyraCardGrid(
             SeyraEmptyResourcePanel(backdrop)
         } else {
             cards.chunked(2).forEachIndexed { rowIndex, rowCards ->
+                val rowAlpha = remember { mutableStateOf(1f) }
                 Row(
-                    Modifier.fillMaxWidth(),
+                    Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            val bottomInRoot = coordinates.positionInRoot().y + coordinates.size.height
+                            rowAlpha.value = cardRowAlpha(bottomInRoot.toInt())
+                        }
+                        .graphicsLayer { alpha = rowAlpha.value },
                     horizontalArrangement = Arrangement.spacedBy(14f.dp)
                 ) {
                     rowCards.forEachIndexed { columnIndex, card ->
