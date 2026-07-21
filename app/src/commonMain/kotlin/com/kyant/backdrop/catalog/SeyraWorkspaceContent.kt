@@ -1,8 +1,13 @@
 package com.kyant.backdrop.catalog
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,6 +74,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -365,7 +371,7 @@ fun SeyraWorkspaceContent() {
 
 @Composable
 private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(2) }
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     var showSettingsPage by rememberSaveable { mutableStateOf(false) }
     var showContactDialog by rememberSaveable { mutableStateOf(false) }
     var showMusicWebsitePage by rememberSaveable { mutableStateOf(false) }
@@ -437,15 +443,25 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         )
     }
 
-    if (!showSettingsPage && selectedTabIndex != 3) {
+    AnimatedVisibility(
+        visible = !showSettingsPage && selectedTabIndex != 3,
+        enter = fadeIn(animationSpec = tween(220)) + slideInHorizontally(
+            initialOffsetX = { it / 3 },
+            animationSpec = tween(280, easing = FastOutSlowInEasing)
+        ),
+        exit = fadeOut(animationSpec = tween(160)) + slideOutHorizontally(
+            targetOffsetX = { it / 3 },
+            animationSpec = tween(200, easing = FastOutSlowInEasing)
+        ),
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .statusBarsPadding()
+            .displayCutoutPadding()
+            .padding(top = 18f.dp, end = 22f.dp)
+    ) {
         SeyraTopActions(
             backdrop = backdrop,
-            onShareClick = shareApp,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .statusBarsPadding()
-                .displayCutoutPadding()
-                .padding(top = 18f.dp, end = 22f.dp)
+            onShareClick = shareApp
         )
     }
 
@@ -591,6 +607,25 @@ private fun SeyraPageContent(
                     SeyraDiscoverFrostedPanel(
                         backdrop = backdrop,
                         modifier = Modifier.padding(top = 12f.dp)
+                    )
+                }
+                item {
+                    val discoverCards = remember {
+                        listOf(
+                            SeyraCard("和平精英", "", Color(0xFF6EF0BC), "游戏",
+                                imageUrl = "https://new.cayfpay.cn/upload/a9/5818a6e4b274c9d0d559e25d060145.jpg"),
+                            SeyraCard("王者荣耀", "", Color(0xFFFF5B58), "游戏",
+                                imageUrl = "https://new.cayfpay.cn/upload/43/dd11e5da776272c8fa7eebd84b42f1.jpg"),
+                            SeyraCard("三角洲行动", "", Color(0xFFFFC56E), "游戏"),
+                            SeyraCard("瓦罗兰特", "", Color(0xFF7EA8FF), "游戏"),
+                            SeyraCard("香肠派对", "", Color(0xFFFF8EC7), "游戏",
+                                imageUrl = "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg")
+                        )
+                    }
+                    SeyraCardGrid(
+                        cards = discoverCards,
+                        backdrop = backdrop,
+                        onCardClick = {}
                     )
                 }
             } else if (tabIndex == 1) {
@@ -859,7 +894,10 @@ private fun SeyraCardGrid(
                         .fillMaxWidth()
                         .onGloballyPositioned { coordinates ->
                             val bottomInRoot = coordinates.positionInRoot().y + coordinates.size.height
-                            rowAlpha.value = cardRowAlpha(bottomInRoot.toInt())
+                            val newAlpha = cardRowAlpha(bottomInRoot.toInt())
+                            if (abs(rowAlpha.value - newAlpha) > 0.01f) {
+                                rowAlpha.value = newAlpha
+                            }
                         }
                         .graphicsLayer { alpha = rowAlpha.value },
                     horizontalArrangement = Arrangement.spacedBy(14f.dp)
@@ -1824,30 +1862,6 @@ private fun SeyraLiquidCard(
                     .fillMaxSize()
                     .clip(RoundedCornerShape(24f.dp))
             )
-        } else {
-            Column(
-                Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(18f.dp),
-                verticalArrangement = Arrangement.spacedBy(7f.dp)
-            ) {
-                BasicText(
-                    card.title,
-                    style = TextStyle(
-                        color = Color(0xFF05070A),
-                        fontSize = 18f.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-                BasicText(
-                    card.subtitle,
-                    style = TextStyle(
-                        color = Color(0xEA111827),
-                        fontSize = 12.5f.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            }
         }
     }
 }
