@@ -9,6 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -122,14 +125,14 @@ private val workspaceCards = listOf(
 private val resourceCards = listOf(
     SeyraCard("辅助", "常用辅助 / 快速查找", Color(0xFF70D7FF), "辅助"),
     SeyraCard("玩机", "玩机模块 / 实用工具", Color(0xFF9B7CFF), "玩机"),
-    SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
-    SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近"),
     SeyraCard("文件分组", "分类整理 / 目录管理", Color(0xFF6EF0BC), "辅助"),
     SeyraCard("辅助入口一", "辅助工具 / 快速入口", Color(0xFFFF8EC7), "辅助"),
     SeyraCard("辅助入口二", "辅助工具 / 快速入口", Color(0xFF70D7FF), "辅助"),
     SeyraCard("辅助入口三", "辅助工具 / 快速入口", Color(0xFFFFC56E), "辅助"),
     SeyraCard("辅助入口四", "辅助工具 / 快速入口", Color(0xFF7EA8FF), "辅助"),
-    SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接")
+    SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接"),
+    SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
+    SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近")
 )
 
 private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/c1/0b6d3b2310c2c06508c5eacb3a5221.jpg"
@@ -541,17 +544,52 @@ private fun SeyraPageContent(
                 )
             }
         } else if (tabIndex == 1) {
-            item {
-                val alphaProvider: (Int) -> Float = { itemBottomPx ->
-                    val dockTopPx = containerTop.intValue + containerHeight.intValue - dockFadeZonePx
-                    val distance = dockTopPx - itemBottomPx
-                    when {
-                        distance >= dockFadeZonePx -> 1f
-                        distance <= 0f -> 0.5f
-                        else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
-                    }
+            val alphaProvider: (Int) -> Float = { itemBottomPx ->
+                val dockTopPx = containerTop.intValue + containerHeight.intValue - dockFadeZonePx
+                val distance = dockTopPx - itemBottomPx
+                when {
+                    distance >= dockFadeZonePx -> 1f
+                    distance <= 0f -> 0.5f
+                    else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
                 }
-                SeyraResourcePage(backdrop, cardRowAlpha = alphaProvider)
+            }
+            val resourceQuery = rememberSaveable { mutableStateOf("") }
+            val resourceCategory = rememberSaveable { mutableStateOf("全部") }
+            val categories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
+            val filteredCards = remember(resourceQuery.value, resourceCategory.value) {
+                val keyword = resourceQuery.value.trim()
+                resourceCards.filter { card ->
+                    val categoryMatched = resourceCategory.value == "全部" || card.category == resourceCategory.value
+                    val keywordMatched = keyword.isEmpty() ||
+                        card.title.contains(keyword, ignoreCase = true) ||
+                        card.subtitle.contains(keyword, ignoreCase = true) ||
+                        card.category.contains(keyword, ignoreCase = true)
+                    categoryMatched && keywordMatched
+                }
+            }
+
+            stickyHeader(key = "search") {
+                SeyraSearchField(
+                    value = resourceQuery.value,
+                    onValueChange = { resourceQuery.value = it },
+                    backdrop = backdrop
+                )
+            }
+            stickyHeader(key = "chips") {
+                SeyraCategoryChips(
+                    categories = categories,
+                    selectedCategory = resourceCategory.value,
+                    onCategorySelected = { resourceCategory.value = it },
+                    backdrop = backdrop
+                )
+            }
+            item {
+                SeyraCardGrid(
+                    cards = filteredCards,
+                    backdrop = backdrop,
+                    onCardClick = {},
+                    cardRowAlpha = alphaProvider
+                )
             }
         } else if (tabIndex == 2) {
             item {
@@ -701,10 +739,29 @@ private fun SeyraCategoryChips(
         )
     }
 
+    val dragThreshold = 80f
+    var dragAccumulated by remember { mutableStateOf(0f) }
+
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
             .height(40f.dp)
+            .draggable(
+                orientation = androidx.compose.foundation.gestures.Orientation.Horizontal,
+                state = rememberDraggableState { delta ->
+                    dragAccumulated += delta
+                },
+                onDragStopped = {
+                    if (dragAccumulated > dragThreshold) {
+                        val newIdx = (selectedIndex + 1).coerceAtMost(categories.lastIndex)
+                        onCategorySelected(categories[newIdx])
+                    } else if (dragAccumulated < -dragThreshold) {
+                        val newIdx = (selectedIndex - 1).coerceAtLeast(0)
+                        onCategorySelected(categories[newIdx])
+                    }
+                    dragAccumulated = 0f
+                }
+            )
     ) {
         val density = LocalDensity.current
         val itemWidthPx = with(density) {
