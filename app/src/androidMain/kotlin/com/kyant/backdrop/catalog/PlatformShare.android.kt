@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -244,6 +245,10 @@ actual fun SeyraEmbeddedWebPage(
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
                 settings.textZoom = 92
+                settings.mediaPlaybackRequiresUserGesture = false
+                settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                settings.allowFileAccess = true
+                settings.databaseEnabled = true
                 loadUrl(url)
             }
         },

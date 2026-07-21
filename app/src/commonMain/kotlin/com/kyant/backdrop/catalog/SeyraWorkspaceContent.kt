@@ -49,11 +49,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -382,12 +382,21 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     }
 
     if (!showSettingsPage && !showMusicWebsitePage) {
-        SeyraDockGradientMist(
-            backdrop = backdrop,
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = 2f.dp)
+                .fillMaxWidth()
+                .height(240f.dp)
+                .drawBehind {
+                    drawRect(
+                        Brush.verticalGradient(
+                            0.00f to Color.Transparent,
+                            0.35f to Color(0x08FFFFFF),
+                            0.65f to Color(0x10FFFFFF),
+                            1.00f to Color.Transparent
+                        )
+                    )
+                }
         )
 
         SeyraDock(
@@ -437,36 +446,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             modifier = Modifier.align(Alignment.Center)
         )
     }
-}
-
-@Composable
-private fun SeyraDockGradientMist(
-    backdrop: LayerBackdrop,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(240f.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RectangleShape },
-                effects = {
-                    vibrancy()
-                    blur(18f.dp.toPx())
-                },
-                onDrawSurface = {
-                    drawRect(
-                        Brush.verticalGradient(
-                            0.00f to Color.Transparent,
-                            0.40f to Color(0x0DFFFFFF),
-                            0.72f to Color(0x14FFFFFF),
-                            1.00f to Color.Transparent
-                        )
-                    )
-                }
-            )
-    )
 }
 
 @Composable
