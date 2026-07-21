@@ -103,7 +103,8 @@ private data class SeyraCard(
     val title: String,
     val subtitle: String,
     val tint: Color,
-    val category: String
+    val category: String,
+    val imageUrl: String? = null
 )
 
 private data class SeyraDockTab(
@@ -131,6 +132,11 @@ private val resourceCards = listOf(
     SeyraCard("辅助入口三", "辅助工具 / 快速入口", Color(0xFFFFC56E), "辅助"),
     SeyraCard("辅助入口四", "辅助工具 / 快速入口", Color(0xFF7EA8FF), "辅助"),
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接"),
+    SeyraCard("赏帮", "赏帮赚钱 / 任务平台", Color(0xFFFF5B58), "辅助",
+        imageUrl = "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg"),
+    SeyraCard("TG账号", "超低价格 / 快速购买", Color(0xFF70D7FF), "辅助"),
+    SeyraCard("辅助整合", "游戏辅助 / 一键整合", Color(0xFF9B7CFF), "辅助"),
+    SeyraCard("香肠派对", "热门游戏 / 资源入口", Color(0xFFFFC56E), "玩机"),
     SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
     SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近")
 )
@@ -524,58 +530,29 @@ private fun SeyraPageContent(
         }
     }
 
-    LazyColumn(
-        state = listState,
-        modifier = modifier
+    val showResourceHeader = tabIndex == 1
+
+    Column(
+        modifier
             .fillMaxSize()
             .statusBarsPadding()
             .displayCutoutPadding()
             .onGloballyPositioned { coordinates ->
-                containerHeight.intValue = coordinates.size.height
                 containerTop.intValue = coordinates.positionInRoot().y.toInt()
-            },
-        contentPadding = PaddingValues(
-            start = 22f.dp,
-            top = when (tabIndex) {
-                1 -> 86f.dp
-                2 -> 82f.dp
-                3 -> 82f.dp
-                else -> 100f.dp
-            },
-            end = 22f.dp,
-            bottom = 124f.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(14f.dp)
+                containerHeight.intValue = coordinates.size.height
+            }
     ) {
-        if (tabIndex == 0) {
-            item {
-                SeyraLiquidHeaderPanel(backdrop)
-            }
-            item {
-                SeyraDiscoverFrostedPanel(
-                    backdrop = backdrop,
-                    modifier = Modifier.padding(top = 12f.dp)
-                )
-            }
-        } else if (tabIndex == 1) {
-            val alphaProvider: (Int) -> Float = { itemBottomPx ->
-                val dockTopPx = containerTop.intValue + containerHeight.intValue - dockFadeZonePx
-                val distance = dockTopPx - itemBottomPx
-                when {
-                    distance >= dockFadeZonePx -> 1f
-                    distance <= 0f -> 0.5f
-                    else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
-                }
-            }
-
-            stickyHeader(key = "search") {
+        // 固定搜索框和分类栏（仅资源页）
+        if (showResourceHeader) {
+            Column(
+                Modifier.padding(horizontal = 22f.dp),
+                verticalArrangement = Arrangement.spacedBy(14f.dp)
+            ) {
                 SeyraSearchField(
                     value = resourceQuery.value,
                     onValueChange = { resourceQuery.value = it },
                     backdrop = backdrop
                 )
-            }
-            stickyHeader(key = "chips") {
                 SeyraCategoryChips(
                     categories = resourceCategories,
                     selectedCategory = resourceCategory.value,
@@ -583,29 +560,73 @@ private fun SeyraPageContent(
                     backdrop = backdrop
                 )
             }
-            item {
-                SeyraCardGrid(
-                    cards = filteredResourceCards,
-                    backdrop = backdrop,
-                    onCardClick = {},
-                    cardRowAlpha = alphaProvider
-                )
-            }
-        } else if (tabIndex == 2) {
-            item {
-                SeyraToolNavigationStack(
-                    backdrop = backdrop,
-                    onMusicWebsiteClick = onMusicWebsiteClick
-                )
-            }
-        } else if (tabIndex == 3) {
-            item {
-                SeyraProfilePage(
-                    backdrop = backdrop,
-                    onContactClick = onContactClick,
-                    onFeedbackClick = onFeedbackClick,
-                    onSettingsClick = onSettingsClick
-                )
+        }
+
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .onGloballyPositioned { coordinates ->
+                    containerHeight.intValue = (containerTop.intValue + coordinates.size.height)
+                },
+            contentPadding = PaddingValues(
+                start = 22f.dp,
+                top = when (tabIndex) {
+                    0 -> 100f.dp
+                    1 -> 12f.dp
+                    2 -> 82f.dp
+                    3 -> 82f.dp
+                    else -> 100f.dp
+                },
+                end = 22f.dp,
+                bottom = 124f.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(14f.dp)
+        ) {
+            if (tabIndex == 0) {
+                item {
+                    SeyraLiquidHeaderPanel(backdrop)
+                }
+                item {
+                    SeyraDiscoverFrostedPanel(
+                        backdrop = backdrop,
+                        modifier = Modifier.padding(top = 12f.dp)
+                    )
+                }
+            } else if (tabIndex == 1) {
+                val alphaProvider: (Int) -> Float = { itemBottomPx ->
+                    val dockTopPx = containerTop.intValue + containerHeight.intValue - dockFadeZonePx
+                    val distance = dockTopPx - itemBottomPx
+                    when {
+                        distance >= dockFadeZonePx -> 1f
+                        distance <= 0f -> 0.5f
+                        else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
+                    }
+                }
+                item {
+                    SeyraCardGrid(
+                        cards = filteredResourceCards,
+                        backdrop = backdrop,
+                        onCardClick = {},
+                        cardRowAlpha = alphaProvider
+                    )
+                }
+            } else if (tabIndex == 2) {
+                item {
+                    SeyraToolNavigationStack(
+                        backdrop = backdrop,
+                        onMusicWebsiteClick = onMusicWebsiteClick
+                    )
+                }
+            } else if (tabIndex == 3) {
+                item {
+                    SeyraProfilePage(
+                        backdrop = backdrop,
+                        onContactClick = onContactClick,
+                        onFeedbackClick = onFeedbackClick,
+                        onSettingsClick = onSettingsClick
+                    )
+                }
             }
         }
     }
@@ -1760,7 +1781,7 @@ private fun SeyraLiquidCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val imageUrl = when (card.title) {
+    val imageUrl = card.imageUrl ?: when (card.title) {
         "社工查询" -> xrayBannerUrl
         "网易云解析" -> threeElementsBannerUrl
         "辅助" -> libraryBannerUrl
