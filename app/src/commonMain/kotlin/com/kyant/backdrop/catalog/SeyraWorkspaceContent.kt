@@ -465,6 +465,7 @@ private fun SeyraPageContent(
 private fun SeyraResourcePage(backdrop: LayerBackdrop) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("全部") }
+    val openFavoritesWeb = rememberOpenFavoritesWebAction()
     val categories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
     val filteredCards = remember(query, selectedCategory) {
         val keyword = query.trim()
@@ -496,7 +497,11 @@ private fun SeyraResourcePage(backdrop: LayerBackdrop) {
         SeyraCardGrid(
             cards = filteredCards,
             backdrop = backdrop,
-            onCardClick = {}
+            onCardClick = { index ->
+                if (filteredCards.getOrNull(index)?.title == "收藏夹") {
+                    openFavoritesWeb()
+                }
+            }
         )
     }
 }

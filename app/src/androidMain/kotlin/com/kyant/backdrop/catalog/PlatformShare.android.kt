@@ -88,6 +88,19 @@ actual fun rememberOpenFeedbackAction(): () -> Unit {
 }
 
 @Composable
+actual fun rememberOpenFavoritesWebAction(): () -> Unit {
+    val context = LocalContext.current
+    return remember(context) {
+        {
+            val intent = Intent(context, SeyraMusicTestActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        }
+    }
+}
+
+@Composable
 actual fun rememberCopyTextAction(): (String) -> Unit {
     val context = LocalContext.current
     return remember(context) {

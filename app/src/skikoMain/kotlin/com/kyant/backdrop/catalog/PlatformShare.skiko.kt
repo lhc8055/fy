@@ -16,6 +16,11 @@ actual fun rememberOpenFeedbackAction(): () -> Unit {
 }
 
 @Composable
+actual fun rememberOpenFavoritesWebAction(): () -> Unit {
+    return remember { {} }
+}
+
+@Composable
 actual fun rememberCopyTextAction(): (String) -> Unit {
     return remember { {} }
 }

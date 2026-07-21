@@ -24,6 +24,9 @@ expect fun rememberShareAppAction(): () -> Unit
 expect fun rememberOpenFeedbackAction(): () -> Unit
 
 @Composable
+expect fun rememberOpenFavoritesWebAction(): () -> Unit
+
+@Composable
 expect fun rememberCopyTextAction(): (String) -> Unit
 
 expect suspend fun requestXrayResult(message: String): String

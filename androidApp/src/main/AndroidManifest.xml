@@ -28,6 +28,10 @@
             android:name="com.kyant.backdrop.catalog.SeyraFeedbackActivity"
             android:exported="false" />
 
+        <activity
+            android:name="com.kyant.backdrop.catalog.SeyraMusicTestActivity"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
