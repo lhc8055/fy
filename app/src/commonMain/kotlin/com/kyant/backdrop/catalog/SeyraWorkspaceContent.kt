@@ -446,33 +446,21 @@ private fun SeyraDockGradientMist(
     Box(
         modifier
             .fillMaxWidth()
-            .height(214f.dp)
+            .height(240f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
-                shape = { RoundedRectangle(42f.dp) },
                 effects = {
                     vibrancy()
-                    blur(26f.dp.toPx())
-                    lens(8f.dp.toPx(), 18f.dp.toPx())
+                    blur(18f.dp.toPx())
                 },
                 onDrawSurface = {
                     drawRect(
                         Brush.verticalGradient(
                             0.00f to Color.Transparent,
-                            0.26f to Color(0x1FFFFFFF),
-                            0.58f to Color(0x70FFFFFF),
-                            0.82f to Color(0x52FFFFFF),
+                            0.40f to Color(0x0DFFFFFF),
+                            0.72f to Color(0x14FFFFFF),
                             1.00f to Color.Transparent
                         )
-                    )
-                    drawRect(
-                        Brush.verticalGradient(
-                            0.00f to Color.Transparent,
-                            0.48f to Color(0x1235B8FF),
-                            0.72f to Color(0x18FFFFFF),
-                            1.00f to Color.Transparent
-                        ),
-                        blendMode = BlendMode.Screen
                     )
                 }
             )

@@ -59,6 +59,9 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.androidx.activity.compose)
+                implementation("com.squareup.okhttp3:okhttp:4.12.0")
+                implementation("org.jsoup:jsoup:1.18.1")
+                implementation("androidx.media3:media3-exoplayer:1.4.1")
             }
         }
 

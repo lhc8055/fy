@@ -10,9 +10,11 @@ import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,18 +27,29 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.FileProvider
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jsoup.Jsoup
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.net.URL
 import java.security.MessageDigest
+import java.util.concurrent.TimeUnit
 
 private val startupImagePreloadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+private val musicHttpClient = OkHttpClient.Builder()
+    .connectTimeout(12, TimeUnit.SECONDS)
+    .readTimeout(12, TimeUnit.SECONDS)
+    .build()
 
 fun preloadSeyraStartupImages(context: Context) {
     val appContext = context.applicationContext
@@ -110,6 +123,104 @@ actual suspend fun requestXrayResult(message: String): String {
         stream.bufferedReader().use { it.readText() }
     } finally {
         connection.disconnect()
+    }
+}
+
+actual suspend fun requestMusicResult(input: String, platform: String): SeyraMusicResult {
+    val formBody = FormBody.Builder()
+        .add("input", input)
+        .add("type", platform)
+        .build()
+    val request = Request.Builder()
+        .url("https://yy.luodian.net.cn/")
+        .header("User-Agent", "Mozilla/5.0 (Linux; Android 13) Chrome/104.0 Mobile Safari/537.36")
+        .post(formBody)
+        .build()
+
+    return withContext(Dispatchers.IO) {
+        musicHttpClient.newCall(request).execute().use { response ->
+            val html = response.body?.string().orEmpty()
+            if (!response.isSuccessful || html.isBlank()) {
+                error("网络请求失败")
+            }
+
+            val document = Jsoup.parse(html)
+            val audioUrl = document.readElementValue("j-src")
+            val name = document.readElementValue("j-name").ifBlank { input }
+            val author = document.readElementValue("j-author").ifBlank { "未知歌手" }
+            val lyricUrl = document.readElementValue("j-lrc")
+
+            if (audioUrl.isBlank()) {
+                error("没有解析到播放链接")
+            }
+
+            SeyraMusicResult(
+                audioUrl = audioUrl,
+                name = name,
+                author = author,
+                lyricUrl = lyricUrl
+            )
+        }
+    }
+}
+
+private fun org.jsoup.nodes.Document.readElementValue(id: String): String {
+    val element = getElementById(id) ?: return ""
+    return listOf(
+        element.attr("value"),
+        element.attr("href"),
+        element.attr("src"),
+        element.text(),
+        element.wholeText()
+    ).firstOrNull { it.isNotBlank() }.orEmpty().trim()
+}
+
+@Composable
+actual fun rememberSeyraMusicPlayerController(): SeyraMusicPlayerController {
+    val context = LocalContext.current
+    val player = remember(context) {
+        ExoPlayer.Builder(context).build()
+    }
+    var isPlaying by remember { mutableStateOf(false) }
+
+    DisposableEffect(player) {
+        onDispose {
+            player.release()
+        }
+    }
+
+    return remember(player) {
+        object : SeyraMusicPlayerController {
+            override val isPlaying: Boolean
+                get() = isPlaying
+
+            override fun play(url: String) {
+                player.setMediaItem(MediaItem.fromUri(url))
+                player.prepare()
+                player.play()
+                isPlaying = true
+            }
+
+            override fun pause() {
+                player.pause()
+                isPlaying = false
+            }
+
+            override fun resume() {
+                player.play()
+                isPlaying = true
+            }
+        }
+    }
+}
+
+@Composable
+actual fun rememberShowToastAction(): (String) -> Unit {
+    val context = LocalContext.current
+    return remember(context) {
+        { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 }
 
