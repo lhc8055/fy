@@ -16,11 +16,6 @@ actual fun rememberOpenFeedbackAction(): () -> Unit {
 }
 
 @Composable
-actual fun rememberOpenFavoritesWebAction(): () -> Unit {
-    return remember { {} }
-}
-
-@Composable
 actual fun rememberCopyTextAction(): (String) -> Unit {
     return remember { {} }
 }
@@ -48,6 +43,14 @@ actual fun rememberSeyraMusicPlayerController(): SeyraMusicPlayerController {
 @Composable
 actual fun rememberShowToastAction(): (String) -> Unit {
     return remember { {} }
+}
+
+@Composable
+actual fun SeyraEmbeddedWebPage(
+    url: String,
+    modifier: Modifier
+) {
+    Box(modifier)
 }
 
 @Composable

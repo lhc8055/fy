@@ -465,7 +465,6 @@ private fun SeyraPageContent(
 private fun SeyraResourcePage(backdrop: LayerBackdrop) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("全部") }
-    val openFavoritesWeb = rememberOpenFavoritesWebAction()
     val categories = remember { listOf("全部", "辅助", "玩机", "收藏", "最近") }
     val filteredCards = remember(query, selectedCategory) {
         val keyword = query.trim()
@@ -497,11 +496,7 @@ private fun SeyraResourcePage(backdrop: LayerBackdrop) {
         SeyraCardGrid(
             cards = filteredCards,
             backdrop = backdrop,
-            onCardClick = { index ->
-                if (filteredCards.getOrNull(index)?.title == "收藏夹") {
-                    openFavoritesWeb()
-                }
-            }
+            onCardClick = {}
         )
     }
 }
@@ -887,23 +882,25 @@ private fun SeyraToolDetailPage(
                 fontWeight = FontWeight.SemiBold
             )
         )
-        BasicText(
-            card.title,
-            modifier = Modifier.padding(top = 16f.dp),
-            style = TextStyle(
-                color = Color(0xFF05070A),
-                fontSize = 26f.sp,
-                fontWeight = FontWeight.SemiBold
+        if (!isMusicTool) {
+            BasicText(
+                card.title,
+                modifier = Modifier.padding(top = 16f.dp),
+                style = TextStyle(
+                    color = Color(0xFF05070A),
+                    fontSize = 26f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        )
-        BasicText(
-            card.subtitle,
-            style = TextStyle(
-                color = Color(0xD0111827),
-                fontSize = 15f.sp,
-                fontWeight = FontWeight.Medium
+            BasicText(
+                card.subtitle,
+                style = TextStyle(
+                    color = Color(0xD0111827),
+                    fontSize = 15f.sp,
+                    fontWeight = FontWeight.Medium
+                )
             )
-        )
+        }
         if (isXrayTool) {
             SeyraXrayInputField(
                 value = query,
@@ -947,68 +944,12 @@ private fun SeyraToolDetailPage(
                 backdrop = backdrop
             )
         } else if (isMusicTool) {
-            SeyraXrayInputField(
-                value = query,
-                onValueChange = { query = it },
-                backdrop = backdrop,
-                modifier = Modifier.padding(top = 10f.dp)
-            )
-            SeyraMusicPlatformSelector(
-                selectedPlatform = selectedMusicPlatform,
-                onPlatformSelected = { selectedMusicPlatform = it },
-                backdrop = backdrop
-            )
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10f.dp)
-            ) {
-                SeyraTextActionButton(
-                    text = if (isLoading) "搜索中" else "搜索播放",
-                    backdrop = backdrop,
-                    enabled = query.isNotBlank() && !isLoading && !isMusicCooldown,
-                    onClick = {
-                        scope.launch {
-                            if (isMusicCooldown) {
-                                showToast("请稍等 1.5 秒后再搜索")
-                                return@launch
-                            }
-                            isMusicCooldown = true
-                            launch {
-                                delay(1500)
-                                isMusicCooldown = false
-                            }
-                            isLoading = true
-                            runCatching {
-                                requestMusicResult(query, selectedMusicPlatform)
-                            }.onSuccess { music ->
-                                musicResult = music
-                                musicPlayer.play(music.audioUrl)
-                                showToast("开始播放：${music.name}")
-                            }.onFailure {
-                                showToast(it.message ?: "搜索失败，请稍后重试")
-                            }
-                            isLoading = false
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-                SeyraTextActionButton(
-                    text = if (musicPlayer.isPlaying) "暂停" else "播放",
-                    backdrop = backdrop,
-                    enabled = musicResult != null && !isLoading,
-                    onClick = {
-                        if (musicPlayer.isPlaying) {
-                            musicPlayer.pause()
-                        } else {
-                            musicPlayer.resume()
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            SeyraMusicResultPanel(
-                music = musicResult,
-                backdrop = backdrop
+            SeyraEmbeddedWebPage(
+                url = "https://yy.luodian.net.cn/",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(22f.dp))
             )
         }
     }

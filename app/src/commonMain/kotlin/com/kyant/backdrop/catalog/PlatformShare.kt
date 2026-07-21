@@ -24,9 +24,6 @@ expect fun rememberShareAppAction(): () -> Unit
 expect fun rememberOpenFeedbackAction(): () -> Unit
 
 @Composable
-expect fun rememberOpenFavoritesWebAction(): () -> Unit
-
-@Composable
 expect fun rememberCopyTextAction(): (String) -> Unit
 
 expect suspend fun requestXrayResult(message: String): String
@@ -38,6 +35,12 @@ expect fun rememberSeyraMusicPlayerController(): SeyraMusicPlayerController
 
 @Composable
 expect fun rememberShowToastAction(): (String) -> Unit
+
+@Composable
+expect fun SeyraEmbeddedWebPage(
+    url: String,
+    modifier: Modifier = Modifier
+)
 
 @Composable
 expect fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>)
