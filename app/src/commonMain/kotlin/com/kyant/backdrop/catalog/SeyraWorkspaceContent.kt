@@ -60,12 +60,14 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.coerceIn
+import kotlin.math.max
+import kotlin.math.min
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
@@ -546,8 +548,8 @@ private fun SeyraPageContent(
                     when {
                         distance >= dockFadeZonePx -> 1f
                         distance <= 0f -> 0.5f
-                        else -> 1f - (1f - distance / dockFadeZonePx) * 0.5f
-                    }.coerceIn(0.5f, 1f)
+                        else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
+                    }
                 }
                 SeyraResourcePage(backdrop, cardRowAlpha = alphaProvider)
             }
