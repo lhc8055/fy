@@ -85,7 +85,6 @@ import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -718,6 +717,8 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
     var visibleDetailIndex by rememberSaveable { mutableIntStateOf(-1) }
     val progress = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
+    val isMusicPageVisible = activeCardIndex != -1 &&
+        workspaceCards.getOrNull(activeCardIndex)?.title == "网易云解析"
 
     fun openCard(index: Int) {
         if (activeCardIndex != -1) return
@@ -754,16 +755,18 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
 
     Column(
         Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(24f.dp)
+        verticalArrangement = Arrangement.spacedBy(if (isMusicPageVisible) 0f.dp else 24f.dp)
     ) {
-        BasicText(
-            "工具",
-            style = TextStyle(
-                color = Color(0xFF05070A),
-                fontSize = 28f.sp,
-                fontWeight = FontWeight.SemiBold
+        if (!isMusicPageVisible) {
+            BasicText(
+                "工具",
+                style = TextStyle(
+                    color = Color(0xFF05070A),
+                    fontSize = 28f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        )
+        }
 
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val density = LocalDensity.current
@@ -783,15 +786,27 @@ private fun SeyraToolNavigationStack(backdrop: LayerBackdrop) {
             )
 
             if (visibleDetailIndex != -1) {
-                SeyraToolDetailPage(
-                    card = workspaceCards[visibleDetailIndex],
-                    backdrop = backdrop,
-                    onBack = { closeCard() },
-                    modifier = Modifier.graphicsLayer {
-                        translationX = fullExitDistancePx * (1f - detailProgress)
-                        alpha = 0.96f + 0.04f * detailProgress
-                    }
-                )
+                val visibleCard = workspaceCards[visibleDetailIndex]
+                if (visibleCard.title == "网易云解析") {
+                    SeyraMusicWebsitePage(
+                        backdrop = backdrop,
+                        onBack = { closeCard() },
+                        modifier = Modifier.graphicsLayer {
+                            translationX = fullExitDistancePx * (1f - detailProgress)
+                            alpha = 0.96f + 0.04f * detailProgress
+                        }
+                    )
+                } else {
+                    SeyraToolDetailPage(
+                        card = visibleCard,
+                        backdrop = backdrop,
+                        onBack = { closeCard() },
+                        modifier = Modifier.graphicsLayer {
+                            translationX = fullExitDistancePx * (1f - detailProgress)
+                            alpha = 0.96f + 0.04f * detailProgress
+                        }
+                    )
+                }
             }
         }
     }
@@ -830,6 +845,57 @@ private fun SeyraToolCardGrid(
 }
 
 @Composable
+private fun SeyraMusicWebsitePage(
+    backdrop: LayerBackdrop,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .height(680f.dp)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(30f.dp) },
+                effects = {
+                    vibrancy()
+                    blur(14f.dp.toPx())
+                    lens(18f.dp.toPx(), 30f.dp.toPx())
+                },
+                onDrawSurface = {
+                    drawRect(Color(0x82FFFFFF))
+                    drawRect(Color(0x18FF5B58), blendMode = BlendMode.Screen)
+                }
+            )
+            .padding(14f.dp),
+        verticalArrangement = Arrangement.spacedBy(10f.dp)
+    ) {
+        BasicText(
+            "‹ 返回",
+            modifier = Modifier
+                .padding(start = 4f.dp, top = 2f.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onBack
+                ),
+            style = TextStyle(
+                color = Color(0xFF008DFF),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+        SeyraEmbeddedWebPage(
+            url = "https://yy.luodian.net.cn/",
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .clip(RoundedCornerShape(22f.dp))
+        )
+    }
+}
+
+@Composable
 private fun SeyraToolDetailPage(
     card: SeyraCard,
     backdrop: LayerBackdrop,
@@ -839,15 +905,9 @@ private fun SeyraToolDetailPage(
     var query by rememberSaveable { mutableStateOf("") }
     var result by rememberSaveable { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var selectedMusicPlatform by rememberSaveable { mutableStateOf("netease") }
-    var musicResult by remember { mutableStateOf<SeyraMusicResult?>(null) }
-    var isMusicCooldown by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val copyText = rememberCopyTextAction()
-    val showToast = rememberShowToastAction()
-    val musicPlayer = rememberSeyraMusicPlayerController()
     val isXrayTool = card.title == "社工查询"
-    val isMusicTool = card.title == "网易云解析"
 
     Column(
         modifier
@@ -882,25 +942,23 @@ private fun SeyraToolDetailPage(
                 fontWeight = FontWeight.SemiBold
             )
         )
-        if (!isMusicTool) {
-            BasicText(
-                card.title,
-                modifier = Modifier.padding(top = 16f.dp),
-                style = TextStyle(
-                    color = Color(0xFF05070A),
-                    fontSize = 26f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+        BasicText(
+            card.title,
+            modifier = Modifier.padding(top = 16f.dp),
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 26f.sp,
+                fontWeight = FontWeight.SemiBold
             )
-            BasicText(
-                card.subtitle,
-                style = TextStyle(
-                    color = Color(0xD0111827),
-                    fontSize = 15f.sp,
-                    fontWeight = FontWeight.Medium
-                )
+        )
+        BasicText(
+            card.subtitle,
+            style = TextStyle(
+                color = Color(0xD0111827),
+                fontSize = 15f.sp,
+                fontWeight = FontWeight.Medium
             )
-        }
+        )
         if (isXrayTool) {
             SeyraXrayInputField(
                 value = query,
@@ -942,14 +1000,6 @@ private fun SeyraToolDetailPage(
             SeyraXrayResultPanel(
                 result = result,
                 backdrop = backdrop
-            )
-        } else if (isMusicTool) {
-            SeyraEmbeddedWebPage(
-                url = "https://yy.luodian.net.cn/",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(22f.dp))
             )
         }
     }
