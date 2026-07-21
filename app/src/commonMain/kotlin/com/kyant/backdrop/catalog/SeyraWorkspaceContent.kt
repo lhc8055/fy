@@ -121,7 +121,7 @@ private val resourceCards = listOf(
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接")
 )
 
-private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/03/3a28d567b1cc89aa3ecedd9f75e1b0.jpg"
+private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/c1/0b6d3b2310c2c06508c5eacb3a5221.jpg"
 private const val threeElementsBannerUrl = "https://new.cayfpay.cn/upload/43/dd11e5da776272c8fa7eebd84b42f1.jpg"
 private const val libraryBannerUrl = "https://new.cayfpay.cn/upload/6e/a51caa736cb797e7d332d4a9836b2d.jpg"
 private const val templateBannerUrl = "https://new.cayfpay.cn/upload/7c/eb98dce3d508111dd40ef26c46de45.jpg"
