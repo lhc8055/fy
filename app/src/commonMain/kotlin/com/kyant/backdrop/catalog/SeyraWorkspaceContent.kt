@@ -103,6 +103,7 @@ import com.kyant.backdrop.catalog.utils.BackHandler
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
 import glass.app.generated.resources.Res
+import glass.app.generated.resources.seyra_background
 import glass.app.generated.resources.ic_dock_compass_40px
 import glass.app.generated.resources.ic_dock_folder_40px
 import glass.app.generated.resources.ic_dock_user_40px
