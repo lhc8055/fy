@@ -4,16 +4,19 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -77,6 +80,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.ContentScale
@@ -653,7 +657,13 @@ private fun SeyraPageContent(
             }
     ) {
         // 固定搜索框和分类栏（仅资源页）
-        if (showResourceHeader) {
+        AnimatedVisibility(
+            visible = showResourceHeader,
+            enter = fadeIn(tween(300, easing = FastOutSlowInEasing)) +
+                    slideInVertically(tween(300, easing = FastOutSlowInEasing)) { -it / 4 },
+            exit = fadeOut(tween(250, easing = FastOutSlowInEasing)) +
+                   slideOutVertically(tween(250, easing = FastOutSlowInEasing)) { -it / 4 }
+        ) {
             Column(
                 Modifier
                     .padding(horizontal = 22f.dp)
@@ -1449,21 +1459,24 @@ private fun SeyraProfilePage(
                 label = "合作联系",
                 backdrop = backdrop,
                 onClick = onContactClick,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                delayMs = 100
             )
             SeyraProfileActionButton(
                 icon = Res.drawable.ic_profile_feedback_32px,
                 label = "软件反馈",
                 backdrop = backdrop,
                 onClick = onFeedbackClick,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                delayMs = 200
             )
             SeyraProfileActionButton(
                 icon = Res.drawable.ic_profile_settings_32px,
                 label = "设置",
                 backdrop = backdrop,
                 onClick = onSettingsClick,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                delayMs = 300
             )
         }
 
@@ -1677,10 +1690,38 @@ private fun SeyraProfileActionButton(
     label: String,
     backdrop: LayerBackdrop,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    delayMs: Int = 0
 ) {
+    var visible by remember { mutableStateOf(false) }
+    var pressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(delayMs.toLong())
+        visible = true
+    }
+
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.92f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f)
+    )
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(400, easing = FastOutSlowInEasing)
+    )
+    val offsetY by animateFloatAsState(
+        targetValue = if (visible) 0f else 30f.dp.toPx(),
+        animationSpec = tween(400, easing = FastOutSlowInEasing)
+    )
+
     Column(
         modifier
+            .graphicsLayer {
+                this.alpha = alpha
+                this.translationY = offsetY
+                this.scaleX = scale
+                this.scaleY = scale
+            }
             .height(68f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
@@ -1699,7 +1740,16 @@ private fun SeyraProfileActionButton(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick
-            ),
+            )
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        pressed = true
+                        tryAwaitRelease()
+                        pressed = false
+                    }
+                )
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
