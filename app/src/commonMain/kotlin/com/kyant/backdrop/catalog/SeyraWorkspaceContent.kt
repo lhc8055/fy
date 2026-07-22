@@ -592,11 +592,7 @@ private fun SeyraPageContent(
 
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .onGloballyPositioned { coordinates ->
-                    containerHeight.intValue = (containerTop.intValue + coordinates.size.height)
-                },
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 start = 22f.dp,
                 top = when (tabIndex) {
@@ -677,8 +673,15 @@ private fun SeyraPageContent(
             }
         }
 
-        LaunchedEffect(listState.canScrollForward) {
-            onScrollStateChange(!listState.canScrollForward)
+        val isAtBottom by remember {
+            derivedStateOf {
+                val layoutInfo = listState.layoutInfo
+                val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()
+                lastVisible != null && (lastVisible.offset + lastVisible.size >= layoutInfo.viewportEndOffset - 4)
+            }
+        }
+        LaunchedEffect(isAtBottom) {
+            onScrollStateChange(isAtBottom)
         }
     }
 }
