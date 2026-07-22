@@ -168,9 +168,9 @@ private val resourceCards = listOf(
         imageUrl = "https://new.cayfpay.cn/upload/0b/9f0067f708c113f8eeb6e48d88bf53.jpg"),
     SeyraCard("辅助整合", "游戏辅助 / 一键整合", Color(0xFF9B7CFF), "辅助",
         imageUrl = "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg"),
-    SeyraCard("香肠派对", "热门游戏 / 资源入口", Color(0xFFFFC56E), "玩机"),
     SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
-    SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近")
+    SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近"),
+    SeyraCard("香肠派对", "热门游戏 / 资源入口", Color(0xFFFFC56E), "玩机")
 )
 
 private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/c1/0b6d3b2310c2c06508c5eacb3a5221.jpg"
