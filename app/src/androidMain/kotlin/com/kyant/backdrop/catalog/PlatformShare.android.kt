@@ -12,8 +12,14 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -393,16 +399,20 @@ actual fun SeyraSplashImage(modifier: Modifier) {
         }
     }
 
-    val imageBitmap = bitmap
-    if (imageBitmap != null) {
-        Image(
-            bitmap = imageBitmap.asImageBitmap(),
-            contentDescription = null,
-            modifier = modifier,
-            contentScale = ContentScale.Crop
-        )
-    } else {
-        Box(modifier)
+    AnimatedVisibility(
+        visible = bitmap != null,
+        enter = fadeIn(tween(700, easing = FastOutSlowInEasing)) +
+                slideInVertically(tween(700, easing = FastOutSlowInEasing)) { it / 6 }
+    ) {
+        val imageBitmap = bitmap
+        if (imageBitmap != null) {
+            Image(
+                bitmap = imageBitmap.asImageBitmap(),
+                contentDescription = null,
+                modifier = modifier,
+                contentScale = ContentScale.Crop
+            )
+        }
     }
 }
 
