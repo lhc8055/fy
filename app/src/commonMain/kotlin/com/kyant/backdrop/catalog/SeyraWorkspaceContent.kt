@@ -79,6 +79,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.TextStyle
@@ -375,11 +376,14 @@ fun SeyraSplashScreen(
         onDismiss()
     }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(Res.drawable.seyra_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
         SeyraNoCacheRemoteImage(
             url = splashImageUrl,
             modifier = Modifier.fillMaxSize()
@@ -416,14 +420,18 @@ fun SeyraSplashScreen(
 fun SeyraWorkspaceContent() {
     var showSplash by rememberSaveable { mutableStateOf(true) }
 
-    if (showSplash) {
+    BackdropDemoScaffold {
+        SeyraWorkspace(it)
+    }
+
+    AnimatedVisibility(
+        visible = showSplash,
+        enter = fadeIn(tween(200)),
+        exit = fadeOut(tween(400))
+    ) {
         SeyraSplashScreen(
             onDismiss = { showSplash = false }
         )
-    } else {
-        BackdropDemoScaffold {
-            SeyraWorkspace(it)
-        }
     }
 
     SeyraPreloadRemoteImages(
