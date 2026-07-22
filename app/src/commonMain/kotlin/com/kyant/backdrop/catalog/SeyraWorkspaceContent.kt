@@ -561,7 +561,9 @@ private fun SeyraPageContent(
         // 固定搜索框和分类栏（仅资源页）
         if (showResourceHeader) {
             Column(
-                Modifier.padding(horizontal = 22f.dp),
+                Modifier
+                    .padding(horizontal = 22f.dp)
+                    .padding(top = 18f.dp),
                 verticalArrangement = Arrangement.spacedBy(14f.dp)
             ) {
                 SeyraSearchField(
