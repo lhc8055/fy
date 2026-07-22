@@ -60,3 +60,9 @@ expect fun SeyraRemoteImage(
     maxBitmapSize: Int,
     modifier: Modifier = Modifier
 )
+
+@Composable
+expect fun SeyraNoCacheRemoteImage(
+    url: String,
+    modifier: Modifier = Modifier
+)

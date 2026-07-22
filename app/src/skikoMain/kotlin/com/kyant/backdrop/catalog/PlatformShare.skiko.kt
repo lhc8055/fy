@@ -76,3 +76,11 @@ actual fun SeyraRemoteImage(
 ) {
     Box(modifier)
 }
+
+@Composable
+actual fun SeyraNoCacheRemoteImage(
+    url: String,
+    modifier: Modifier
+) {
+    Box(modifier)
+}

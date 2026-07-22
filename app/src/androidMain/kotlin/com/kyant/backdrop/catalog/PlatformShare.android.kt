@@ -344,6 +344,44 @@ actual fun SeyraRemoteImage(
     }
 }
 
+@Composable
+actual fun SeyraNoCacheRemoteImage(
+    url: String,
+    modifier: Modifier
+) {
+    var bitmap by remember(url) { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(url) {
+        bitmap = withContext(Dispatchers.IO) {
+            runCatching {
+                val connection = URL(url).openConnection() as HttpURLConnection
+                try {
+                    connection.connectTimeout = 8_000
+                    connection.readTimeout = 8_000
+                    connection.useCaches = false
+                    connection.inputStream.use { input ->
+                        BitmapFactory.decodeStream(input)
+                    }
+                } finally {
+                    connection.disconnect()
+                }
+            }.getOrNull()
+        }
+    }
+
+    val imageBitmap = bitmap
+    if (imageBitmap != null) {
+        Image(
+            bitmap = imageBitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Crop
+        )
+    } else {
+        Box(modifier)
+    }
+}
+
 private const val maxMemoryCacheEntries = 8
 private val remoteBitmapMemoryCache = object : LinkedHashMap<String, Bitmap>(8, 0.75f, true) {
     override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Bitmap>?): Boolean {

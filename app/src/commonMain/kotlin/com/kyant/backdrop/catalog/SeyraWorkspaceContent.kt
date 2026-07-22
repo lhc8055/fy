@@ -113,6 +113,7 @@ import glass.app.generated.resources.ic_top_more_24px
 import glass.app.generated.resources.ic_top_share_24px
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -169,6 +170,7 @@ private const val assistEntryTwoBannerUrl = "https://new.cayfpay.cn/upload/39/04
 private const val assistEntryThreeBannerUrl = "https://new.cayfpay.cn/upload/15/0a7387cdf0e793e055b325f22e23d0.jpg"
 private const val assistEntryFourBannerUrl = "https://new.cayfpay.cn/upload/b6/bfefc86534d9e54cfdb5761749cb02.jpg"
 private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg"
+private const val splashImageUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/开屏图.jpg"
 
 private fun formatXrayResult(raw: String): String {
     val content = extractJsonStringValue(raw, "content") ?: raw
@@ -360,57 +362,64 @@ private fun xrayLinePriority(line: String): Int {
 }
 
 @Composable
-fun SeyraWorkspaceContent() {
-    val imageProgress = rememberImageLoadProgress()
-    val isFirstLaunch = rememberSaveable { mutableStateOf(true) }
-    val hideThreshold = 0.7f
-    val showLoading = isFirstLaunch.value && imageProgress < hideThreshold
+fun SeyraSplashScreen(
+    onDismiss: () -> Unit
+) {
+    var countdown by remember { mutableIntStateOf(3) }
 
-    if (showLoading) {
-        val infiniteTransition = rememberInfiniteTransition()
-        val rotation by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(tween(1000, easing = FastOutSlowInEasing))
-        )
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color(0xB8000000)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12f.dp)
-            ) {
-                Canvas(Modifier.size(36f.dp)) {
-                    rotate(rotation) {
-                        drawArc(
-                            color = Color(0xFF008DFF),
-                            startAngle = 0f,
-                            sweepAngle = 270f,
-                            useCenter = false,
-                            style = Stroke(3f.dp.toPx(), cap = StrokeCap.Round)
-                        )
-                    }
-                }
-                BasicText(
-                    "首次加载资源较久，请稍候",
-                    style = TextStyle(
-                        color = Color(0xCCFFFFFF),
-                        fontSize = 13f.sp,
-                        fontWeight = FontWeight.Normal,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
+    LaunchedEffect(Unit) {
+        for (i in 3 downTo 1) {
+            countdown = i
+            delay(1000L)
         }
+        onDismiss()
     }
 
-    LaunchedEffect(imageProgress) {
-        if (imageProgress >= hideThreshold) {
-            isFirstLaunch.value = false
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        SeyraNoCacheRemoteImage(
+            url = splashImageUrl,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Row(
+            Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(top = 16f.dp, end = 16f.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                )
+                .background(Color(0x66000000), shape = RoundedCornerShape(20f.dp))
+                .padding(horizontal = 14f.dp, vertical = 8f.dp),
+            horizontalArrangement = Arrangement.spacedBy(6f.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BasicText(
+                "跳过 $countdown",
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 13f.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            )
         }
+    }
+}
+
+@Composable
+fun SeyraWorkspaceContent() {
+    var showSplash by rememberSaveable { mutableStateOf(true) }
+
+    if (showSplash) {
+        SeyraSplashScreen(
+            onDismiss = { showSplash = false }
+        )
     }
 
     SeyraPreloadRemoteImages(
