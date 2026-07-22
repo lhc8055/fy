@@ -172,7 +172,6 @@ private const val assistEntryTwoBannerUrl = "https://new.cayfpay.cn/upload/39/04
 private const val assistEntryThreeBannerUrl = "https://new.cayfpay.cn/upload/15/0a7387cdf0e793e055b325f22e23d0.jpg"
 private const val assistEntryFourBannerUrl = "https://new.cayfpay.cn/upload/b6/bfefc86534d9e54cfdb5761749cb02.jpg"
 private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg"
-private const val splashImageUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/开屏图.jpg"
 
 private fun formatXrayResult(raw: String): String {
     val content = extractJsonStringValue(raw, "content") ?: raw
@@ -385,8 +384,7 @@ fun SeyraSplashScreen(
             contentScale = ContentScale.Crop
         )
 
-        SeyraNoCacheRemoteImage(
-            url = splashImageUrl,
+        SeyraSplashImage(
             modifier = Modifier.fillMaxSize()
         )
 

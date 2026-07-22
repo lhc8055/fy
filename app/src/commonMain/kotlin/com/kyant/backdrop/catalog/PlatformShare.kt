@@ -66,3 +66,8 @@ expect fun SeyraNoCacheRemoteImage(
     url: String,
     modifier: Modifier = Modifier
 )
+
+@Composable
+expect fun SeyraSplashImage(
+    modifier: Modifier = Modifier
+)

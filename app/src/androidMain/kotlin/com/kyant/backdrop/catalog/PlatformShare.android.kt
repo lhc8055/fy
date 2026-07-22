@@ -382,6 +382,88 @@ actual fun SeyraNoCacheRemoteImage(
     }
 }
 
+@Composable
+actual fun SeyraSplashImage(modifier: Modifier) {
+    val context = LocalContext.current
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(Unit) {
+        bitmap = withContext(Dispatchers.IO) {
+            loadSplashImageWithVersionCheck(context)
+        }
+    }
+
+    val imageBitmap = bitmap
+    if (imageBitmap != null) {
+        Image(
+            bitmap = imageBitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Crop
+        )
+    } else {
+        Box(modifier)
+    }
+}
+
+private fun loadSplashImageWithVersionCheck(context: Context): Bitmap? {
+    val prefs = context.getSharedPreferences("splash", Context.MODE_PRIVATE)
+    val savedVersion = prefs.getString("version", "") ?: ""
+
+    val versionUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/splash_version.json"
+    val remoteVersionJson = runCatching {
+        val connection = URL(versionUrl).openConnection() as HttpURLConnection
+        try {
+            connection.connectTimeout = 8_000
+            connection.readTimeout = 8_000
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } finally {
+            connection.disconnect()
+        }
+    }.getOrNull() ?: return loadLocalSplashImage(context)
+
+    val versionMatch = Regex("\"version\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
+    val remoteVersion = versionMatch?.groupValues?.get(1) ?: return loadLocalSplashImage(context)
+
+    val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
+    val imageUrl = urlMatch?.groupValues?.get(1) ?: return loadLocalSplashImage(context)
+
+    val cacheFile = File(context.filesDir, "splash_image.jpg")
+
+    if (remoteVersion != savedVersion || !cacheFile.exists()) {
+        runCatching {
+            val connection = URL(imageUrl).openConnection() as HttpURLConnection
+            try {
+                connection.connectTimeout = 12_000
+                connection.readTimeout = 12_000
+                connection.inputStream.use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                prefs.edit().putString("version", remoteVersion).apply()
+            } finally {
+                connection.disconnect()
+            }
+        }
+    }
+
+    return if (cacheFile.exists() && cacheFile.length() > 0) {
+        BitmapFactory.decodeFile(cacheFile.absolutePath)
+    } else {
+        null
+    }
+}
+
+private fun loadLocalSplashImage(context: Context): Bitmap? {
+    val cacheFile = File(context.filesDir, "splash_image.jpg")
+    return if (cacheFile.exists() && cacheFile.length() > 0) {
+        BitmapFactory.decodeFile(cacheFile.absolutePath)
+    } else {
+        null
+    }
+}
+
 private const val maxMemoryCacheEntries = 8
 private val remoteBitmapMemoryCache = object : LinkedHashMap<String, Bitmap>(8, 0.75f, true) {
     override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Bitmap>?): Boolean {
