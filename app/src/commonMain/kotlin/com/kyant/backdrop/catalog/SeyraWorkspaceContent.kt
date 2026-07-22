@@ -3,6 +3,7 @@ package com.kyant.backdrop.catalog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -383,6 +384,8 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     BackHandler(enabled = showSettingsPage, onBack = { showSettingsPage = false })
     BackHandler(enabled = showMusicWebsitePage, onBack = { showMusicWebsitePage = false })
 
+    var isAtBottom by rememberSaveable { mutableStateOf(false) }
+
     if (!showSettingsPage && !showMusicWebsitePage) {
         SeyraPageContent(
             tabIndex = selectedTabIndex,
@@ -390,7 +393,8 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
             onContactClick = { showContactDialog = true },
             onFeedbackClick = openFeedback,
             onSettingsClick = { showSettingsPage = true },
-            onMusicWebsiteClick = { showMusicWebsitePage = true }
+            onMusicWebsiteClick = { showMusicWebsitePage = true },
+            onScrollStateChange = { isAtBottom = it }
         )
     }
 
@@ -402,11 +406,16 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     }
 
     if (!showSettingsPage && !showMusicWebsitePage) {
+        val gradientAlpha by animateFloatAsState(
+            targetValue = if (isAtBottom) 0f else 1f,
+            animationSpec = tween(300, easing = FastOutSlowInEasing)
+        )
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(240f.dp)
+                .height(80f.dp)
+                .graphicsLayer { alpha = gradientAlpha }
                 .drawBehind {
                     drawRect(
                         Brush.verticalGradient(
@@ -444,7 +453,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     }
 
     AnimatedVisibility(
-        visible = !showSettingsPage && selectedTabIndex != 3,
+        visible = !showSettingsPage && selectedTabIndex != 3 && selectedTabIndex != 1,
         enter = fadeIn(animationSpec = tween(220)) + slideInHorizontally(
             initialOffsetX = { it / 3 },
             animationSpec = tween(280, easing = FastOutSlowInEasing)
@@ -524,6 +533,7 @@ private fun SeyraPageContent(
     onFeedbackClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onMusicWebsiteClick: () -> Unit,
+    onScrollStateChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -636,8 +646,8 @@ private fun SeyraPageContent(
                     val distance = dockTopPx - itemBottomPx
                     when {
                         distance >= dockFadeZonePx -> 1f
-                        distance <= 0f -> 0.5f
-                        else -> max(0.5f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.5f))
+                        distance <= 0f -> 0.2f
+                        else -> max(0.2f, min(1f, 1f - (1f - distance / dockFadeZonePx) * 0.8f))
                     }
                 }
                 item {
@@ -665,6 +675,10 @@ private fun SeyraPageContent(
                     )
                 }
             }
+        }
+
+        LaunchedEffect(listState.canScrollForward) {
+            onScrollStateChange(!listState.canScrollForward)
         }
     }
 }
