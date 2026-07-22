@@ -63,6 +63,12 @@ actual fun rememberPreloadRemoteImagesAction(): (List<Pair<String, Int>>) -> Uni
 }
 
 @Composable
+actual fun rememberImageLoadProgress(): Float = 1f
+
+@Composable
+actual fun rememberResetImageLoadProgress(): () -> Unit = remember { {} }
+
+@Composable
 actual fun SeyraRemoteImage(
     url: String,
     maxBitmapSize: Int,

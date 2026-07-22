@@ -1,14 +1,20 @@
 package com.kyant.backdrop.catalog
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,6 +71,8 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -351,6 +359,58 @@ private fun xrayLinePriority(line: String): Int {
 
 @Composable
 fun SeyraWorkspaceContent() {
+    val imageProgress = rememberImageLoadProgress()
+    val isFirstLaunch = rememberSaveable { mutableStateOf(true) }
+    val hideThreshold = 0.7f
+    val showLoading = isFirstLaunch.value && imageProgress < hideThreshold
+
+    if (showLoading) {
+        val infiniteTransition = rememberInfiniteTransition()
+        val rotation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(tween(1000, easing = FastOutSlowInEasing))
+        )
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0xB8000000)),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12f.dp)
+            ) {
+                Canvas(Modifier.size(36f.dp)) {
+                    rotate(rotation) {
+                        drawArc(
+                            color = Color(0xFF008DFF),
+                            startAngle = 0f,
+                            sweepAngle = 270f,
+                            useCenter = false,
+                            style = Stroke(3f.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    }
+                }
+                BasicText(
+                    "首次加载资源较久，请稍候",
+                    style = TextStyle(
+                        color = Color(0xCCFFFFFF),
+                        fontSize = 13f.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+        }
+    }
+
+    LaunchedEffect(imageProgress) {
+        if (imageProgress >= hideThreshold) {
+            isFirstLaunch.value = false
+        }
+    }
+
     SeyraPreloadRemoteImages(
         listOf(
             xrayBannerUrl to 900,
@@ -388,15 +448,20 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var isAtBottom by rememberSaveable { mutableStateOf(false) }
 
     if (!showSettingsPage && !showMusicWebsitePage) {
-        SeyraPageContent(
-            tabIndex = selectedTabIndex,
-            backdrop = backdrop,
-            onContactClick = { showContactDialog = true },
-            onFeedbackClick = openFeedback,
-            onSettingsClick = { showSettingsPage = true },
-            onMusicWebsiteClick = { showMusicWebsitePage = true },
-            onScrollStateChange = { isAtBottom = it }
-        )
+        Crossfade(
+            targetState = selectedTabIndex,
+            animationSpec = tween(280, easing = FastOutSlowInEasing)
+        ) { page ->
+            SeyraPageContent(
+                tabIndex = page,
+                backdrop = backdrop,
+                onContactClick = { showContactDialog = true },
+                onFeedbackClick = openFeedback,
+                onSettingsClick = { showSettingsPage = true },
+                onMusicWebsiteClick = { showMusicWebsitePage = true },
+                onScrollStateChange = { isAtBottom = it }
+            )
+        }
     }
 
     if (showMusicWebsitePage && !showSettingsPage) {
@@ -616,25 +681,6 @@ private fun SeyraPageContent(
                     SeyraDiscoverFrostedPanel(
                         backdrop = backdrop,
                         modifier = Modifier.padding(top = 12f.dp)
-                    )
-                }
-                item {
-                    val discoverCards = remember {
-                        listOf(
-                            SeyraCard("和平精英", "", Color(0xFF6EF0BC), "游戏",
-                                imageUrl = "https://new.cayfpay.cn/upload/a9/5818a6e4b274c9d0d559e25d060145.jpg"),
-                            SeyraCard("王者荣耀", "", Color(0xFFFF5B58), "游戏",
-                                imageUrl = "https://new.cayfpay.cn/upload/43/dd11e5da776272c8fa7eebd84b42f1.jpg"),
-                            SeyraCard("三角洲行动", "", Color(0xFFFFC56E), "游戏"),
-                            SeyraCard("瓦罗兰特", "", Color(0xFF7EA8FF), "游戏"),
-                            SeyraCard("香肠派对", "", Color(0xFFFF8EC7), "游戏",
-                                imageUrl = "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg")
-                        )
-                    }
-                    SeyraCardGrid(
-                        cards = discoverCards,
-                        backdrop = backdrop,
-                        onCardClick = {}
                     )
                 }
             } else if (tabIndex == 1) {

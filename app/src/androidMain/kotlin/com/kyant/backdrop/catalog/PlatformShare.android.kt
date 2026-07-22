@@ -52,6 +52,8 @@ private val musicHttpClient = OkHttpClient.Builder()
     .readTimeout(12, TimeUnit.SECONDS)
     .build()
 
+private val imageLoadProgressState = mutableStateOf(0f)
+
 fun preloadSeyraStartupImages(context: Context) {
     val appContext = context.applicationContext
     startupImagePreloadScope.launch {
@@ -264,11 +266,13 @@ actual fun SeyraEmbeddedWebPage(
 actual fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>) {
     val context = LocalContext.current
     LaunchedEffect(requests) {
+        val total = requests.size.toFloat()
         withContext(Dispatchers.IO) {
-            requests.forEach { (url, maxBitmapSize) ->
+            requests.forEachIndexed { index, (url, maxBitmapSize) ->
                 runCatching {
                     preloadRemoteImage(context, url, maxBitmapSize)
                 }
+                imageLoadProgressState.value = (index + 1) / total
             }
         }
     }
@@ -287,6 +291,20 @@ actual fun rememberPreloadRemoteImagesAction(): (List<Pair<String, Int>>) -> Uni
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+actual fun rememberImageLoadProgress(): Float {
+    return imageLoadProgressState.value
+}
+
+@Composable
+actual fun rememberResetImageLoadProgress(): () -> Unit {
+    return remember {
+        {
+            imageLoadProgressState.value = 0f
         }
     }
 }

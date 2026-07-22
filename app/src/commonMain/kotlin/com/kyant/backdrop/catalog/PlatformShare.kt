@@ -49,6 +49,12 @@ expect fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>)
 expect fun rememberPreloadRemoteImagesAction(): (List<Pair<String, Int>>) -> Unit
 
 @Composable
+expect fun rememberImageLoadProgress(): Float
+
+@Composable
+expect fun rememberResetImageLoadProgress(): () -> Unit
+
+@Composable
 expect fun SeyraRemoteImage(
     url: String,
     maxBitmapSize: Int,
