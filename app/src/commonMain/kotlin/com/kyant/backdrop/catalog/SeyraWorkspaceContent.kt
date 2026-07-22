@@ -645,6 +645,10 @@ private fun SeyraPageContent(
     }
 
     val showResourceHeader = tabIndex == 1
+    var searchBarVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(showResourceHeader) {
+        searchBarVisible = showResourceHeader
+    }
 
     Column(
         modifier
@@ -658,7 +662,7 @@ private fun SeyraPageContent(
     ) {
         // 固定搜索框和分类栏（仅资源页）
         AnimatedVisibility(
-            visible = showResourceHeader,
+            visible = searchBarVisible,
             enter = fadeIn(tween(300, easing = FastOutSlowInEasing)) +
                     slideInVertically(tween(300, easing = FastOutSlowInEasing)) { -it / 4 },
             exit = fadeOut(tween(250, easing = FastOutSlowInEasing)) +
@@ -1750,7 +1754,8 @@ private fun SeyraProfileActionButton(
                         pressed = true
                         tryAwaitRelease()
                         pressed = false
-                    }
+                    },
+                    onTap = { onClick() }
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
