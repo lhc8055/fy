@@ -24,6 +24,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.horizontalDrag
@@ -80,7 +81,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.ContentScale
@@ -1701,6 +1701,9 @@ private fun SeyraProfileActionButton(
         visible = true
     }
 
+    val density = LocalDensity.current
+    val offsetYTarget = with(density) { 30f.dp.toPx() }
+
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.92f else 1f,
         animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f)
@@ -1710,7 +1713,7 @@ private fun SeyraProfileActionButton(
         animationSpec = tween(400, easing = FastOutSlowInEasing)
     )
     val offsetY by animateFloatAsState(
-        targetValue = if (visible) 0f else 30f.dp.toPx(),
+        targetValue = if (visible) 0f else offsetYTarget,
         animationSpec = tween(400, easing = FastOutSlowInEasing)
     )
 
