@@ -71,3 +71,9 @@ expect fun SeyraNoCacheRemoteImage(
 expect fun SeyraSplashImage(
     modifier: Modifier = Modifier
 )
+
+
+expect fun checkAndUpdateSplashImage(context: Any?)
+
+@Composable
+expect fun LaunchSplashImageUpdater()

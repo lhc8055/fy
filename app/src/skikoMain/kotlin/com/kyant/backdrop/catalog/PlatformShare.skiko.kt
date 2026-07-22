@@ -89,3 +89,10 @@ actual fun SeyraNoCacheRemoteImage(
 actual fun SeyraSplashImage(modifier: Modifier) {
     Box(modifier)
 }
+
+
+actual fun checkAndUpdateSplashImage(context: Any?) {}
+
+@Composable
+actual fun LaunchSplashImageUpdater() {
+}

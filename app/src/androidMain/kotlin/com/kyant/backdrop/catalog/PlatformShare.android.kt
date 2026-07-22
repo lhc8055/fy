@@ -36,6 +36,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.FileProvider
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -395,7 +396,7 @@ actual fun SeyraSplashImage(modifier: Modifier) {
 
     LaunchedEffect(Unit) {
         bitmap = withContext(Dispatchers.IO) {
-            loadSplashImageWithVersionCheck(context)
+            loadLocalSplashImage(context)
         }
     }
 
@@ -416,8 +417,9 @@ actual fun SeyraSplashImage(modifier: Modifier) {
     }
 }
 
-private fun loadSplashImageWithVersionCheck(context: Context): Bitmap? {
-    val prefs = context.getSharedPreferences("splash", Context.MODE_PRIVATE)
+actual fun checkAndUpdateSplashImage(context: Any?) {
+    val ctx = context as Context
+    val prefs = ctx.getSharedPreferences("splash", Context.MODE_PRIVATE)
     val savedVersion = prefs.getString("version", "") ?: ""
 
     val versionUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/splash_version.json"
@@ -430,15 +432,15 @@ private fun loadSplashImageWithVersionCheck(context: Context): Bitmap? {
         } finally {
             connection.disconnect()
         }
-    }.getOrNull() ?: return loadLocalSplashImage(context)
+    }.getOrNull() ?: return
 
     val versionMatch = Regex("\"version\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
-    val remoteVersion = versionMatch?.groupValues?.get(1) ?: return loadLocalSplashImage(context)
+    val remoteVersion = versionMatch?.groupValues?.get(1) ?: return
 
     val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
-    val imageUrl = urlMatch?.groupValues?.get(1) ?: return loadLocalSplashImage(context)
+    val imageUrl = urlMatch?.groupValues?.get(1) ?: return
 
-    val cacheFile = File(context.filesDir, "splash_image.jpg")
+    val cacheFile = File(ctx.filesDir, "splash_image.jpg")
 
     if (remoteVersion != savedVersion || !cacheFile.exists()) {
         runCatching {
@@ -458,11 +460,6 @@ private fun loadSplashImageWithVersionCheck(context: Context): Bitmap? {
         }
     }
 
-    return if (cacheFile.exists() && cacheFile.length() > 0) {
-        BitmapFactory.decodeFile(cacheFile.absolutePath)
-    } else {
-        null
-    }
 }
 
 private fun loadLocalSplashImage(context: Context): Bitmap? {
@@ -471,6 +468,22 @@ private fun loadLocalSplashImage(context: Context): Bitmap? {
         BitmapFactory.decodeFile(cacheFile.absolutePath)
     } else {
         null
+    }
+}
+
+@Composable
+actual fun LaunchSplashImageUpdater() {
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            checkAndUpdateSplashImage(context)
+        }
+        while (true) {
+            delay(60_000L)
+            withContext(Dispatchers.IO) {
+                checkAndUpdateSplashImage(context)
+            }
+        }
     }
 }
 

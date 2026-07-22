@@ -421,6 +421,7 @@ fun SeyraSplashScreen(
 
 @Composable
 fun SeyraWorkspaceContent() {
+    LaunchSplashImageUpdater()
     var showSplash by rememberSaveable { mutableStateOf(true) }
 
     BackdropDemoScaffold {
