@@ -1,5 +1,6 @@
 package com.kyant.backdrop.catalog
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
@@ -11,8 +12,12 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -159,8 +164,10 @@ private val resourceCards = listOf(
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接"),
     SeyraCard("赏帮", "赏帮赚钱 / 任务平台", Color(0xFFFF5B58), "辅助",
         imageUrl = "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg"),
-    SeyraCard("TG账号", "超低价格 / 快速购买", Color(0xFF70D7FF), "辅助"),
-    SeyraCard("辅助整合", "游戏辅助 / 一键整合", Color(0xFF9B7CFF), "辅助"),
+    SeyraCard("TG账号", "超低价格 / 快速购买", Color(0xFF70D7FF), "辅助",
+        imageUrl = "https://new.cayfpay.cn/upload/0b/9f0067f708c113f8eeb6e48d88bf53.jpg"),
+    SeyraCard("辅助整合", "游戏辅助 / 一键整合", Color(0xFF9B7CFF), "辅助",
+        imageUrl = "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg"),
     SeyraCard("香肠派对", "热门游戏 / 资源入口", Color(0xFFFFC56E), "玩机"),
     SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
     SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近")
@@ -487,11 +494,29 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         }
     }
 
-    if (showMusicWebsitePage && !showSettingsPage) {
-        SeyraMusicWebsiteFullPage(
-            onBack = { showMusicWebsitePage = false },
-            modifier = Modifier.align(Alignment.Center)
-        )
+    AnimatedContent(
+        targetState = showMusicWebsitePage && !showSettingsPage,
+        transitionSpec = {
+            if (targetState) {
+                fadeIn(tween(420, easing = FastOutSlowInEasing)) +
+                scaleIn(tween(420, easing = FastOutSlowInEasing), initialScale = 0.95f) togetherWith
+                fadeOut(tween(280, easing = FastOutSlowInEasing)) +
+                scaleOut(tween(280, easing = FastOutSlowInEasing), targetScale = 0.95f)
+            } else {
+                fadeIn(tween(350, easing = FastOutSlowInEasing)) +
+                scaleIn(tween(350, easing = FastOutSlowInEasing), initialScale = 0.95f) togetherWith
+                fadeOut(tween(300, easing = FastOutSlowInEasing)) +
+                scaleOut(tween(300, easing = FastOutSlowInEasing), targetScale = 0.95f)
+            }
+        },
+        label = "music_website"
+    ) { visible ->
+        if (visible) {
+            SeyraMusicWebsiteFullPage(
+                onBack = { showMusicWebsitePage = false },
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 
     if (!showSettingsPage && !showMusicWebsitePage) {
@@ -581,6 +606,14 @@ private fun SeyraMusicWebsiteFullPage(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var backVisible by remember { mutableStateOf(false) }
+    var webViewVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        backVisible = true
+        delay(80)
+        webViewVisible = true
+    }
+
     Column(
         modifier
             .fillMaxSize()
@@ -589,28 +622,44 @@ private fun SeyraMusicWebsiteFullPage(
             .padding(start = 14f.dp, top = 82f.dp, end = 14f.dp, bottom = 14f.dp),
         verticalArrangement = Arrangement.spacedBy(10f.dp)
     ) {
-        BasicText(
-            "‹ 返回",
-            modifier = Modifier
-                .padding(start = 4f.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onBack
-                ),
-            style = TextStyle(
-                color = Color(0xFF008DFF),
-                fontSize = 16f.sp,
-                fontWeight = FontWeight.SemiBold
+        AnimatedVisibility(
+            visible = backVisible,
+            enter = fadeIn(tween(380, easing = FastOutSlowInEasing)) +
+                    slideInVertically(tween(380, easing = FastOutSlowInEasing)) { -it / 5 },
+            exit = fadeOut(tween(220, easing = FastOutSlowInEasing)) +
+                   slideOutVertically(tween(220, easing = FastOutSlowInEasing)) { -it / 5 }
+        ) {
+            BasicText(
+                "‹ 返回",
+                modifier = Modifier
+                    .padding(start = 4f.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onBack
+                    ),
+                style = TextStyle(
+                    color = Color(0xFF008DFF),
+                    fontSize = 16f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        )
-        SeyraEmbeddedWebPage(
-            url = "https://yy.luodian.net.cn/",
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(18f.dp))
-        )
+        }
+        AnimatedVisibility(
+            visible = webViewVisible,
+            enter = fadeIn(tween(420, delayMillis = 100, easing = FastOutSlowInEasing)) +
+                    slideInVertically(tween(420, delayMillis = 100, easing = FastOutSlowInEasing)) { it / 4 },
+            exit = fadeOut(tween(260, easing = FastOutSlowInEasing)) +
+                   slideOutVertically(tween(260, easing = FastOutSlowInEasing)) { it / 4 }
+        ) {
+            SeyraEmbeddedWebPage(
+                url = "https://yy.luodian.net.cn/",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(18f.dp))
+            )
+        }
     }
 }
 
