@@ -420,6 +420,10 @@ fun SeyraWorkspaceContent() {
         SeyraSplashScreen(
             onDismiss = { showSplash = false }
         )
+    } else {
+        BackdropDemoScaffold {
+            SeyraWorkspace(it)
+        }
     }
 
     SeyraPreloadRemoteImages(
@@ -436,10 +440,6 @@ fun SeyraWorkspaceContent() {
             profileAvatarUrl to 256
         )
     )
-
-    BackdropDemoScaffold {
-        SeyraWorkspace(it)
-    }
 }
 
 @Composable
