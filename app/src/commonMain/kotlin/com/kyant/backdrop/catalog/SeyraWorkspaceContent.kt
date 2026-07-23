@@ -718,6 +718,10 @@ private fun SeyraPageContent(
                 card.subtitle.contains(keyword, ignoreCase = true) ||
                 card.category.contains(keyword, ignoreCase = true)
             categoryMatched && keywordMatched
+        }.let { list ->
+            if (resourceCategory.value == "全部") {
+                list.sortedBy { if (it.title == "TG账号") 1 else 0 }
+            } else list
         }
     }
 
@@ -859,6 +863,10 @@ private fun SeyraResourcePage(
                 card.subtitle.contains(keyword, ignoreCase = true) ||
                 card.category.contains(keyword, ignoreCase = true)
             categoryMatched && keywordMatched
+        }.let { list ->
+            if (selectedCategory == "全部") {
+                list.sortedBy { if (it.title == "TG账号") 1 else 0 }
+            } else list
         }
     }
 
