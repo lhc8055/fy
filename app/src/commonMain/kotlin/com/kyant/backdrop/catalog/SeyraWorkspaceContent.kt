@@ -1875,15 +1875,15 @@ private fun SeyraProfileInfoPanel(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8f.dp)
             ) {
-                Icon(
+                Image(
                     painter = painterResource(Res.drawable.ic_profile_settings_32px),
                     contentDescription = "settings",
                     modifier = Modifier.size(20f.dp),
-                    tint = Color(0xFF05070A)
+                    colorFilter = ColorFilter.tint(Color(0xFF05070A))
                 )
                 LiquidToggle(
-                    checked = toggleChecked,
-                    onCheckedChange = { toggleChecked = it },
+                    selected = { toggleChecked },
+                    onSelect = { toggleChecked = it },
                     backdrop = backdrop
                 )
             }
