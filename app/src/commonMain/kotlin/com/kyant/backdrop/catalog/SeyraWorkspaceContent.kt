@@ -1863,7 +1863,9 @@ private fun SeyraSettingsPage(
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
-    var toggleChecked by remember { mutableStateOf(false) }
+    var toggleChecked1 by remember { mutableStateOf(false) }
+    var toggleChecked2 by remember { mutableStateOf(false) }
+    var toggleChecked3 by remember { mutableStateOf(false) }
     var backVisible by remember { mutableStateOf(false) }
     var panelVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -1926,8 +1928,8 @@ private fun SeyraSettingsPage(
                             drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
                         }
                     )
-                    .padding(horizontal = 30f.dp, vertical = 24f.dp),
-                verticalArrangement = Arrangement.spacedBy(20f.dp)
+                    .padding(horizontal = 30f.dp, vertical = 22f.dp),
+                verticalArrangement = Arrangement.spacedBy(18f.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1943,27 +1945,49 @@ private fun SeyraSettingsPage(
                         )
                     )
                     LiquidToggle(
-                        selected = { toggleChecked },
-                        onSelect = { toggleChecked = it },
+                        selected = { toggleChecked1 },
+                        onSelect = { toggleChecked1 = it },
                         backdrop = backdrop
                     )
                 }
-                BasicText(
-                    "测试行二",
-                    style = TextStyle(
-                        color = Color(0xE005070A),
-                        fontSize = 16f.sp,
-                        fontWeight = FontWeight.Medium
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    BasicText(
+                        "测试行二",
+                        style = TextStyle(
+                            color = Color(0xFF05070A),
+                            fontSize = 16f.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     )
-                )
-                BasicText(
-                    "测试行三",
-                    style = TextStyle(
-                        color = Color(0xE005070A),
-                        fontSize = 16f.sp,
-                        fontWeight = FontWeight.Medium
+                    LiquidToggle(
+                        selected = { toggleChecked2 },
+                        onSelect = { toggleChecked2 = it },
+                        backdrop = backdrop
                     )
-                )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    BasicText(
+                        "测试行三",
+                        style = TextStyle(
+                            color = Color(0xFF05070A),
+                            fontSize = 16f.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                    LiquidToggle(
+                        selected = { toggleChecked3 },
+                        onSelect = { toggleChecked3 = it },
+                        backdrop = backdrop
+                    )
+                }
             }
         }
     }
