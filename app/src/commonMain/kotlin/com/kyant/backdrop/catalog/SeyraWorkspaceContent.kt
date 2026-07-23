@@ -109,6 +109,7 @@ import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.catalog.utils.BackHandler
+import com.kyant.backdrop.catalog.components.LiquidToggle
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
 import glass.app.generated.resources.Res
@@ -1835,10 +1836,12 @@ private fun SeyraProfileInfoPanel(
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
+    var toggleChecked by remember { mutableStateOf(false) }
+
     Column(
         modifier
             .fillMaxWidth()
-            .height(238f.dp)
+            .height(348f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(28f.dp) },
@@ -1855,14 +1858,36 @@ private fun SeyraProfileInfoPanel(
             .padding(horizontal = 30f.dp),
         verticalArrangement = Arrangement.spacedBy(20f.dp, Alignment.CenterVertically)
     ) {
-        BasicText(
-            "TG@sspyj",
-            style = TextStyle(
-                color = Color(0xFF05070A),
-                fontSize = 18f.sp,
-                fontWeight = FontWeight.SemiBold
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            BasicText(
+                "TG@sspyj",
+                style = TextStyle(
+                    color = Color(0xFF05070A),
+                    fontSize = 18f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8f.dp)
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_profile_settings_32px),
+                    contentDescription = "settings",
+                    modifier = Modifier.size(20f.dp),
+                    tint = Color(0xFF05070A)
+                )
+                LiquidToggle(
+                    checked = toggleChecked,
+                    onCheckedChange = { toggleChecked = it },
+                    backdrop = backdrop
+                )
+            }
+        }
         BasicText(
             "版本更新",
             style = TextStyle(
@@ -1889,6 +1914,30 @@ private fun SeyraProfileInfoPanel(
         )
         BasicText(
             "我的收藏",
+            style = TextStyle(
+                color = Color(0xE005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            "测试行一",
+            style = TextStyle(
+                color = Color(0xE005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            "测试行二",
+            style = TextStyle(
+                color = Color(0xE005070A),
+                fontSize = 16f.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+        BasicText(
+            "测试行三",
             style = TextStyle(
                 color = Color(0xE005070A),
                 fontSize = 16f.sp,
