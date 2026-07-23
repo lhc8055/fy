@@ -1942,22 +1942,11 @@ private fun SeyraSettingsPage(
                             fontWeight = FontWeight.Medium
                         )
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8f.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.ic_profile_settings_32px),
-                            contentDescription = "setting_icon",
-                            modifier = Modifier.size(20f.dp),
-                            colorFilter = ColorFilter.tint(Color(0xFF05070A))
-                        )
-                        LiquidToggle(
-                            selected = { toggleChecked },
-                            onSelect = { toggleChecked = it },
-                            backdrop = backdrop
-                        )
-                    }
+                    LiquidToggle(
+                        selected = { toggleChecked },
+                        onSelect = { toggleChecked = it },
+                        backdrop = backdrop
+                    )
                 }
                 BasicText(
                     "测试行二",
