@@ -518,6 +518,30 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+    AnimatedContent(
+        targetState = showSettingsPage,
+        transitionSpec = {
+            if (targetState) {
+                fadeIn(tween(420, easing = FastOutSlowInEasing)) +
+                scaleIn(tween(420, easing = FastOutSlowInEasing), initialScale = 0.95f) togetherWith
+                fadeOut(tween(280, easing = FastOutSlowInEasing)) +
+                scaleOut(tween(280, easing = FastOutSlowInEasing), targetScale = 0.95f)
+            } else {
+                fadeIn(tween(350, easing = FastOutSlowInEasing)) +
+                scaleIn(tween(350, easing = FastOutSlowInEasing), initialScale = 0.95f) togetherWith
+                fadeOut(tween(300, easing = FastOutSlowInEasing)) +
+                scaleOut(tween(300, easing = FastOutSlowInEasing), targetScale = 0.95f)
+            }
+        },
+        label = "settings_page"
+    ) { visible ->
+        if (visible) {
+            SeyraSettingsPage(
+                onBack = { showSettingsPage = false },
+                backdrop = backdrop,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 
     if (!showSettingsPage && !showMusicWebsitePage) {
@@ -1832,16 +1856,137 @@ private fun SeyraProfileActionButton(
 }
 
 @Composable
-private fun SeyraProfileInfoPanel(
+private fun SeyraSettingsPage(
+    onBack: () -> Unit,
     backdrop: LayerBackdrop,
     modifier: Modifier = Modifier
 ) {
     var toggleChecked by remember { mutableStateOf(false) }
+    var backVisible by remember { mutableStateOf(false) }
+    var panelVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        backVisible = true
+        delay(80)
+        panelVisible = true
+    }
 
     Column(
         modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .displayCutoutPadding()
+            .padding(start = 14f.dp, top = 82f.dp, end = 14f.dp, bottom = 14f.dp),
+        verticalArrangement = Arrangement.spacedBy(14f.dp)
+    ) {
+        AnimatedVisibility(
+            visible = backVisible,
+            enter = fadeIn(tween(380, easing = FastOutSlowInEasing)) +
+                    slideInVertically(tween(380, easing = FastOutSlowInEasing)) { -it / 5 },
+            exit = fadeOut(tween(220, easing = FastOutSlowInEasing)) +
+                   slideOutVertically(tween(220, easing = FastOutSlowInEasing)) { -it / 5 }
+        ) {
+            BasicText(
+                "‹ 返回",
+                modifier = Modifier
+                    .padding(start = 4f.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onBack
+                    ),
+                style = TextStyle(
+                    color = Color(0xDD05070A),
+                    fontSize = 16f.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+        }
+        AnimatedVisibility(
+            visible = panelVisible,
+            enter = fadeIn(tween(420, delayMillis = 100, easing = FastOutSlowInEasing)) +
+                    slideInVertically(tween(420, delayMillis = 100, easing = FastOutSlowInEasing)) { it / 4 },
+            exit = fadeOut(tween(260, easing = FastOutSlowInEasing)) +
+                   slideOutVertically(tween(260, easing = FastOutSlowInEasing)) { it / 4 }
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { RoundedRectangle(28f.dp) },
+                        effects = {
+                            vibrancy()
+                            blur(12f.dp.toPx())
+                            lens(14f.dp.toPx(), 24f.dp.toPx())
+                        },
+                        onDrawSurface = {
+                            drawRect(Color(0x70FFFFFF))
+                            drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                        }
+                    )
+                    .padding(horizontal = 30f.dp, vertical = 24f.dp),
+                verticalArrangement = Arrangement.spacedBy(20f.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    BasicText(
+                        "测试行一",
+                        style = TextStyle(
+                            color = Color(0xFF05070A),
+                            fontSize = 16f.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8f.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.ic_profile_settings_32px),
+                            contentDescription = "setting_icon",
+                            modifier = Modifier.size(20f.dp),
+                            colorFilter = ColorFilter.tint(Color(0xFF05070A))
+                        )
+                        LiquidToggle(
+                            selected = { toggleChecked },
+                            onSelect = { toggleChecked = it },
+                            backdrop = backdrop
+                        )
+                    }
+                }
+                BasicText(
+                    "测试行二",
+                    style = TextStyle(
+                        color = Color(0xE005070A),
+                        fontSize = 16f.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+                BasicText(
+                    "测试行三",
+                    style = TextStyle(
+                        color = Color(0xE005070A),
+                        fontSize = 16f.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeyraProfileInfoPanel(
+    backdrop: LayerBackdrop,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
             .fillMaxWidth()
-            .height(348f.dp)
+            .height(238f.dp)
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { RoundedRectangle(28f.dp) },
@@ -1858,36 +2003,14 @@ private fun SeyraProfileInfoPanel(
             .padding(horizontal = 30f.dp),
         verticalArrangement = Arrangement.spacedBy(20f.dp, Alignment.CenterVertically)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            BasicText(
-                "TG@sspyj",
-                style = TextStyle(
-                    color = Color(0xFF05070A),
-                    fontSize = 18f.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+        BasicText(
+            "TG@sspyj",
+            style = TextStyle(
+                color = Color(0xFF05070A),
+                fontSize = 18f.sp,
+                fontWeight = FontWeight.SemiBold
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8f.dp)
-            ) {
-                Image(
-                    painter = painterResource(Res.drawable.ic_profile_settings_32px),
-                    contentDescription = "settings",
-                    modifier = Modifier.size(20f.dp),
-                    colorFilter = ColorFilter.tint(Color(0xFF05070A))
-                )
-                LiquidToggle(
-                    selected = { toggleChecked },
-                    onSelect = { toggleChecked = it },
-                    backdrop = backdrop
-                )
-            }
-        }
+        )
         BasicText(
             "版本更新",
             style = TextStyle(
@@ -1914,30 +2037,6 @@ private fun SeyraProfileInfoPanel(
         )
         BasicText(
             "我的收藏",
-            style = TextStyle(
-                color = Color(0xE005070A),
-                fontSize = 16f.sp,
-                fontWeight = FontWeight.Medium
-            )
-        )
-        BasicText(
-            "测试行一",
-            style = TextStyle(
-                color = Color(0xE005070A),
-                fontSize = 16f.sp,
-                fontWeight = FontWeight.Medium
-            )
-        )
-        BasicText(
-            "测试行二",
-            style = TextStyle(
-                color = Color(0xE005070A),
-                fontSize = 16f.sp,
-                fontWeight = FontWeight.Medium
-            )
-        )
-        BasicText(
-            "测试行三",
             style = TextStyle(
                 color = Color(0xE005070A),
                 fontSize = 16f.sp,
