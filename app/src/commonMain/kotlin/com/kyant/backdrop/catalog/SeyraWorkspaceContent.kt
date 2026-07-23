@@ -184,6 +184,8 @@ private const val assistEntryTwoBannerUrl = "https://new.cayfpay.cn/upload/39/04
 private const val assistEntryThreeBannerUrl = "https://new.cayfpay.cn/upload/15/0a7387cdf0e793e055b325f22e23d0.jpg"
 private const val assistEntryFourBannerUrl = "https://new.cayfpay.cn/upload/b6/bfefc86534d9e54cfdb5761749cb02.jpg"
 private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg"
+private const val carouselImageUrl1 = "https://new.cayfpay.cn/upload/27/09588cb3bfb970a27a24a8d4514b23.jpg"
+private const val carouselImageUrl2 = "https://new.cayfpay.cn/upload/30/541d201692ea305e9910ef3d7fe4d0.png"
 
 private fun formatXrayResult(raw: String): String {
     val content = extractJsonStringValue(raw, "content") ?: raw
@@ -460,7 +462,9 @@ fun SeyraWorkspaceContent() {
             profileAvatarUrl to 256,
             "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg" to 900,
             "https://new.cayfpay.cn/upload/0b/9f0067f708c113f8eeb6e48d88bf53.jpg" to 900,
-            "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg" to 900
+            "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg" to 900,
+            carouselImageUrl1 to 900,
+            carouselImageUrl2 to 900
         )
     )
 }
@@ -2167,15 +2171,55 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
         Modifier
             .fillMaxWidth()
             .height(176f.dp)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedRectangle(32f.dp) },
-                effects = {
-                    vibrancy()
-                    lens(16f.dp.toPx(), 32f.dp.toPx())
-                }
-            )
-    )
+            .clip(RoundedCornerShape(32f.dp))
+    ) {
+        SeyraCarouselImage(
+            modifier = Modifier.fillMaxSize()
+        )
+        Box(
+            Modifier
+                .fillMaxSize()
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { RoundedRectangle(32f.dp) },
+                    effects = {
+                        vibrancy()
+                        lens(16f.dp.toPx(), 32f.dp.toPx())
+                    }
+                )
+        )
+    }
+}
+
+@Composable
+private fun SeyraCarouselImage(modifier: Modifier = Modifier) {
+    val images = remember { listOf(carouselImageUrl1, carouselImageUrl2) }
+    var currentIndex by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(4000)
+            currentIndex = (currentIndex + 1) % images.size
+        }
+    }
+
+    AnimatedContent(
+        targetState = currentIndex,
+        modifier = modifier,
+        transitionSpec = {
+            (fadeIn(tween(800, easing = FastOutSlowInEasing)) +
+             scaleIn(tween(800, easing = FastOutSlowInEasing), initialScale = 0.92f)) togetherWith
+            (fadeOut(tween(600, easing = FastOutSlowInEasing)) +
+             scaleOut(tween(600, easing = FastOutSlowInEasing), targetScale = 1.05f))
+        },
+        label = "carousel"
+    ) { index ->
+        SeyraRemoteImage(
+            url = images[index],
+            maxBitmapSize = 900,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 @Composable
