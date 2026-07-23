@@ -275,10 +275,15 @@ actual fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>) {
     LaunchedEffect(requests) {
         val total = requests.size.toFloat()
         withContext(Dispatchers.IO) {
-            requests.forEachIndexed { index, (url, maxBitmapSize) ->
-                runCatching {
-                    preloadRemoteImage(context, url, maxBitmapSize)
+            val jobs = requests.map { (url, maxBitmapSize) ->
+                kotlinx.coroutines.async {
+                    runCatching {
+                        preloadRemoteImage(context, url, maxBitmapSize)
+                    }
                 }
+            }
+            jobs.forEachIndexed { index, deferred ->
+                deferred.await()
                 imageLoadProgressState.value = (index + 1) / total
             }
         }
@@ -397,6 +402,7 @@ actual fun SeyraSplashImage(modifier: Modifier) {
     LaunchedEffect(Unit) {
         bitmap = withContext(Dispatchers.IO) {
             loadLocalSplashImage(context)
+                ?: runCatching { loadRemoteSplashImage(context) }.getOrNull()
         }
     }
 
@@ -421,13 +427,14 @@ actual fun checkAndUpdateSplashImage(context: Any?) {
     val ctx = context as Context
     val prefs = ctx.getSharedPreferences("splash", Context.MODE_PRIVATE)
     val savedVersion = prefs.getString("version", "") ?: ""
+    val isFirstLaunch = savedVersion.isEmpty()
 
     val versionUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/splash_version.json"
     val remoteVersionJson = runCatching {
         val connection = URL(versionUrl).openConnection() as HttpURLConnection
         try {
-            connection.connectTimeout = 8_000
-            connection.readTimeout = 8_000
+            connection.connectTimeout = if (isFirstLaunch) 15_000 else 8_000
+            connection.readTimeout = if (isFirstLaunch) 15_000 else 8_000
             connection.inputStream.bufferedReader().use { it.readText() }
         } finally {
             connection.disconnect()
@@ -442,12 +449,12 @@ actual fun checkAndUpdateSplashImage(context: Any?) {
 
     val cacheFile = File(ctx.filesDir, "splash_image.jpg")
 
-    if (remoteVersion != savedVersion || !cacheFile.exists()) {
+    if (isFirstLaunch || remoteVersion != savedVersion || !cacheFile.exists()) {
         runCatching {
             val connection = URL(imageUrl).openConnection() as HttpURLConnection
             try {
-                connection.connectTimeout = 12_000
-                connection.readTimeout = 12_000
+                connection.connectTimeout = 15_000
+                connection.readTimeout = 15_000
                 connection.inputStream.use { input ->
                     cacheFile.outputStream().use { output ->
                         input.copyTo(output)
@@ -468,6 +475,34 @@ private fun loadLocalSplashImage(context: Context): Bitmap? {
         BitmapFactory.decodeFile(cacheFile.absolutePath)
     } else {
         null
+    }
+}
+
+private fun loadRemoteSplashImage(context: Context): Bitmap? {
+    val versionUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/splash_version.json"
+    val remoteVersionJson = runCatching {
+        val connection = URL(versionUrl).openConnection() as HttpURLConnection
+        try {
+            connection.connectTimeout = 12_000
+            connection.readTimeout = 12_000
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } finally {
+            connection.disconnect()
+        }
+    }.getOrNull() ?: return null
+
+    val urlMatch = Regex("\"url\"\s*:\s*\"([^\"]+)\"").find(remoteVersionJson)
+    val imageUrl = urlMatch?.groupValues?.get(1) ?: return null
+
+    val connection = URL(imageUrl).openConnection() as HttpURLConnection
+    return try {
+        connection.connectTimeout = 15_000
+        connection.readTimeout = 15_000
+        connection.inputStream.use { input ->
+            BitmapFactory.decodeStream(input)
+        }
+    } finally {
+        connection.disconnect()
     }
 }
 

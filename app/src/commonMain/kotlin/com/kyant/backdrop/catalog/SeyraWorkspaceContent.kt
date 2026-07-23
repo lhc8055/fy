@@ -457,7 +457,10 @@ fun SeyraWorkspaceContent() {
             assistEntryTwoBannerUrl to 900,
             assistEntryThreeBannerUrl to 900,
             assistEntryFourBannerUrl to 900,
-            profileAvatarUrl to 256
+            profileAvatarUrl to 256,
+            "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg" to 900,
+            "https://new.cayfpay.cn/upload/0b/9f0067f708c113f8eeb6e48d88bf53.jpg" to 900,
+            "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg" to 900
         )
     )
 }
@@ -720,7 +723,7 @@ private fun SeyraPageContent(
             categoryMatched && keywordMatched
         }.let { list ->
             if (resourceCategory.value == "全部") {
-                list.sortedBy { if (it.title == "TG账号") 1 else 0 }
+                list.sortedBy { if (it.title.contains("使命")) 1 else 0 }
             } else list
         }
     }
@@ -865,7 +868,7 @@ private fun SeyraResourcePage(
             categoryMatched && keywordMatched
         }.let { list ->
             if (selectedCategory == "全部") {
-                list.sortedBy { if (it.title == "TG账号") 1 else 0 }
+                list.sortedBy { if (it.title.contains("使命")) 1 else 0 }
             } else list
         }
     }
