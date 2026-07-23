@@ -2176,18 +2176,6 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
         SeyraCarouselImage(
             modifier = Modifier.fillMaxSize()
         )
-        Box(
-            Modifier
-                .fillMaxSize()
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { RoundedRectangle(32f.dp) },
-                    effects = {
-                        vibrancy()
-                        lens(16f.dp.toPx(), 32f.dp.toPx())
-                    }
-                )
-        )
     }
 }
 
