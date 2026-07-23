@@ -518,6 +518,8 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+    }
+
     AnimatedContent(
         targetState = showSettingsPage,
         transitionSpec = {
