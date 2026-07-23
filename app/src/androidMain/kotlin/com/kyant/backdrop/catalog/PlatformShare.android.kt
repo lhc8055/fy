@@ -493,7 +493,7 @@ private fun loadRemoteSplashImage(context: Context): Bitmap? {
         }
     }.getOrNull() ?: return null
 
-    val urlMatch = Regex("\"url\"\s*:\s*\"([^\"]+)\"").find(remoteVersionJson)
+    val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
     val imageUrl = urlMatch?.groupValues?.get(1) ?: return null
 
     val connection = URL(imageUrl).openConnection() as HttpURLConnection
