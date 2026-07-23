@@ -42,6 +42,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -276,7 +278,7 @@ actual fun SeyraPreloadRemoteImages(requests: List<Pair<String, Int>>) {
         val total = requests.size.toFloat()
         withContext(Dispatchers.IO) {
             val jobs = requests.map { (url, maxBitmapSize) ->
-                kotlinx.coroutines.async {
+                async {
                     runCatching {
                         preloadRemoteImage(context, url, maxBitmapSize)
                     }
