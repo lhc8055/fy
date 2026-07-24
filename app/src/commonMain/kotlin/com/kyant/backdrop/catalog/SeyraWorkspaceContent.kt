@@ -170,9 +170,6 @@ private val resourceCards = listOf(
     SeyraCard("香肠派对", "热门游戏 / 资源入口", Color(0xFFFFC56E), "玩机")
 )
 
-private const val carouselImageUrl1 = "https://new.cayfpay.cn/upload/9a/35dc29c996942582f9b7df0d83f50d.jpg"
-private const val carouselImageUrl2 = "https://new.cayfpay.cn/upload/30/541d201692ea305e9910ef3d7fe4d0.png"
-
 private fun formatXrayResult(raw: String): String {
     val content = extractJsonStringValue(raw, "content") ?: raw
     val decoded = decodeEscapedText(content)
@@ -434,12 +431,6 @@ fun SeyraWorkspaceContent() {
         )
     }
 
-    SeyraPreloadRemoteImages(
-        listOf(
-            carouselImageUrl1 to 900,
-            carouselImageUrl2 to 900
-        )
-    )
 }
 
 @Composable
@@ -2142,43 +2133,15 @@ private fun SeyraLiquidHeaderPanel(backdrop: LayerBackdrop) {
         Modifier
             .fillMaxWidth()
             .height(176f.dp)
-            .clip(RoundedCornerShape(32f.dp))
-    ) {
-        SeyraCarouselImage(
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Composable
-private fun SeyraCarouselImage(modifier: Modifier = Modifier) {
-    val images = remember { listOf(carouselImageUrl1, carouselImageUrl2) }
-    var currentIndex by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(4000)
-            currentIndex = (currentIndex + 1) % images.size
-        }
-    }
-
-    AnimatedContent(
-        targetState = currentIndex,
-        modifier = modifier,
-        transitionSpec = {
-            (fadeIn(tween(800, easing = FastOutSlowInEasing)) +
-             scaleIn(tween(800, easing = FastOutSlowInEasing), initialScale = 0.92f)) togetherWith
-            (fadeOut(tween(600, easing = FastOutSlowInEasing)) +
-             scaleOut(tween(600, easing = FastOutSlowInEasing), targetScale = 1.05f))
-        },
-        label = "carousel"
-    ) { index ->
-        SeyraRemoteImage(
-            url = images[index],
-            maxBitmapSize = 900,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedRectangle(32f.dp) },
+                effects = {
+                    vibrancy()
+                    lens(16f.dp.toPx(), 32f.dp.toPx())
+                }
+            )
+    )
 }
 
 @Composable

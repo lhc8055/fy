@@ -64,17 +64,7 @@ private val musicHttpClient = OkHttpClient.Builder()
 private val imageLoadProgressState = mutableStateOf(0f)
 
 fun preloadSeyraStartupImages(context: Context) {
-    val appContext = context.applicationContext
-    startupImagePreloadScope.launch {
-        listOf(
-            "https://new.cayfpay.cn/upload/9a/35dc29c996942582f9b7df0d83f50d.jpg" to 900,
-            "https://new.cayfpay.cn/upload/30/541d201692ea305e9910ef3d7fe4d0.png" to 900
-        ).forEach { (url, maxBitmapSize) ->
-            runCatching {
-                preloadRemoteImage(appContext, url, maxBitmapSize)
-            }
-        }
-    }
+    // No images to preload
 }
 
 @Composable
@@ -390,83 +380,14 @@ actual fun SeyraNoCacheRemoteImage(
 
 @Composable
 actual fun SeyraSplashImage(modifier: Modifier) {
-    val context = LocalContext.current
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-
-    LaunchedEffect(Unit) {
-        bitmap = withContext(Dispatchers.IO) {
-            loadLocalSplashImage(context)
-                ?: runCatching { loadRemoteSplashImage(context) }.getOrNull()
-        }
-    }
-
-    AnimatedVisibility(
-        visible = bitmap != null,
-        enter = fadeIn(tween(700, easing = FastOutSlowInEasing)) +
-                slideInVertically(tween(700, easing = FastOutSlowInEasing)) { it / 6 }
-    ) {
-        val imageBitmap = bitmap
-        if (imageBitmap != null) {
-            Image(
-                bitmap = imageBitmap.asImageBitmap(),
-                contentDescription = null,
-                modifier = modifier,
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
+    Box(modifier)
 }
 
-
-private const val SPLASH_IMAGE_URL = "https://new.cayfpay.cn/upload/58/4c13c8d8aa50ec5250488ea0590759.jpg"
-actual fun checkAndUpdateSplashImage(context: Any?) {
-    val ctx = context as Context
-    val cacheFile = File(ctx.filesDir, "splash_image.jpg")
-
-    if (!cacheFile.exists()) {
-        runCatching {
-            val connection = URL(SPLASH_IMAGE_URL).openConnection() as HttpURLConnection
-            try {
-                connection.connectTimeout = 15_000
-                connection.readTimeout = 15_000
-                connection.inputStream.use { input ->
-                    cacheFile.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
                 }
             } finally {
                 connection.disconnect()
             }
         }
-    }
-}
-
-private fun loadLocalSplashImage(context: Context): Bitmap? {
-    val cacheFile = File(context.filesDir, "splash_image.jpg")
-    return if (cacheFile.exists() && cacheFile.length() > 0) {
-        BitmapFactory.decodeFile(cacheFile.absolutePath)
-    } else {
-        null
-    }
-}
-
-private fun loadRemoteSplashImage(context: Context): Bitmap? {
-    val connection = URL(SPLASH_IMAGE_URL).openConnection() as HttpURLConnection
-    return try {
-        connection.connectTimeout = 15_000
-        connection.readTimeout = 15_000
-        connection.inputStream.use { input ->
-            val bitmap = BitmapFactory.decodeStream(input)
-            if (bitmap != null) {
-                val cacheFile = File(context.filesDir, "splash_image.jpg")
-                cacheFile.outputStream().use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-                }
-            }
-            bitmap
-        }
-    } finally {
-        connection.disconnect()
     }
 }
 
