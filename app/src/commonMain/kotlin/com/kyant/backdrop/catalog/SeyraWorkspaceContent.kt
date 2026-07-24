@@ -2052,12 +2052,7 @@ private fun SeyraDiscoverFrostedPanel(
                 shape = { RoundedRectangle(28f.dp) },
                 effects = {
                     vibrancy()
-                    blur(12f.dp.toPx())
-                    lens(14f.dp.toPx(), 24f.dp.toPx())
-                },
-                onDrawSurface = {
-                    drawRect(Color(0x70FFFFFF))
-                    drawRect(Color(0x0F6EBBFF), blendMode = BlendMode.Screen)
+                    lens(16f.dp.toPx(), 32f.dp.toPx())
                 }
             )
     )
