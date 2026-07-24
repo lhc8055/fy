@@ -1488,7 +1488,7 @@ private fun SeyraProfilePage(
                 )
         )
         BasicText(
-            "Seyra",
+            "𝑆‌𝑒𝑦𝑟𝑎",
             modifier = Modifier.padding(top = 22f.dp),
             style = TextStyle(
                 color = Color(0xFF05070A),
