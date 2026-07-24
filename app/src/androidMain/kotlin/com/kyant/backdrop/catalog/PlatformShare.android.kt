@@ -383,6 +383,9 @@ actual fun SeyraSplashImage(modifier: Modifier) {
     Box(modifier)
 }
 
+actual fun checkAndUpdateSplashImage(context: Any?) {
+    // No splash image update needed
+}
 
 @Composable
 actual fun LaunchSplashImageUpdater() {
