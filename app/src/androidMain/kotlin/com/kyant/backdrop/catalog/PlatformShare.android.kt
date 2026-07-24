@@ -383,28 +383,10 @@ actual fun SeyraSplashImage(modifier: Modifier) {
     Box(modifier)
 }
 
-                }
-            } finally {
-                connection.disconnect()
-            }
-        }
-    }
-}
 
 @Composable
 actual fun LaunchSplashImageUpdater() {
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            checkAndUpdateSplashImage(context)
-        }
-        while (true) {
-            delay(60_000L)
-            withContext(Dispatchers.IO) {
-                checkAndUpdateSplashImage(context)
-            }
-        }
-    }
+    // No splash image update needed
 }
 
 private const val maxMemoryCacheEntries = 8
