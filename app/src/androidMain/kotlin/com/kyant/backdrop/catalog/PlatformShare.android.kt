@@ -378,18 +378,92 @@ actual fun SeyraNoCacheRemoteImage(
     }
 }
 
+private const val SPLASH_IMAGE_URL = "https://new.cayfpay.cn/upload/1b/86bc17afdc88d0c914ad91bf1fcd5a.jpg"
+
 @Composable
 actual fun SeyraSplashImage(modifier: Modifier) {
-    Box(modifier)
+    val context = LocalContext.current
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(Unit) {
+        bitmap = withContext(Dispatchers.IO) {
+            loadLocalSplashImage(context)
+                ?: runCatching { loadRemoteSplashImage(context) }.getOrNull()
+        }
+    }
+
+    val imageBitmap = bitmap
+    if (imageBitmap != null) {
+        Image(
+            bitmap = imageBitmap.asImageBitmap(),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Crop
+        )
+    } else {
+        Box(modifier)
+    }
 }
 
 actual fun checkAndUpdateSplashImage(context: Any?) {
-    // No splash image update needed
+    val ctx = context as Context
+    val cacheFile = File(ctx.filesDir, "splash_image.jpg")
+
+    if (!cacheFile.exists()) {
+        runCatching {
+            val connection = URL(SPLASH_IMAGE_URL).openConnection() as HttpURLConnection
+            try {
+                connection.connectTimeout = 15_000
+                connection.readTimeout = 15_000
+                connection.inputStream.use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            } finally {
+                connection.disconnect()
+            }
+        }
+    }
+}
+
+private fun loadLocalSplashImage(context: Context): Bitmap? {
+    val cacheFile = File(context.filesDir, "splash_image.jpg")
+    return if (cacheFile.exists() && cacheFile.length() > 0) {
+        BitmapFactory.decodeFile(cacheFile.absolutePath)
+    } else {
+        null
+    }
+}
+
+private fun loadRemoteSplashImage(context: Context): Bitmap? {
+    val connection = URL(SPLASH_IMAGE_URL).openConnection() as HttpURLConnection
+    return try {
+        connection.connectTimeout = 15_000
+        connection.readTimeout = 15_000
+        connection.inputStream.use { input ->
+            val bitmap = BitmapFactory.decodeStream(input)
+            if (bitmap != null) {
+                val cacheFile = File(context.filesDir, "splash_image.jpg")
+                cacheFile.outputStream().use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                }
+            }
+            bitmap
+        }
+    } finally {
+        connection.disconnect()
+    }
 }
 
 @Composable
 actual fun LaunchSplashImageUpdater() {
-    // No splash image update needed
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            checkAndUpdateSplashImage(context)
+        }
+    }
 }
 
 private const val maxMemoryCacheEntries = 8
