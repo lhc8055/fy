@@ -134,8 +134,7 @@ private data class SeyraCard(
     val title: String,
     val subtitle: String,
     val tint: Color,
-    val category: String,
-    val imageUrl: String? = null
+    val category: String
 )
 
 private data class SeyraDockTab(
@@ -163,27 +162,14 @@ private val resourceCards = listOf(
     SeyraCard("辅助入口三", "辅助工具 / 快速入口", Color(0xFFFFC56E), "辅助"),
     SeyraCard("辅助入口四", "辅助工具 / 快速入口", Color(0xFF7EA8FF), "辅助"),
     SeyraCard("链接仓库", "常用网址 / 入口保存", Color(0xFFFFC56E), "链接"),
-    SeyraCard("赏帮", "赏帮赚钱 / 任务平台", Color(0xFFFF5B58), "辅助",
-        imageUrl = "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg"),
-    SeyraCard("TG账号", "超低价格 / 快速购买", Color(0xFF70D7FF), "辅助",
-        imageUrl = "https://new.cayfpay.cn/upload/0b/9f0067f708c113f8eeb6e48d88bf53.jpg"),
-    SeyraCard("辅助整合", "游戏辅助 / 一键整合", Color(0xFF9B7CFF), "辅助",
-        imageUrl = "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg"),
+    SeyraCard("赏帮", "赏帮赚钱 / 任务平台", Color(0xFFFF5B58), "辅助"),
+    SeyraCard("TG账号", "超低价格 / 快速购买", Color(0xFF70D7FF), "辅助"),
+    SeyraCard("辅助整合", "游戏辅助 / 一键整合", Color(0xFF9B7CFF), "辅助"),
     SeyraCard("收藏夹", "重要内容 / 快速访问", Color(0xFFFF8EC7), "收藏"),
     SeyraCard("最近使用", "最近打开 / 历史记录", Color(0xFF7EA8FF), "最近"),
     SeyraCard("香肠派对", "热门游戏 / 资源入口", Color(0xFFFFC56E), "玩机")
 )
 
-private const val xrayBannerUrl = "https://new.cayfpay.cn/upload/c1/0b6d3b2310c2c06508c5eacb3a5221.jpg"
-private const val threeElementsBannerUrl = "https://new.cayfpay.cn/upload/43/dd11e5da776272c8fa7eebd84b42f1.jpg"
-private const val libraryBannerUrl = "https://new.cayfpay.cn/upload/6e/a51caa736cb797e7d332d4a9836b2d.jpg"
-private const val templateBannerUrl = "https://new.cayfpay.cn/upload/7c/eb98dce3d508111dd40ef26c46de45.jpg"
-private const val fileGroupBannerUrl = "https://new.cayfpay.cn/upload/37/99a5019baa95224ce9adaeed14b633.jpg"
-private const val assistEntryOneBannerUrl = "https://new.cayfpay.cn/upload/a9/5818a6e4b274c9d0d559e25d060145.jpg"
-private const val assistEntryTwoBannerUrl = "https://new.cayfpay.cn/upload/39/04409b3d70e56d240e0491e4915e70.jpg"
-private const val assistEntryThreeBannerUrl = "https://new.cayfpay.cn/upload/15/0a7387cdf0e793e055b325f22e23d0.jpg"
-private const val assistEntryFourBannerUrl = "https://new.cayfpay.cn/upload/b6/bfefc86534d9e54cfdb5761749cb02.jpg"
-private const val profileAvatarUrl = "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg"
 private const val carouselImageUrl1 = "https://new.cayfpay.cn/upload/9a/35dc29c996942582f9b7df0d83f50d.jpg"
 private const val carouselImageUrl2 = "https://new.cayfpay.cn/upload/30/541d201692ea305e9910ef3d7fe4d0.png"
 
@@ -450,19 +436,6 @@ fun SeyraWorkspaceContent() {
 
     SeyraPreloadRemoteImages(
         listOf(
-            xrayBannerUrl to 900,
-            threeElementsBannerUrl to 900,
-            libraryBannerUrl to 900,
-            templateBannerUrl to 900,
-            fileGroupBannerUrl to 900,
-            assistEntryOneBannerUrl to 900,
-            assistEntryTwoBannerUrl to 900,
-            assistEntryThreeBannerUrl to 900,
-            assistEntryFourBannerUrl to 900,
-            profileAvatarUrl to 256,
-            "https://new.cayfpay.cn/upload/53/7683721b762c483c0eace2dbdc4f8a.jpg" to 900,
-            "https://new.cayfpay.cn/upload/0b/9f0067f708c113f8eeb6e48d88bf53.jpg" to 900,
-            "https://new.cayfpay.cn/upload/36/4970f162c614b32d112949dfd107fe.jpg" to 900,
             carouselImageUrl1 to 900,
             carouselImageUrl2 to 900
         )
@@ -477,7 +450,6 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
     var showMusicWebsitePage by rememberSaveable { mutableStateOf(false) }
     val shareApp = rememberShareAppAction()
     val openFeedback = rememberOpenFeedbackAction()
-    val preloadImages = rememberPreloadRemoteImagesAction()
     val copyText = rememberCopyTextAction()
 
     BackHandler(enabled = showSettingsPage, onBack = { showSettingsPage = false })
@@ -579,19 +551,7 @@ private fun BoxScope.SeyraWorkspace(backdrop: LayerBackdrop) {
         SeyraDock(
             selectedTabIndex = selectedTabIndex,
             onTabSelected = { selectedTabIndex = it },
-            onResourcePressed = {
-                preloadImages(
-                    listOf(
-                        libraryBannerUrl to 900,
-                        templateBannerUrl to 900,
-                        fileGroupBannerUrl to 900,
-                        assistEntryOneBannerUrl to 900,
-                        assistEntryTwoBannerUrl to 900,
-                        assistEntryThreeBannerUrl to 900,
-                        assistEntryFourBannerUrl to 900
-                    )
-                )
-            },
+            onResourcePressed = {},
             backdrop = backdrop,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -1098,7 +1058,8 @@ private fun SeyraCardGrid(
                             card = card,
                             backdrop = backdrop,
                             onClick = { onCardClick(cardIndex) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            cardNumber = cardIndex
                         )
                     }
                     if (rowCards.size == 1) {
@@ -1526,12 +1487,22 @@ private fun SeyraProfilePage(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SeyraRemoteImage(
-            url = profileAvatarUrl,
-            maxBitmapSize = 256,
-            modifier = Modifier
+        Box(
+            Modifier
                 .size(122f.dp)
                 .clip(CircleShape)
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { Capsule() },
+                    effects = {
+                        vibrancy()
+                        blur(8f.dp.toPx())
+                        lens(14f.dp.toPx(), 24f.dp.toPx())
+                    },
+                    onDrawSurface = {
+                        drawRect(Color(0x70FFFFFF))
+                    }
+                )
         )
         BasicText(
             "Seyra",
@@ -2215,21 +2186,9 @@ private fun SeyraLiquidCard(
     card: SeyraCard,
     backdrop: LayerBackdrop,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardNumber: Int = -1
 ) {
-    val imageUrl = card.imageUrl ?: when (card.title) {
-        "社工查询" -> xrayBannerUrl
-        "网易云解析" -> threeElementsBannerUrl
-        "辅助" -> libraryBannerUrl
-        "玩机" -> templateBannerUrl
-        "文件分组" -> fileGroupBannerUrl
-        "辅助入口一" -> assistEntryOneBannerUrl
-        "辅助入口二" -> assistEntryTwoBannerUrl
-        "辅助入口三" -> assistEntryThreeBannerUrl
-        "辅助入口四" -> assistEntryFourBannerUrl
-        else -> null
-    }
-
     Box(
         modifier
             .aspectRatio(1.58f)
@@ -2252,13 +2211,17 @@ private fun SeyraLiquidCard(
                 onClick = onClick
             )
     ) {
-        if (imageUrl != null) {
-            SeyraRemoteImage(
-                url = imageUrl,
-                maxBitmapSize = 900,
+        if (cardNumber >= 0) {
+            BasicText(
+                "${cardNumber + 1}",
                 modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(24f.dp))
+                    .align(Alignment.TopStart)
+                    .padding(start = 12f.dp, top = 10f.dp),
+                style = TextStyle(
+                    color = Color(0x6005070A),
+                    fontSize = 28f.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
     }

@@ -67,16 +67,8 @@ fun preloadSeyraStartupImages(context: Context) {
     val appContext = context.applicationContext
     startupImagePreloadScope.launch {
         listOf(
-            "https://new.cayfpay.cn/upload/c1/0b6d3b2310c2c06508c5eacb3a5221.jpg" to 900,
-            "https://new.cayfpay.cn/upload/43/dd11e5da776272c8fa7eebd84b42f1.jpg" to 900,
-            "https://new.cayfpay.cn/upload/6e/a51caa736cb797e7d332d4a9836b2d.jpg" to 900,
-            "https://new.cayfpay.cn/upload/7c/eb98dce3d508111dd40ef26c46de45.jpg" to 900,
-            "https://new.cayfpay.cn/upload/37/99a5019baa95224ce9adaeed14b633.jpg" to 900,
-            "https://new.cayfpay.cn/upload/a9/5818a6e4b274c9d0d559e25d060145.jpg" to 900,
-            "https://new.cayfpay.cn/upload/39/04409b3d70e56d240e0491e4915e70.jpg" to 900,
-            "https://new.cayfpay.cn/upload/15/0a7387cdf0e793e055b325f22e23d0.jpg" to 900,
-            "https://new.cayfpay.cn/upload/b6/bfefc86534d9e54cfdb5761749cb02.jpg" to 900,
-            "https://new.cayfpay.cn/upload/e4/4e885b1bacdf43ffb2f28030a59a14.jpg" to 256
+            "https://new.cayfpay.cn/upload/9a/35dc29c996942582f9b7df0d83f50d.jpg" to 900,
+            "https://new.cayfpay.cn/upload/30/541d201692ea305e9910ef3d7fe4d0.png" to 900
         ).forEach { (url, maxBitmapSize) ->
             runCatching {
                 preloadRemoteImage(appContext, url, maxBitmapSize)
