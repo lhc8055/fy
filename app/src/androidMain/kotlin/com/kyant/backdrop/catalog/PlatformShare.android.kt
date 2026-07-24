@@ -477,22 +477,6 @@ private fun loadRemoteSplashImage(context: Context): Bitmap? {
         connection.disconnect()
     }
 }
-    }.getOrNull() ?: return null
-
-    val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
-    val imageUrl = urlMatch?.groupValues?.get(1) ?: return null
-
-    val connection = URL(imageUrl).openConnection() as HttpURLConnection
-    return try {
-        connection.connectTimeout = 15_000
-        connection.readTimeout = 15_000
-        connection.inputStream.use { input ->
-            BitmapFactory.decodeStream(input)
-        }
-    } finally {
-        connection.disconnect()
-    }
-}
 
 @Composable
 actual fun LaunchSplashImageUpdater() {
