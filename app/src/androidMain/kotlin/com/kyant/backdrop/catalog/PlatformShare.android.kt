@@ -425,35 +425,15 @@ actual fun SeyraSplashImage(modifier: Modifier) {
     }
 }
 
+
+private const val SPLASH_IMAGE_URL = "https://new.cayfpay.cn/upload/58/4c13c8d8aa50ec5250488ea0590759.jpg"
 actual fun checkAndUpdateSplashImage(context: Any?) {
     val ctx = context as Context
-    val prefs = ctx.getSharedPreferences("splash", Context.MODE_PRIVATE)
-    val savedVersion = prefs.getString("version", "") ?: ""
-    val isFirstLaunch = savedVersion.isEmpty()
-
-    val versionUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/splash_version.json"
-    val remoteVersionJson = runCatching {
-        val connection = URL(versionUrl).openConnection() as HttpURLConnection
-        try {
-            connection.connectTimeout = if (isFirstLaunch) 15_000 else 8_000
-            connection.readTimeout = if (isFirstLaunch) 15_000 else 8_000
-            connection.inputStream.bufferedReader().use { it.readText() }
-        } finally {
-            connection.disconnect()
-        }
-    }.getOrNull() ?: return
-
-    val versionMatch = Regex("\"version\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
-    val remoteVersion = versionMatch?.groupValues?.get(1) ?: return
-
-    val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
-    val imageUrl = urlMatch?.groupValues?.get(1) ?: return
-
     val cacheFile = File(ctx.filesDir, "splash_image.jpg")
 
-    if (isFirstLaunch || remoteVersion != savedVersion || !cacheFile.exists()) {
+    if (!cacheFile.exists()) {
         runCatching {
-            val connection = URL(imageUrl).openConnection() as HttpURLConnection
+            val connection = URL(SPLASH_IMAGE_URL).openConnection() as HttpURLConnection
             try {
                 connection.connectTimeout = 15_000
                 connection.readTimeout = 15_000
@@ -462,13 +442,11 @@ actual fun checkAndUpdateSplashImage(context: Any?) {
                         input.copyTo(output)
                     }
                 }
-                prefs.edit().putString("version", remoteVersion).apply()
             } finally {
                 connection.disconnect()
             }
         }
     }
-
 }
 
 private fun loadLocalSplashImage(context: Context): Bitmap? {
@@ -481,16 +459,24 @@ private fun loadLocalSplashImage(context: Context): Bitmap? {
 }
 
 private fun loadRemoteSplashImage(context: Context): Bitmap? {
-    val versionUrl = "https://raw.githubusercontent.com/lhc8055/fy/main/assets/splash/splash_version.json"
-    val remoteVersionJson = runCatching {
-        val connection = URL(versionUrl).openConnection() as HttpURLConnection
-        try {
-            connection.connectTimeout = 12_000
-            connection.readTimeout = 12_000
-            connection.inputStream.bufferedReader().use { it.readText() }
-        } finally {
-            connection.disconnect()
+    val connection = URL(SPLASH_IMAGE_URL).openConnection() as HttpURLConnection
+    return try {
+        connection.connectTimeout = 15_000
+        connection.readTimeout = 15_000
+        connection.inputStream.use { input ->
+            val bitmap = BitmapFactory.decodeStream(input)
+            if (bitmap != null) {
+                val cacheFile = File(context.filesDir, "splash_image.jpg")
+                cacheFile.outputStream().use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                }
+            }
+            bitmap
         }
+    } finally {
+        connection.disconnect()
+    }
+}
     }.getOrNull() ?: return null
 
     val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(remoteVersionJson)
@@ -638,3 +624,4 @@ private fun shareCurrentApp(context: Context) {
 
     context.startActivity(chooser)
 }
+
