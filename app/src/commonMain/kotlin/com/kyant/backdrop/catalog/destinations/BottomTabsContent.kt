@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,7 +60,17 @@ fun BottomTabsContent() {
         else Color(0xFF121212).copy(0.4f)
 
     BackdropDemoScaffold { backdrop ->
-        Box(Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            // Adaptive spacing: ~2.5% of screen height, clamped to 12-36dp
+            val screenHeightPx = constraints.maxHeight.toFloat()
+            val density = LocalDensity.current
+            val adaptiveBottomPadding = with(density) {
+                (screenHeightPx * 0.025f).coerceIn(
+                    with(density) { 12f.dp.toPx() },
+                    with(density) { 36f.dp.toPx() }
+                ).toDp()
+            }
+
             // Top-right share + more button
             Row(
                 Modifier
@@ -155,7 +167,7 @@ fun BottomTabsContent() {
                         }
                     }
                 }
-                Spacer(Modifier.height(48f.dp).navigationBarsPadding())
+                Spacer(Modifier.height(adaptiveBottomPadding).navigationBarsPadding())
             }
         }
     }
