@@ -28,7 +28,7 @@ actual fun BackdropDemoScaffold(
                 .layerBackdrop(backdrop)
                 .then(modifier)
                 .fillMaxSize()
-                .background(Color.White)
+                .background(Color.Black)
         )
 
         content(backdrop)

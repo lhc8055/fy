@@ -12,7 +12,7 @@
         android:theme="@style/Theme.Catalog"
         tools:targetApi="33">
         <activity
-            android:name=".MainActivity"
+            android:name="com.kyant.backdrop.catalog.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

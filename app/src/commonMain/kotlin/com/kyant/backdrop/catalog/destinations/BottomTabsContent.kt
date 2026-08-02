@@ -155,7 +155,7 @@ fun BottomTabsContent() {
                         }
                     }
                 }
-                Spacer(Modifier.height(16f.dp).navigationBarsPadding())
+                Spacer(Modifier.height(48f.dp).navigationBarsPadding())
             }
         }
     }

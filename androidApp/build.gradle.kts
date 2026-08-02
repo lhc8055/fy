@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.kyant.backdrop.catalog"
+    namespace = "com.lhc8055.liquidglass"
     compileSdk = 37
     buildToolsVersion = "37.0.0"
 
     defaultConfig {
-        applicationId = "com.kyant.backdrop.catalog"
+        applicationId = "com.lhc8055.liquidglass"
         minSdk = 23
         targetSdk = 37
         versionCode = 1
