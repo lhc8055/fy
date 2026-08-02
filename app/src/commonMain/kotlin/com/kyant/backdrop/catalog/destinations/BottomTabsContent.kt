@@ -55,9 +55,7 @@ fun BottomTabsContent() {
     val moreIcon = rememberVectorPainter(MoreIcon)
     val iconColorFilter = ColorFilter.tint(contentColor)
 
-    val containerColor =
-        if (isLightTheme) Color(0xFFFAFAFA).copy(0.4f)
-        else Color(0xFF121212).copy(0.4f)
+    val containerColor = Color.Transparent
 
     BackdropDemoScaffold { backdrop ->
         BoxWithConstraints(Modifier.fillMaxSize()) {
