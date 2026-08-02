@@ -47,8 +47,7 @@ import com.kyant.shapes.Capsule
 
 @Composable
 fun BottomTabsContent() {
-    val isLightTheme = !isSystemInDarkTheme()
-    val contentColor = if (isLightTheme) Color.Black else Color.White
+    val contentColor = Color.White
 
     val airplaneModeIcon = rememberVectorPainter(FlightIcon)
     val shareIcon = rememberVectorPainter(ShareIcon)
