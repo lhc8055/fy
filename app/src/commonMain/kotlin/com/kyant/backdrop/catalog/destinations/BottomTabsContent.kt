@@ -231,12 +231,38 @@ fun BottomTabsContent() {
                 items = menuItems
             )
 
-            // Bottom dock
-            Column(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            // Bottom dock with entrance animation (Compose-Symphony bounceIn style)
+            // https://github.com/jay3-yy/Compose-Symphony
+            val dockScale = remember { Animatable(0f) }
+            val dockAlpha = remember { Animatable(0f) }
+            val dockReady = remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                // Small delay for a staggered entrance
+                kotlinx.coroutines.delay(100)
+                dockScale.snapTo(0.6f)
+                dockAlpha.snapTo(0f)
+                dockReady.value = true
+                // Alpha fades in first, then scale bounces with overshoot
+                dockAlpha.animateTo(1f, tween(250))
+                dockScale.animateTo(1f, spring(
+                    dampingRatio = 0.55f,  // Bouncy overshoot
+                    stiffness = 300f
+                ))
+            }
+
+            if (dockReady.value) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            scaleX = dockScale.value
+                            scaleY = dockScale.value
+                            alpha = dockAlpha.value
+                            transformOrigin = TransformOrigin(0.5f, 1f) // Pivot from bottom center
+                        },
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                 Block {
                     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
 
@@ -263,6 +289,7 @@ fun BottomTabsContent() {
                     }
                 }
                 Spacer(Modifier.height(adaptiveBottomPadding).navigationBarsPadding())
+                }
             }
         }
     }
