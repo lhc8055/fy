@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.catalog.BackdropDemoScaffold
 import com.kyant.backdrop.catalog.Block
 import com.kyant.backdrop.catalog.FlightIcon
-import com.kyant.backdrop.catalog.HistoryIcon
+import com.kyant.backdrop.catalog.MoreIcon
 import com.kyant.backdrop.catalog.ShareIcon
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
@@ -51,7 +51,7 @@ fun BottomTabsContent() {
 
     val airplaneModeIcon = rememberVectorPainter(FlightIcon)
     val shareIcon = rememberVectorPainter(ShareIcon)
-    val historyIcon = rememberVectorPainter(HistoryIcon)
+    val moreIcon = rememberVectorPainter(MoreIcon)
     val iconColorFilter = ColorFilter.tint(contentColor)
 
     val containerColor = Color.Transparent
@@ -68,7 +68,7 @@ fun BottomTabsContent() {
                 ).toDp()
             }
 
-            // Top-right share + history button
+            // Top-right share + more button
             Row(
                 Modifier
                     .align(Alignment.TopEnd)
@@ -113,7 +113,7 @@ fun BottomTabsContent() {
                         .width(1f.dp)
                         .height(22f.dp)
                 )
-                // History button
+                // More button
                 Box(
                     Modifier
                         .size(40f.dp)
@@ -128,7 +128,7 @@ fun BottomTabsContent() {
                     Box(
                         Modifier
                             .size(22f.dp)
-                            .paint(historyIcon, colorFilter = iconColorFilter)
+                            .paint(moreIcon, colorFilter = iconColorFilter)
                     )
                 }
             }
