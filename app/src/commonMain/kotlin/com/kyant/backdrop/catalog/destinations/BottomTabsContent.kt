@@ -20,6 +20,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,7 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -39,6 +44,8 @@ import com.kyant.backdrop.catalog.MoreIcon
 import com.kyant.backdrop.catalog.ShareIcon
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
+import com.kyant.backdrop.catalog.components.LiquidGlassPopup
+import com.kyant.backdrop.catalog.components.PopupMenuItem
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -55,6 +62,34 @@ fun BottomTabsContent() {
     val iconColorFilter = ColorFilter.tint(contentColor)
 
     val containerColor = Color.Transparent
+
+    // Popup state
+    var popupExpanded by remember { mutableStateOf(false) }
+
+    val menuItems = remember {
+        listOf(
+            PopupMenuItem(
+                icon = SettingsMenuIcon,
+                label = "Settings",
+                onClick = { }
+            ),
+            PopupMenuItem(
+                icon = ShareMenuIcon,
+                label = "Share",
+                onClick = { }
+            ),
+            PopupMenuItem(
+                icon = InfoMenuIcon,
+                label = "About",
+                onClick = { }
+            ),
+            PopupMenuItem(
+                icon = CloseMenuIcon,
+                label = "Close",
+                onClick = { }
+            )
+        )
+    }
 
     BackdropDemoScaffold { backdrop ->
         BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -121,7 +156,7 @@ fun BottomTabsContent() {
                             interactionSource = null,
                             indication = null,
                             role = Role.Button,
-                            onClick = { }
+                            onClick = { popupExpanded = !popupExpanded }
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -132,6 +167,14 @@ fun BottomTabsContent() {
                     )
                 }
             }
+
+            // Liquid glass popup menu (iOS 26 style with spring animations)
+            LiquidGlassPopup(
+                expanded = popupExpanded,
+                onDismissRequest = { popupExpanded = false },
+                backdrop = backdrop,
+                items = menuItems
+            )
 
             // Bottom dock
             Column(
