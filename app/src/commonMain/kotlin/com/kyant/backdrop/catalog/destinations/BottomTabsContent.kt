@@ -107,68 +107,70 @@ fun BottomTabsContent() {
                 ).toDp()
             }
 
-            // Top-right share + more button
-            Row(
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    .padding(end = 16f.dp, top = 8f.dp)
-                    .height(48f.dp)
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { Capsule() },
-                        effects = {
-                            vibrancy()
-                            blur(8f.dp.toPx())
-                            lens(20f.dp.toPx(), 20f.dp.toPx())
-                        },
-                        onDrawSurface = { drawRect(containerColor) }
-                    )
-                    .padding(horizontal = 6f.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(0f.dp)
-            ) {
-                // Share button
-                Box(
+            // Top-right share + more button (hidden when popup is open)
+            if (!popupExpanded) {
+                Row(
                     Modifier
-                        .size(40f.dp)
-                        .clickable(
-                            interactionSource = null,
-                            indication = null,
-                            role = Role.Button,
-                            onClick = { }
-                        ),
-                    contentAlignment = Alignment.Center
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(end = 16f.dp, top = 8f.dp)
+                        .height(48f.dp)
+                        .drawBackdrop(
+                            backdrop = backdrop,
+                            shape = { Capsule() },
+                            effects = {
+                                vibrancy()
+                                blur(8f.dp.toPx())
+                                lens(20f.dp.toPx(), 20f.dp.toPx())
+                            },
+                            onDrawSurface = { drawRect(containerColor) }
+                        )
+                        .padding(horizontal = 6f.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(0f.dp)
                 ) {
+                    // Share button
                     Box(
                         Modifier
-                            .size(22f.dp)
-                            .paint(shareIcon, colorFilter = iconColorFilter)
+                            .size(40f.dp)
+                            .clickable(
+                                interactionSource = null,
+                                indication = null,
+                                role = Role.Button,
+                                onClick = { }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            Modifier
+                                .size(22f.dp)
+                                .paint(shareIcon, colorFilter = iconColorFilter)
+                        )
+                    }
+                    // Divider
+                    Spacer(
+                        Modifier
+                            .width(1f.dp)
+                            .height(22f.dp)
                     )
-                }
-                // Divider
-                Spacer(
-                    Modifier
-                        .width(1f.dp)
-                        .height(22f.dp)
-                )
-                // More button
-                Box(
-                    Modifier
-                        .size(40f.dp)
-                        .clickable(
-                            interactionSource = null,
-                            indication = null,
-                            role = Role.Button,
-                            onClick = { popupExpanded = !popupExpanded }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                    // More button
                     Box(
                         Modifier
-                            .size(22f.dp)
-                            .paint(moreIcon, colorFilter = iconColorFilter)
-                    )
+                            .size(40f.dp)
+                            .clickable(
+                                interactionSource = null,
+                                indication = null,
+                                role = Role.Button,
+                                onClick = { popupExpanded = true }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            Modifier
+                                .size(22f.dp)
+                                .paint(moreIcon, colorFilter = iconColorFilter)
+                        )
+                    }
                 }
             }
 

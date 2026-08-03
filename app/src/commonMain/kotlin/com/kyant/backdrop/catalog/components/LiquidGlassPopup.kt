@@ -124,7 +124,7 @@ fun LiquidGlassPopup(
                         if (backdrop != null) {
                             Modifier.drawBackdrop(
                                 backdrop = backdrop,
-                                shape = { RoundedCornerShape(24f.dp) },
+                                shape = { RoundedCornerShape(20f.dp) },
                                 effects = {
                                     vibrancy()
                                     blur(12f.dp.toPx())
@@ -135,14 +135,14 @@ fun LiquidGlassPopup(
                         } else {
                             Modifier.background(
                                 Color.White.copy(alpha = 0.12f),
-                                RoundedCornerShape(24f.dp)
+                                RoundedCornerShape(20f.dp)
                             )
                         }
                     )
-                    .clip(RoundedCornerShape(24f.dp))
-                    .padding(vertical = 8f.dp),
+                    .clip(RoundedCornerShape(20f.dp))
+                    .padding(vertical = 6f.dp),
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(2f.dp)
+                verticalArrangement = Arrangement.spacedBy(0f.dp)
             ) {
                 items.forEachIndexed { index, item ->
                     PopupItemRow(
@@ -183,7 +183,6 @@ private fun PopupItemRow(
                 alpha = itemAlpha.value
                 transformOrigin = androidx.compose.ui.graphics.TransformOrigin(1f, 0.5f)
             }
-            .fillMaxWidth()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -193,9 +192,9 @@ private fun PopupItemRow(
                     onDismiss()
                 }
             )
-            .padding(horizontal = 20f.dp, vertical = 12f.dp),
+            .padding(horizontal = 16f.dp, vertical = 10f.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12f.dp)
+        horizontalArrangement = Arrangement.spacedBy(10f.dp)
     ) {
         if (item.icon != null) {
             val iconPainter = rememberVectorPainter(item.icon)
