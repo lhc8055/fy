@@ -222,8 +222,11 @@ fun BottomTabsContent() {
             // Liquid glass popup menu (iOS 26 style with spring animations)
             LiquidGlassPopup(
                 expanded = popupExpanded,
-                onDismissRequest = { popupExpanded = false },
-                onExitComplete = { buttonsVisible = true },
+                onDismissRequest = {
+                    popupExpanded = false
+                    // Show buttons immediately when popup starts exiting (overlap)
+                    buttonsVisible = true
+                },
                 backdrop = backdrop,
                 items = menuItems
             )
