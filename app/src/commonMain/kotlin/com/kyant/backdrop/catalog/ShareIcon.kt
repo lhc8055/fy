@@ -2,8 +2,6 @@ package com.kyant.backdrop.catalog
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
@@ -19,29 +17,54 @@ internal val ShareIcon: ImageVector
             viewportWidth = 960f,
             viewportHeight = 960f
         ).apply {
+            // Upward arrow (triangle)
             path(
-                fill = null,
-                stroke = SolidColor(Color(0xFF1f1f1f)),
-                strokeLineWidth = 56f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round
+                fill = SolidColor(Color(0xFF1f1f1f))
             ) {
-                // Arrow shaft
-                moveTo(480f, 180f)
-                lineTo(480f, 560f)
-                // Arrowhead left
-                moveTo(480f, 180f)
-                lineTo(360f, 300f)
-                // Arrowhead right
-                moveTo(480f, 180f)
-                lineTo(600f, 300f)
-                // Box left side
-                moveTo(300f, 560f)
+                moveTo(480f, 160f)
+                lineTo(340f, 330f)
+                lineTo(620f, 330f)
+                close()
+            }
+            // Arrow shaft (rectangle)
+            path(
+                fill = SolidColor(Color(0xFF1f1f1f))
+            ) {
+                moveTo(440f, 300f)
+                lineTo(520f, 300f)
+                lineTo(520f, 560f)
+                lineTo(440f, 560f)
+                close()
+            }
+            // Box/container - left vertical bar
+            path(
+                fill = SolidColor(Color(0xFF1f1f1f))
+            ) {
+                moveTo(300f, 480f)
+                lineTo(380f, 480f)
+                lineTo(380f, 800f)
                 lineTo(300f, 800f)
-                // Box bottom
+                close()
+            }
+            // Box/container - bottom horizontal bar
+            path(
+                fill = SolidColor(Color(0xFF1f1f1f))
+            ) {
+                moveTo(300f, 740f)
+                lineTo(660f, 740f)
                 lineTo(660f, 800f)
-                // Box right side
-                lineTo(660f, 560f)
+                lineTo(300f, 800f)
+                close()
+            }
+            // Box/container - right vertical bar
+            path(
+                fill = SolidColor(Color(0xFF1f1f1f))
+            ) {
+                moveTo(580f, 480f)
+                lineTo(660f, 480f)
+                lineTo(660f, 800f)
+                lineTo(580f, 800f)
+                close()
             }
         }.build()
 
