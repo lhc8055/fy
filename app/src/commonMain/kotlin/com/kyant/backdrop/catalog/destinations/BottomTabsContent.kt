@@ -1,6 +1,7 @@
 package com.kyant.backdrop.catalog.destinations
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -146,18 +147,18 @@ fun BottomTabsContent() {
                         onTabSelected = { selectedTabIndex = it },
                         backdrop = backdrop,
                         tabsCount = 4,
-                        modifier = Modifier.padding(horizontal = 4f.dp)
+                        modifier = Modifier.padding(horizontal = 36f.dp)
                     ) {
                         repeat(4) { index ->
                             LiquidBottomTab({ selectedTabIndex = index }) {
                                 Box(
                                     Modifier
-                                        .size(24f.dp)
+                                        .size(28f.dp)
                                         .paint(airplaneModeIcon, colorFilter = iconColorFilter)
                                 )
                                 BasicText(
                                     "Tab ${index + 1}",
-                                    style = TextStyle(contentColor, 11f.sp)
+                                    style = TextStyle(contentColor, 12f.sp)
                                 )
                             }
                         }
