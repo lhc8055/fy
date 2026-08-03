@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.catalog.BackdropDemoScaffold
 import com.kyant.backdrop.catalog.Block
 import com.kyant.backdrop.catalog.FlightIcon
-import com.kyant.backdrop.catalog.MoreIcon
+import com.kyant.backdrop.catalog.HistoryIcon
 import com.kyant.backdrop.catalog.ShareIcon
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
@@ -51,7 +51,7 @@ fun BottomTabsContent() {
 
     val airplaneModeIcon = rememberVectorPainter(FlightIcon)
     val shareIcon = rememberVectorPainter(ShareIcon)
-    val moreIcon = rememberVectorPainter(MoreIcon)
+    val historyIcon = rememberVectorPainter(HistoryIcon)
     val iconColorFilter = ColorFilter.tint(contentColor)
 
     val containerColor = Color.Transparent
@@ -68,13 +68,13 @@ fun BottomTabsContent() {
                 ).toDp()
             }
 
-            // Top-right share + more button
+            // Top-right share + history button
             Row(
                 Modifier
                     .align(Alignment.TopEnd)
                     .statusBarsPadding()
                     .padding(end = 16f.dp, top = 8f.dp)
-                    .height(44f.dp)
+                    .height(48f.dp)
                     .drawBackdrop(
                         backdrop = backdrop,
                         shape = { Capsule() },
@@ -85,14 +85,14 @@ fun BottomTabsContent() {
                         },
                         onDrawSurface = { drawRect(containerColor) }
                     )
-                    .padding(horizontal = 4f.dp),
+                    .padding(horizontal = 6f.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(0f.dp)
             ) {
                 // Share button
                 Box(
                     Modifier
-                        .size(36f.dp)
+                        .size(40f.dp)
                         .clickable(
                             interactionSource = null,
                             indication = null,
@@ -103,7 +103,7 @@ fun BottomTabsContent() {
                 ) {
                     Box(
                         Modifier
-                            .size(20f.dp)
+                            .size(22f.dp)
                             .paint(shareIcon, colorFilter = iconColorFilter)
                     )
                 }
@@ -111,12 +111,12 @@ fun BottomTabsContent() {
                 Spacer(
                     Modifier
                         .width(1f.dp)
-                        .height(20f.dp)
+                        .height(22f.dp)
                 )
-                // More button
+                // History button
                 Box(
                     Modifier
-                        .size(36f.dp)
+                        .size(40f.dp)
                         .clickable(
                             interactionSource = null,
                             indication = null,
@@ -127,8 +127,8 @@ fun BottomTabsContent() {
                 ) {
                     Box(
                         Modifier
-                            .size(20f.dp)
-                            .paint(moreIcon, colorFilter = iconColorFilter)
+                            .size(22f.dp)
+                            .paint(historyIcon, colorFilter = iconColorFilter)
                     )
                 }
             }
