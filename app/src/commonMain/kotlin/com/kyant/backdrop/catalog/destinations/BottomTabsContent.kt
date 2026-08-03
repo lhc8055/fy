@@ -166,12 +166,12 @@ fun BottomTabsContent() {
                                     LiquidBottomTab({ selectedTabIndex = index }) {
                                         Box(
                                             Modifier
-                                                .size(28f.dp)
+                                                .size(22f.dp)
                                                 .paint(airplaneModeIcon, colorFilter = iconColorFilter)
                                         )
                                         BasicText(
                                             "Tab ${index + 1}",
-                                            style = TextStyle(contentColor, 12f.sp)
+                                            style = TextStyle(contentColor, 10f.sp)
                                         )
                                     }
                                 }
@@ -182,7 +182,7 @@ fun BottomTabsContent() {
                     // Circular search button — fixed size, glass effect
                     Box(
                         Modifier
-                            .size(64f.dp)
+                            .size(48f.dp)
                             .clip(CircleShape)
                             .clickable(
                                 interactionSource = null,
@@ -204,7 +204,7 @@ fun BottomTabsContent() {
                     ) {
                         Box(
                             Modifier
-                                .size(24f.dp)
+                                .size(20f.dp)
                                 .paint(searchIcon, colorFilter = iconColorFilter)
                         )
                     }

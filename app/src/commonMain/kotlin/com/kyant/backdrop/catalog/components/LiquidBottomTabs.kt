@@ -178,9 +178,9 @@ fun LiquidBottomTabs(
                     onDrawSurface = { drawRect(containerColor) }
                 )
                 .then(interactiveHighlight.modifier)
-                .height(64f.dp)
+                .height(48f.dp)
                 .fillMaxWidth()
-                .padding(4f.dp),
+                .padding(3f.dp),
             verticalAlignment = Alignment.CenterVertically,
             content = content
         )
@@ -217,7 +217,7 @@ fun LiquidBottomTabs(
                         onDrawSurface = { drawRect(containerColor) }
                     )
                     .then(interactiveHighlight.modifier)
-                    .height(56f.dp)
+                    .height(40f.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 4f.dp)
                     .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
@@ -279,7 +279,7 @@ fun LiquidBottomTabs(
                         drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     }
                 )
-                .height(56f.dp)
+                .height(40f.dp)
                 .fillMaxWidth(1f / tabsCount)
         )
     }
