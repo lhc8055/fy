@@ -1,7 +1,10 @@
 package com.kyant.backdrop.catalog.destinations
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,10 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -56,6 +59,14 @@ import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.shapes.Capsule
 
+// Spring entrance spec for button bar (from Compose-Symphony bounceIn)
+// https://github.com/jay3-yy/Compose-Symphony
+private val ButtonEnterScaleSpec = spring<Float>(
+    dampingRatio = 0.5f,   // Noticeable overshoot for bounce
+    stiffness = 350f
+)
+private val ButtonEnterAlphaSpec = tween<Float>(200)
+
 @Composable
 fun BottomTabsContent() {
     val contentColor = Color.White
@@ -69,8 +80,24 @@ fun BottomTabsContent() {
 
     // Popup state
     var popupExpanded by remember { mutableStateOf(false) }
-    // Controls when the top-right buttons reappear (after dissolve animation completes)
+    // Controls when the top-right buttons are visible
     var buttonsVisible by remember { mutableStateOf(true) }
+
+    // Entrance animation for the button bar (Compose-Symphony bounceIn style)
+    val buttonScale = remember { Animatable(1f) }
+    val buttonAlpha = remember { Animatable(1f) }
+
+    // Trigger entrance animation when buttons become visible again
+    LaunchedEffect(buttonsVisible) {
+        if (buttonsVisible) {
+            // Start from small + transparent, bounce to full size
+            buttonScale.snapTo(0.3f)
+            buttonAlpha.snapTo(0f)
+            // Alpha fades in first, then scale bounces with overshoot
+            buttonAlpha.animateTo(1f, ButtonEnterAlphaSpec)
+            buttonScale.animateTo(1f, ButtonEnterScaleSpec)
+        }
+    }
 
     val menuItems = remember {
         listOf(
@@ -109,7 +136,7 @@ fun BottomTabsContent() {
                 ).toDp()
             }
 
-            // Top-right share + more button (hidden when popup is open or dissolving)
+            // Top-right share + more button (hidden when popup is open)
             if (buttonsVisible) {
                 Row(
                     Modifier
@@ -117,6 +144,13 @@ fun BottomTabsContent() {
                         .statusBarsPadding()
                         .padding(end = 16f.dp, top = 8f.dp)
                         .height(48f.dp)
+                        .graphicsLayer {
+                            scaleX = buttonScale.value
+                            scaleY = buttonScale.value
+                            alpha = buttonAlpha.value
+                            // Pivot from top-right corner
+                            transformOrigin = TransformOrigin(1f, 0.5f)
+                        }
                         .drawBackdrop(
                             backdrop = backdrop,
                             shape = { Capsule() },
@@ -179,11 +213,11 @@ fun BottomTabsContent() {
                 }
             }
 
-            // Liquid glass popup menu (iOS 26 style with spring animations + particle dissolve exit)
+            // Liquid glass popup menu (iOS 26 style with spring animations)
             LiquidGlassPopup(
                 expanded = popupExpanded,
                 onDismissRequest = { popupExpanded = false },
-                onDissolveComplete = { buttonsVisible = true },
+                onExitComplete = { buttonsVisible = true },
                 backdrop = backdrop,
                 items = menuItems
             )
