@@ -82,20 +82,26 @@ fun BottomTabsContent() {
     var popupExpanded by remember { mutableStateOf(false) }
     // Controls when the top-right buttons are visible
     var buttonsVisible by remember { mutableStateOf(true) }
+    // Prevents flash: Row won't render until animation values are snapped
+    var buttonReady by remember { mutableStateOf(false) }
 
     // Entrance animation for the button bar (Compose-Symphony bounceIn style)
-    val buttonScale = remember { Animatable(1f) }
-    val buttonAlpha = remember { Animatable(1f) }
+    val buttonScale = remember { Animatable(0f) }
+    val buttonAlpha = remember { Animatable(0f) }
 
     // Trigger entrance animation when buttons become visible again
     LaunchedEffect(buttonsVisible) {
         if (buttonsVisible) {
-            // Start from small + transparent, bounce to full size
+            // Snap to invisible state BEFORE rendering
             buttonScale.snapTo(0.3f)
             buttonAlpha.snapTo(0f)
+            // Now it's safe to render (no flash)
+            buttonReady = true
             // Alpha fades in first, then scale bounces with overshoot
             buttonAlpha.animateTo(1f, ButtonEnterAlphaSpec)
             buttonScale.animateTo(1f, ButtonEnterScaleSpec)
+        } else {
+            buttonReady = false
         }
     }
 
@@ -136,8 +142,8 @@ fun BottomTabsContent() {
                 ).toDp()
             }
 
-            // Top-right share + more button (hidden when popup is open)
-            if (buttonsVisible) {
+            // Top-right share + more button (hidden when popup is open, only renders when animation ready)
+            if (buttonsVisible && buttonReady) {
                 Row(
                     Modifier
                         .align(Alignment.TopEnd)
