@@ -1,5 +1,6 @@
 package com.kyant.backdrop.catalog.destinations
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -166,12 +167,12 @@ fun BottomTabsContent() {
                                     LiquidBottomTab({ selectedTabIndex = index }) {
                                         Box(
                                             Modifier
-                                                .size(22f.dp)
+                                                .size(24f.dp)
                                                 .paint(airplaneModeIcon, colorFilter = iconColorFilter)
                                         )
                                         BasicText(
                                             "Tab ${index + 1}",
-                                            style = TextStyle(contentColor, 10f.sp)
+                                            style = TextStyle(contentColor, 11f.sp)
                                         )
                                     }
                                 }
@@ -182,8 +183,13 @@ fun BottomTabsContent() {
                     // Circular search button — fixed size, glass effect
                     Box(
                         Modifier
-                            .size(48f.dp)
+                            .size(54f.dp)
                             .clip(CircleShape)
+                            .border(
+                                width = 0.8f.dp,
+                                color = Color.White.copy(0.12f),
+                                shape = CircleShape
+                            )
                             .clickable(
                                 interactionSource = null,
                                 indication = null,
@@ -198,13 +204,21 @@ fun BottomTabsContent() {
                                     blur(8f.dp.toPx())
                                     lens(20f.dp.toPx(), 20f.dp.toPx())
                                 },
-                                onDrawSurface = { drawRect(containerColor) }
+                                onDrawSurface = {
+                                    drawRect(containerColor)
+                                    drawLine(
+                                        color = Color.White.copy(0.10f),
+                                        start = Offset(0f, 0.5f.dp.toPx()),
+                                        end = Offset(size.width, 0.5f.dp.toPx()),
+                                        strokeWidth = 0.8f.dp.toPx()
+                                    )
+                                }
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
                             Modifier
-                                .size(20f.dp)
+                                .size(22f.dp)
                                 .paint(searchIcon, colorFilter = iconColorFilter)
                         )
                     }

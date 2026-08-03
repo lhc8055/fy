@@ -49,6 +49,7 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.kyant.shapes.Capsule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -163,7 +164,7 @@ fun LiquidBottomTabs(
                 }
                 .drawBackdrop(
                     backdrop = backdrop,
-                    shape = { Capsule() },
+                    shape = { RoundedCornerShape(24f.dp) },
                     effects = {
                         vibrancy()
                         blur(8f.dp.toPx())
@@ -175,12 +176,28 @@ fun LiquidBottomTabs(
                         scaleX = scale
                         scaleY = scale
                     },
-                    onDrawSurface = { drawRect(containerColor) }
+                    onDrawSurface = {
+                        drawRect(containerColor)
+                        // Glass top-edge highlight
+                        drawLine(
+                            color = Color.White.copy(0.10f),
+                            start = Offset(0f, 0.5f.dp.toPx()),
+                            end = Offset(size.width, 0.5f.dp.toPx()),
+                            strokeWidth = 0.8f.dp.toPx()
+                        )
+                        // Glass bottom-edge shadow
+                        drawLine(
+                            color = Color.Black.copy(0.18f),
+                            start = Offset(0f, size.height - 0.5f.dp.toPx()),
+                            end = Offset(size.width, size.height - 0.5f.dp.toPx()),
+                            strokeWidth = 0.8f.dp.toPx()
+                        )
+                    }
                 )
                 .then(interactiveHighlight.modifier)
-                .height(48f.dp)
+                .height(54f.dp)
                 .fillMaxWidth()
-                .padding(3f.dp),
+                .padding(4f.dp),
             verticalAlignment = Alignment.CenterVertically,
             content = content
         )
@@ -200,7 +217,7 @@ fun LiquidBottomTabs(
                     }
                     .drawBackdrop(
                         backdrop = backdrop,
-                        shape = { Capsule() },
+                        shape = { RoundedCornerShape(24f.dp) },
                         effects = {
                             val progress = dampedDragAnimation.pressProgress
                             vibrancy()
@@ -214,13 +231,28 @@ fun LiquidBottomTabs(
                             val progress = dampedDragAnimation.pressProgress
                             Highlight.Default.copy(alpha = progress)
                         },
-                        onDrawSurface = { drawRect(containerColor) }
+                        onDrawSurface = {
+                            drawRect(containerColor)
+                            drawLine(
+                                color = Color.White.copy(0.10f),
+                                start = Offset(0f, 0.5f.dp.toPx()),
+                                end = Offset(size.width, 0.5f.dp.toPx()),
+                                strokeWidth = 0.8f.dp.toPx()
+                            )
+                            drawLine(
+                                color = Color.Black.copy(0.18f),
+                                start = Offset(0f, size.height - 0.5f.dp.toPx()),
+                                end = Offset(size.width, size.height - 0.5f.dp.toPx()),
+                                strokeWidth = 0.8f.dp.toPx()
+                            )
+                        }
                     )
                     .then(interactiveHighlight.modifier)
-                    .height(40f.dp)
+                    .height(46f.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 4f.dp)
                     .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+
                 verticalAlignment = Alignment.CenterVertically,
                 content = content
             )
@@ -238,7 +270,7 @@ fun LiquidBottomTabs(
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
-                    shape = { Capsule() },
+                    shape = { RoundedCornerShape(24f.dp) },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
                         lens(
@@ -272,14 +304,14 @@ fun LiquidBottomTabs(
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
                         drawRect(
-                            if (isLightTheme) Color.Black.copy(0.1f)
-                            else Color.White.copy(0.1f),
+                            if (isLightTheme) Color.Black.copy(0.06f)
+                            else Color.White.copy(0.05f),
                             alpha = 1f - progress
                         )
-                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
+                        drawRect(Color.Black.copy(alpha = 0.02f * progress))
                     }
                 )
-                .height(40f.dp)
+                .height(46f.dp)
                 .fillMaxWidth(1f / tabsCount)
         )
     }
