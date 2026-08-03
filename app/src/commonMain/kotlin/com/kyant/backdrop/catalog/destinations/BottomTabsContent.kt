@@ -69,6 +69,8 @@ fun BottomTabsContent() {
 
     // Popup state
     var popupExpanded by remember { mutableStateOf(false) }
+    // Controls when the top-right buttons reappear (after dissolve animation completes)
+    var buttonsVisible by remember { mutableStateOf(true) }
 
     val menuItems = remember {
         listOf(
@@ -107,8 +109,8 @@ fun BottomTabsContent() {
                 ).toDp()
             }
 
-            // Top-right share + more button (hidden when popup is open)
-            if (!popupExpanded) {
+            // Top-right share + more button (hidden when popup is open or dissolving)
+            if (buttonsVisible) {
                 Row(
                     Modifier
                         .align(Alignment.TopEnd)
@@ -161,7 +163,10 @@ fun BottomTabsContent() {
                                 interactionSource = null,
                                 indication = null,
                                 role = Role.Button,
-                                onClick = { popupExpanded = true }
+                                onClick = {
+                                    popupExpanded = true
+                                    buttonsVisible = false
+                                }
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -174,10 +179,11 @@ fun BottomTabsContent() {
                 }
             }
 
-            // Liquid glass popup menu (iOS 26 style with spring animations)
+            // Liquid glass popup menu (iOS 26 style with spring animations + particle dissolve exit)
             LiquidGlassPopup(
                 expanded = popupExpanded,
                 onDismissRequest = { popupExpanded = false },
+                onDissolveComplete = { buttonsVisible = true },
                 backdrop = backdrop,
                 items = menuItems
             )
