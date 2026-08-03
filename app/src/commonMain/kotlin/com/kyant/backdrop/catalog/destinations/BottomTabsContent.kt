@@ -39,9 +39,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.catalog.BackdropDemoScaffold
 import com.kyant.backdrop.catalog.Block
+import com.kyant.backdrop.catalog.CloseMenuIcon
 import com.kyant.backdrop.catalog.FlightIcon
+import com.kyant.backdrop.catalog.InfoMenuIcon
 import com.kyant.backdrop.catalog.MoreIcon
+import com.kyant.backdrop.catalog.SettingsMenuIcon
 import com.kyant.backdrop.catalog.ShareIcon
+import com.kyant.backdrop.catalog.ShareMenuIcon
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
 import com.kyant.backdrop.catalog.components.LiquidGlassPopup
