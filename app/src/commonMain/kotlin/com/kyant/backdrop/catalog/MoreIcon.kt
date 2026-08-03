@@ -14,41 +14,40 @@ internal val MoreIcon: ImageVector
             name = "More",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
-            viewportWidth = 960f,
-            viewportHeight = 960f
+            viewportWidth = 24f,
+            viewportHeight = 24f
         ).apply {
+            // Dot 1
             path(
                 fill = SolidColor(Color(0xFF1f1f1f))
             ) {
-                moveTo(480f, 720f)
-                quadToRelative(-33f, 0f, -56.5f, -23.5f)
-                reflectiveQuadTo(400f, 640f)
-                quadToRelative(0f, -33f, 23.5f, -56.5f)
-                reflectiveQuadTo(480f, 560f)
-                quadToRelative(33f, 0f, 56.5f, 23.5f)
-                reflectiveQuadTo(560f, 640f)
-                quadToRelative(0f, 33f, -23.5f, 56.5f)
-                reflectiveQuadTo(480f, 720f)
+                moveTo(4.2f, 12f)
+                curveTo(4.2f, 11.006f, 5.006f, 10.2f, 6f, 10.2f)
+                curveTo(6.994f, 10.2f, 7.8f, 11.006f, 7.8f, 12f)
+                curveTo(7.8f, 12.994f, 6.994f, 13.8f, 6f, 13.8f)
+                curveTo(5.006f, 13.8f, 4.2f, 12.994f, 4.2f, 12f)
                 close()
-                moveTo(240f, 400f)
-                quadToRelative(-33f, 0f, -56.5f, -23.5f)
-                reflectiveQuadTo(160f, 320f)
-                quadToRelative(0f, -33f, 23.5f, -56.5f)
-                reflectiveQuadTo(240f, 240f)
-                quadToRelative(33f, 0f, 56.5f, 23.5f)
-                reflectiveQuadTo(320f, 320f)
-                quadToRelative(0f, 33f, -23.5f, 56.5f)
-                reflectiveQuadTo(240f, 400f)
+            }
+            // Dot 2
+            path(
+                fill = SolidColor(Color(0xFF1f1f1f))
+            ) {
+                moveTo(10.2f, 12f)
+                curveTo(10.2f, 11.006f, 11.006f, 10.2f, 12f, 10.2f)
+                curveTo(12.994f, 10.2f, 13.8f, 11.006f, 13.8f, 12f)
+                curveTo(13.8f, 12.994f, 12.994f, 13.8f, 12f, 13.8f)
+                curveTo(11.006f, 13.8f, 10.2f, 12.994f, 10.2f, 12f)
                 close()
-                moveTo(720f, 400f)
-                quadToRelative(-33f, 0f, -56.5f, -23.5f)
-                reflectiveQuadTo(640f, 320f)
-                quadToRelative(0f, -33f, 23.5f, -56.5f)
-                reflectiveQuadTo(720f, 240f)
-                quadToRelative(33f, 0f, 56.5f, 23.5f)
-                reflectiveQuadTo(800f, 320f)
-                quadToRelative(0f, 33f, -23.5f, 56.5f)
-                reflectiveQuadTo(720f, 400f)
+            }
+            // Dot 3
+            path(
+                fill = SolidColor(Color(0xFF1f1f1f))
+            ) {
+                moveTo(16.2f, 12f)
+                curveTo(16.2f, 11.006f, 17.006f, 10.2f, 18f, 10.2f)
+                curveTo(18.994f, 10.2f, 19.8f, 11.006f, 19.8f, 12f)
+                curveTo(19.8f, 12.994f, 18.994f, 13.8f, 18f, 13.8f)
+                curveTo(17.006f, 13.8f, 16.2f, 12.994f, 16.2f, 12f)
                 close()
             }
         }.build()

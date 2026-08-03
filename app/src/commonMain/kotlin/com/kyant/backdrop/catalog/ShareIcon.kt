@@ -14,56 +14,40 @@ internal val ShareIcon: ImageVector
             name = "Share",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
-            viewportWidth = 960f,
-            viewportHeight = 960f
+            viewportWidth = 24f,
+            viewportHeight = 24f
         ).apply {
-            // Upward arrow (triangle)
+            // Arrow (upward)
             path(
                 fill = SolidColor(Color(0xFF1f1f1f))
             ) {
-                moveTo(480f, 160f)
-                lineTo(340f, 330f)
-                lineTo(620f, 330f)
+                moveTo(12f, 3.25f)
+                lineTo(6.7f, 8.55f)
+                lineTo(8.12f, 9.97f)
+                lineTo(11f, 7.09f)
+                lineTo(11f, 15f)
+                lineTo(13f, 15f)
+                lineTo(13f, 7.09f)
+                lineTo(15.88f, 9.97f)
+                lineTo(17.3f, 8.55f)
+                lineTo(12f, 3.25f)
                 close()
             }
-            // Arrow shaft (rectangle)
+            // Box/container
             path(
                 fill = SolidColor(Color(0xFF1f1f1f))
             ) {
-                moveTo(440f, 300f)
-                lineTo(520f, 300f)
-                lineTo(520f, 560f)
-                lineTo(440f, 560f)
-                close()
-            }
-            // Box/container - left vertical bar
-            path(
-                fill = SolidColor(Color(0xFF1f1f1f))
-            ) {
-                moveTo(300f, 480f)
-                lineTo(380f, 480f)
-                lineTo(380f, 800f)
-                lineTo(300f, 800f)
-                close()
-            }
-            // Box/container - bottom horizontal bar
-            path(
-                fill = SolidColor(Color(0xFF1f1f1f))
-            ) {
-                moveTo(300f, 740f)
-                lineTo(660f, 740f)
-                lineTo(660f, 800f)
-                lineTo(300f, 800f)
-                close()
-            }
-            // Box/container - right vertical bar
-            path(
-                fill = SolidColor(Color(0xFF1f1f1f))
-            ) {
-                moveTo(580f, 480f)
-                lineTo(660f, 480f)
-                lineTo(660f, 800f)
-                lineTo(580f, 800f)
+                moveTo(5f, 11f)
+                lineTo(7f, 11f)
+                lineTo(7f, 18f)
+                lineTo(17f, 18f)
+                lineTo(17f, 11f)
+                lineTo(19f, 11f)
+                lineTo(19f, 18.5f)
+                curveTo(19f, 19.33f, 18.33f, 20f, 17.5f, 20f)
+                lineTo(6.5f, 20f)
+                curveTo(5.67f, 20f, 5f, 19.33f, 5f, 18.5f)
+                lineTo(5f, 11f)
                 close()
             }
         }.build()
