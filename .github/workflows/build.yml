@@ -36,7 +36,7 @@ jobs:
           docker run --rm \
             -v "$PWD:/workspace" \
             -w /workspace \
-            ghcr.io/cirruslabs/android-sdk:latest \
+            mingc/android-build-box:latest \
             bash -lc 'gradle --version && yes | sdkmanager --licenses >/dev/null || true; sdkmanager --channel=0 "platforms;android-37" "build-tools;37.0.0" 2>/dev/null || sdkmanager --channel=3 "platforms;android-37" "build-tools;37.0.0" 2>/dev/null || true; gradle :androidApp:assembleDebug --no-daemon --stacktrace'
 
       - name: Upload APK
