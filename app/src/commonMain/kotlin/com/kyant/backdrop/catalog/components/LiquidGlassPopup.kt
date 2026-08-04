@@ -90,8 +90,7 @@ fun LiquidGlassPopup(
             alphaAnim.animateTo(1f, tween(100))
             scaleAnim.animateTo(1f, PopupEnterSpec)
         } else if (hasBeenExpanded) {
-            // Exit: shrink toward top-right corner with simultaneous fade
-            // Scale down toward (1, 0) = top-right, alpha decreases at the same time
+            // 退出时朝左上角收缩，同时淡出
             scaleAnim.animateTo(0f, PopupExitScaleSpec)
             alphaAnim.animateTo(0f, PopupExitAlphaSpec)
             onExitComplete()
@@ -107,7 +106,7 @@ fun LiquidGlassPopup(
                     indication = null,
                     onClick = onDismissRequest
                 ),
-            contentAlignment = Alignment.TopEnd
+            contentAlignment = Alignment.TopStart
         ) {
             Column(
                 Modifier
@@ -115,10 +114,9 @@ fun LiquidGlassPopup(
                         scaleX = scaleAnim.value
                         scaleY = scaleAnim.value
                         alpha = alphaAnim.value
-                        // Pivot from top-right corner (where the three dots button is)
-                        transformOrigin = TransformOrigin(1f, 0f)
+                        transformOrigin = TransformOrigin(0f, 0f)
                     }
-                    .padding(end = 16f.dp, top = 60f.dp)
+                    .padding(start = 16f.dp, top = 60f.dp)
                     .then(
                         if (backdrop != null) {
                             Modifier.drawBackdrop(
@@ -178,7 +176,7 @@ private fun PopupItemRow(
                 scaleX = itemScale.value
                 scaleY = itemScale.value
                 alpha = itemAlpha.value
-                transformOrigin = TransformOrigin(1f, 0.5f)
+                transformOrigin = TransformOrigin(0f, 0.5f)
             }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -67,8 +68,8 @@ fun LiquidBottomTabs(
 ) {
     val isLightTheme = false
     val accentColor =
-        if (isLightTheme) Color(0xFF0088FF)
-        else Color(0xFF0091FF)
+        if (isLightTheme) Color(0xFFEFA6BD)
+        else Color(0xFFFFB6CC)
     val containerColor = Color.Transparent
 
     val tabsBackdrop = rememberLayerBackdrop()
@@ -166,8 +167,24 @@ fun LiquidBottomTabs(
                     shape = { Capsule() },
                     effects = {
                         vibrancy()
-                        blur(8f.dp.toPx())
-                        lens(24f.dp.toPx(), 24f.dp.toPx())
+                        blur(12f.dp.toPx())
+                        lens(
+                            30f.dp.toPx(),
+                            26f.dp.toPx(),
+                            chromaticAberration = true
+                        )
+                    },
+                    highlight = {
+                        Highlight.Default.copy(alpha = 0.55f)
+                    },
+                    shadow = {
+                        Shadow(alpha = 0.42f)
+                    },
+                    innerShadow = {
+                        InnerShadow(
+                            radius = 10f.dp,
+                            alpha = 0.36f
+                        )
                     },
                     layerBlock = {
                         val progress = dampedDragAnimation.pressProgress
@@ -175,7 +192,10 @@ fun LiquidBottomTabs(
                         scaleX = scale
                         scaleY = scale
                     },
-                    onDrawSurface = { drawRect(containerColor) }
+                    onDrawSurface = {
+                        drawRect(containerColor)
+                        drawRect(Color.White.copy(alpha = 0.055f))
+                    }
                 )
                 .then(interactiveHighlight.modifier)
                 .height(64f.dp)
@@ -275,6 +295,18 @@ fun LiquidBottomTabs(
                             if (isLightTheme) Color.Black.copy(0.1f)
                             else Color.White.copy(0.1f),
                             alpha = 1f - progress
+                        )
+                        // 只给选中滑块叠加淡粉渐变，不影响 Dock 大背景和图标文字颜色
+                        drawRect(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFFFEEF5).copy(alpha = 0.38f),
+                                    Color(0xFFFFBED7).copy(alpha = 0.30f),
+                                    Color(0xFFFFE3EE).copy(alpha = 0.24f)
+                                ),
+                                start = Offset(0f, 0f),
+                                end = Offset(size.width, size.height)
+                            )
                         )
                         drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     }

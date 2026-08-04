@@ -42,11 +42,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.catalog.BackdropDemoScaffold
 import com.kyant.backdrop.catalog.Block
+import com.kyant.backdrop.catalog.CategoryIcon
 import com.kyant.backdrop.catalog.CloseMenuIcon
-import com.kyant.backdrop.catalog.FlightIcon
+import com.kyant.backdrop.catalog.DiscoverIcon
+import com.kyant.backdrop.catalog.HeartIcon
+import com.kyant.backdrop.catalog.HistoryIcon
 import com.kyant.backdrop.catalog.InfoMenuIcon
 import com.kyant.backdrop.catalog.MoreIcon
-import com.kyant.backdrop.catalog.SettingsMenuIcon
+import com.kyant.backdrop.catalog.ProfileIcon
+import com.kyant.backdrop.catalog.SearchIcon
 import com.kyant.backdrop.catalog.ShareIcon
 import com.kyant.backdrop.catalog.ShareMenuIcon
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
@@ -71,16 +75,20 @@ private val ButtonEnterAlphaSpec = tween<Float>(200)
 fun BottomTabsContent() {
     val contentColor = Color.White
 
-    val airplaneModeIcon = rememberVectorPainter(FlightIcon)
-    val shareIcon = rememberVectorPainter(ShareIcon)
     val moreIcon = rememberVectorPainter(MoreIcon)
+    val searchIcon = rememberVectorPainter(SearchIcon)
+    val historyIcon = rememberVectorPainter(HistoryIcon)
+    val discoverIcon = rememberVectorPainter(DiscoverIcon)
+    val categoryIcon = rememberVectorPainter(CategoryIcon)
+    val heartIcon = rememberVectorPainter(HeartIcon)
+    val profileIcon = rememberVectorPainter(ProfileIcon)
     val iconColorFilter = ColorFilter.tint(contentColor)
 
     val containerColor = Color.Transparent
 
     // Popup state
     var popupExpanded by remember { mutableStateOf(false) }
-    // Controls when the top-right buttons are visible
+    // 控制左上角按钮组显示状态
     var buttonsVisible by remember { mutableStateOf(true) }
     // Prevents flash: Row won't render until animation values are snapped
     var buttonReady by remember { mutableStateOf(false) }
@@ -108,8 +116,8 @@ fun BottomTabsContent() {
     val menuItems = remember {
         listOf(
             PopupMenuItem(
-                icon = SettingsMenuIcon,
-                label = "Settings",
+                icon = ShareIcon,
+                label = "分享",
                 onClick = { }
             ),
             PopupMenuItem(
@@ -132,17 +140,60 @@ fun BottomTabsContent() {
 
     BackdropDemoScaffold { backdrop ->
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            // Adaptive spacing: ~2.5% of screen height, clamped to 12-36dp
+            // 底部 Dock 位置：贴底悬浮，留适度安全距离
             val screenHeightPx = constraints.maxHeight.toFloat()
             val density = LocalDensity.current
             val adaptiveBottomPadding = with(density) {
                 (screenHeightPx * 0.025f).coerceIn(
-                    with(density) { 12f.dp.toPx() },
-                    with(density) { 36f.dp.toPx() }
+                    with(density) { 18f.dp.toPx() },
+                    with(density) { 28f.dp.toPx() }
                 ).toDp()
             }
 
-            // Top-right share + more button (hidden when popup is open, only renders when animation ready)
+            // 左上角更多按钮（圆形）：弹窗打开时隐藏，动画准备好后再渲染
+            if (buttonsVisible && buttonReady) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopStart)
+                        .statusBarsPadding()
+                        .padding(start = 16f.dp, top = 8f.dp)
+                        .size(48f.dp)
+                        .graphicsLayer {
+                            scaleX = buttonScale.value
+                            scaleY = buttonScale.value
+                            alpha = buttonAlpha.value
+                            transformOrigin = TransformOrigin(0f, 0.5f)
+                        }
+                        .drawBackdrop(
+                            backdrop = backdrop,
+                            shape = { Capsule() },
+                            effects = {
+                                vibrancy()
+                                blur(8f.dp.toPx())
+                                lens(20f.dp.toPx(), 20f.dp.toPx())
+                            },
+                            onDrawSurface = { drawRect(containerColor) }
+                        )
+                        .clickable(
+                            interactionSource = null,
+                            indication = null,
+                            role = Role.Button,
+                            onClick = {
+                                popupExpanded = true
+                                buttonsVisible = false
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        Modifier
+                            .size(22f.dp)
+                            .paint(moreIcon, colorFilter = iconColorFilter)
+                    )
+                }
+            }
+
+            // 右上角搜索 + 历史记录按钮组（胶囊形状）
             if (buttonsVisible && buttonReady) {
                 Row(
                     Modifier
@@ -154,7 +205,6 @@ fun BottomTabsContent() {
                             scaleX = buttonScale.value
                             scaleY = buttonScale.value
                             alpha = buttonAlpha.value
-                            // Pivot from top-right corner
                             transformOrigin = TransformOrigin(1f, 0.5f)
                         }
                         .drawBackdrop(
@@ -171,7 +221,7 @@ fun BottomTabsContent() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(0f.dp)
                 ) {
-                    // Share button
+                    // 搜索按钮
                     Box(
                         Modifier
                             .size(40f.dp)
@@ -186,16 +236,15 @@ fun BottomTabsContent() {
                         Box(
                             Modifier
                                 .size(22f.dp)
-                                .paint(shareIcon, colorFilter = iconColorFilter)
+                                .paint(searchIcon, colorFilter = iconColorFilter)
                         )
                     }
-                    // Divider
                     Spacer(
                         Modifier
                             .width(1f.dp)
                             .height(22f.dp)
                     )
-                    // More button
+                    // 历史记录按钮
                     Box(
                         Modifier
                             .size(40f.dp)
@@ -203,17 +252,14 @@ fun BottomTabsContent() {
                                 interactionSource = null,
                                 indication = null,
                                 role = Role.Button,
-                                onClick = {
-                                    popupExpanded = true
-                                    buttonsVisible = false
-                                }
+                                onClick = { }
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
                             Modifier
                                 .size(22f.dp)
-                                .paint(moreIcon, colorFilter = iconColorFilter)
+                                .paint(historyIcon, colorFilter = iconColorFilter)
                         )
                     }
                 }
@@ -273,15 +319,21 @@ fun BottomTabsContent() {
                         tabsCount = 4,
                         modifier = Modifier.padding(horizontal = 36f.dp)
                     ) {
-                        repeat(4) { index ->
+                        val tabConfigs = listOf(
+                            Triple("发现", discoverIcon, 26f.dp),
+                            Triple("分类", categoryIcon, 26f.dp),
+                            Triple("追剧", heartIcon, 26f.dp),
+                            Triple("我的", profileIcon, 26f.dp)
+                        )
+                        tabConfigs.forEachIndexed { index, (label, icon, iconSize) ->
                             LiquidBottomTab({ selectedTabIndex = index }) {
                                 Box(
                                     Modifier
-                                        .size(28f.dp)
-                                        .paint(airplaneModeIcon, colorFilter = iconColorFilter)
+                                        .size(iconSize)
+                                        .paint(icon, colorFilter = iconColorFilter)
                                 )
                                 BasicText(
-                                    "Tab ${index + 1}",
+                                    label,
                                     style = TextStyle(contentColor, 12f.sp)
                                 )
                             }

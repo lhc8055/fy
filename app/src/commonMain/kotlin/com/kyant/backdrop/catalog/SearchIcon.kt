@@ -1,11 +1,13 @@
 package com.kyant.backdrop.catalog
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+// Kazumi 右上角实际使用的是 Flutter Material Icons.search
 internal val SearchIcon: ImageVector
     get() {
         if (_SearchIcon != null) return _SearchIcon!!
@@ -14,35 +16,26 @@ internal val SearchIcon: ImageVector
             name = "Search",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
-            viewportWidth = 960f,
-            viewportHeight = 960f
+            viewportWidth = 24f,
+            viewportHeight = 24f
         ).apply {
             path(
-                fill = SolidColor(Color(0xFF1f1f1f))
+                fill = SolidColor(Color(0xFF1f1f1f)),
+                pathFillType = PathFillType.EvenOdd
             ) {
-                moveTo(784f, 840f)
-                lineTo(532f, 588f)
-                quadToRelative(-50f, 36f, -110f, 54f)
-                reflectiveQuadTo(290f, 660f)
-                quadToRelative(-136f, 0f, -231f, -95f)
-                reflectiveQuadTo(-36f, 334f)
-                quadToRelative(0f, -136f, 95f, -231f)
-                reflectiveQuadTo(290f, 8f)
-                quadToRelative(136f, 0f, 231f, 95f)
-                reflectiveQuadTo(616f, 334f)
-                quadToRelative(0f, 60f, -18f, 120f)
-                reflectiveQuadTo(544f, 564f)
-                lineTo(796f, 816f)
+                moveTo(9.5f, 3f)
+                arcTo(6.5f, 6.5f, 0f, true, false, 9.5f, 16f)
+                arcTo(6.5f, 6.5f, 0f, true, false, 9.5f, 3f)
                 close()
-                moveTo(290f, 580f)
-                quadToRelative(103f, 0f, 174.5f, -71.5f)
-                reflectiveQuadTo(536f, 334f)
-                quadToRelative(0f, -103f, -71.5f, -174.5f)
-                reflectiveQuadTo(290f, 88f)
-                quadToRelative(-103f, 0f, -174.5f, 71.5f)
-                reflectiveQuadTo(44f, 334f)
-                quadToRelative(0f, 103f, 71.5f, 174.5f)
-                reflectiveQuadTo(290f, 580f)
+                moveTo(9.5f, 5f)
+                arcTo(4.5f, 4.5f, 0f, true, false, 9.5f, 14f)
+                arcTo(4.5f, 4.5f, 0f, true, false, 9.5f, 5f)
+                close()
+                moveTo(14f, 14f)
+                lineTo(14.71f, 14f)
+                lineTo(20f, 19.29f)
+                lineTo(19.29f, 20f)
+                lineTo(14f, 14.71f)
                 close()
             }
         }.build()
