@@ -36,7 +36,7 @@ jobs:
           docker run --rm \
             -v "$PWD:/workspace" \
             -w /workspace \
-            mingc/android-build-box:latest \
+            cimg/android:2024.01 \
             bash -lc 'gradle --version && yes | sdkmanager --licenses >/dev/null || true; sdkmanager --channel=0 "platforms;android-37" "build-tools;37.0.0" 2>/dev/null || sdkmanager --channel=3 "platforms;android-37" "build-tools;37.0.0" 2>/dev/null || true; gradle :androidApp:assembleDebug --no-daemon --stacktrace'
 
       - name: Upload APK
