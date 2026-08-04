@@ -35,9 +35,12 @@ jobs:
         run: |
           docker run --rm \
             -v "$PWD:/workspace" \
+            -v "$ANDROID_HOME:$ANDROID_HOME" \
+            -e ANDROID_HOME="$ANDROID_HOME" \
+            -e ANDROID_SDK_ROOT="$ANDROID_HOME" \
             -w /workspace \
-            cimg/android:2024.01 \
-            bash -lc 'gradle --version && yes | sdkmanager --licenses >/dev/null || true; sdkmanager --channel=0 "platforms;android-37" "build-tools;37.0.0" 2>/dev/null || sdkmanager --channel=3 "platforms;android-37" "build-tools;37.0.0" 2>/dev/null || true; gradle :androidApp:assembleDebug --no-daemon --stacktrace'
+            gradle:9.6.0-jdk21 \
+            gradle :androidApp:assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
