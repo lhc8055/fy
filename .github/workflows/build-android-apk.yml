@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -39,11 +39,13 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -80
+        timeout-minutes: 60
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tail -80
         continue-on-error: true
+        timeout-minutes: 60
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
@@ -57,6 +59,7 @@ jobs:
         with:
           name: so-movie-release-apk
           path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore
 
       - name: Upload source code as zip
         uses: actions/upload-artifact@v4
@@ -71,7 +74,7 @@ jobs:
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             app/build/outputs/apk/debug/*.apk
