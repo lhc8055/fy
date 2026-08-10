@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1E88FF</color>
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#64B5F6</color>
+    <color name="secondary">#FF6B6B</color>
+    <color name="accent">#FFD93D</color>
+
+    <color name="background">#F5F7FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F0F2F5</color>
+
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_tertiary">#999999</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <color name="divider">#E5E7EB</color>
+    <color name="border">#D1D5DB</color>
+
+    <color name="vip_gradient_start">#FFD700</color>
+    <color name="vip_gradient_end">#FFA500</color>
+
+    <color name="score_high">#FF6B6B</color>
+    <color name="score_medium">#FF9800</color>
+    <color name="score_low">#8BC34A</color>
+
+    <color name="status_playing">#4CAF50</color>
+    <color name="status_completed">#2196F3</color>
+    <color name="status_paused">#FF9800</color>
+</resources>
