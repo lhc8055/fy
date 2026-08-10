@@ -39,13 +39,28 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -80
+        id: build_debug
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee /tmp/debug_build.log | tail -200
         timeout-minutes: 60
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tail -80
+        id: build_release
+        run: |
+          set -o pipefail
+          ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/release_build.log | tail -200
         continue-on-error: true
         timeout-minutes: 60
+
+      - name: Print debug errors on failure
+        if: failure() || steps.build_debug.outcome == 'failure'
+        run: |
+          echo "=== Debug Build Error (full log) ==="
+          grep -E "^(e:|error: |FAILURE|> Task.*FAILED)" /tmp/debug_build.log 2>/dev/null | head -80 || true
+          echo "=== First 200 lines of build log ==="
+          head -200 /tmp/debug_build.log 2>/dev/null || true
+        continue-on-error: true
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
