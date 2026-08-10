@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -39,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -72,7 +74,7 @@ fun SearchScreen(
     viewModel: MainViewModel = viewModel()
 ) {
     var keyword by remember { mutableStateOf("") }
-    val searchHistory by viewModel.searchHistory
+    val searchHistoryState by viewModel.searchHistory.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val showResults = keyword.isNotBlank()
     val searchResults = remember(keyword) { viewModel.searchMovies(keyword) }
@@ -163,7 +165,7 @@ fun SearchScreen(
                 )
             } else {
                 SearchSuggestions(
-                    searchHistory = searchHistory.map { it.keyword },
+                    searchHistory = searchHistoryState.map { h -> h.keyword },
                     hotSearches = MockData.hotSearches,
                     onHistoryClick = { kw ->
                         keyword = kw

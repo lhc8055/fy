@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.so.movie.ui.theme.Primary
@@ -59,7 +60,7 @@ fun BottomNavigationBar(
                 onClick = { onNavigate(item.route) },
                 icon = {
                     Icon(
-                        imageVector = if (selected) item.selectedIcon else item.icon,
+                        painter = rememberVectorPainter(image = if (selected) item.selectedIcon else item.icon),
                         contentDescription = item.label,
                         tint = if (selected) Primary else TextTertiary,
                         modifier = Modifier.size(24.dp)

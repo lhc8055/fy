@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -143,7 +144,7 @@ fun PlayerScreen(
                     ) {
                         Icon(
                             painter = if (isPlaying) painterResource(android.R.drawable.ic_media_pause)
-                                    else Icons.Default.PlayArrow,
+                                    else rememberVectorPainter(image = Icons.Default.PlayArrow),
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(36.dp)

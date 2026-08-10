@@ -31,7 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,7 +68,7 @@ fun FollowScreen(
     viewModel: MainViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val followList by viewModel.followList
+    val followListState by viewModel.followList.collectAsState()
 
     val tabs = listOf("追更中", "已完成", "放弃")
     val statusMap = mapOf(
@@ -77,7 +77,7 @@ fun FollowScreen(
         2 to FollowStatus.ABANDONED
     )
 
-    val filteredList = followList.filter { it.status == statusMap[selectedTab] }
+    val filteredList = followListState.filter { item -> item.status == statusMap[selectedTab] }
 
     Scaffold(
         topBar = {
