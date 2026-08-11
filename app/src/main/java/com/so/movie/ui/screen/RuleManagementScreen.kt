@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.so.movie.rule.Rule
 import com.so.movie.ui.theme.*
+import com.so.movie.viewmodel.RuleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

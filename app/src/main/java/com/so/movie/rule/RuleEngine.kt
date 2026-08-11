@@ -479,5 +479,5 @@ class RuleEngine {
     /**
      * 获取 HTTP 客户端（供视频嗅探等模块使用）
      */
-    fun getHttpClient(): OkHttpClient = httpClient
+    fun getOkHttpClient(): OkHttpClient = httpClient
 }

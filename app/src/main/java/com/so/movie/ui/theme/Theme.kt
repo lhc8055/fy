@@ -23,6 +23,10 @@ val SurfaceVariant = Color(0xFFF0F2F5)
 val VipGradientStart = Color(0xFFFFD700)
 val VipGradientEnd = Color(0xFFFFA500)
 
+val ScoreHigh = Color(0xFFFF6B6B)
+val ScoreMedium = Color(0xFFFFD93D)
+val ScoreLow = Color(0xFF999999)
+
 private val LightColorScheme = lightColorScheme(
     primary = Primary,
     secondary = Secondary,

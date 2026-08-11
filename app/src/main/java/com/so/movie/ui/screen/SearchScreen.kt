@@ -84,7 +84,7 @@ fun SearchScreen(
     ruleViewModel: RuleViewModel = viewModel()
 ) {
     var keyword by remember { mutableStateOf("") }
-    val searchHistory by viewModel.searchHistory
+    val searchHistory by viewModel.searchHistory.collectAsState()
     val focusRequester = remember { FocusRequester() }
     val showResults = keyword.isNotBlank()
     val ruleResults by ruleViewModel.searchResults.collectAsState()
