@@ -93,12 +93,12 @@ jobs:
       - name: Upload APKs to Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
+          tag_name: v1.2.0
           files: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
           body: |
-            ## SO Movie v1.1.0
+            ## SO Movie v1.2.0
 
             ### 修复
             - 修复点击「我的」页面闪退的问题
