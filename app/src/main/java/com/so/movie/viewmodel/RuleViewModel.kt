@@ -50,6 +50,10 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentPlayUrl = MutableStateFlow<String>("")
     val currentPlayUrl: StateFlow<String> = _currentPlayUrl.asStateFlow()
 
+    // 当前播放的集名（供弹幕搜索使用）
+    private val _currentEpisodeName = MutableStateFlow<String>("")
+    val currentEpisodeName: StateFlow<String> = _currentEpisodeName.asStateFlow()
+
     // 远程规则目录
     private val _ruleCatalog = MutableStateFlow<List<RuleCatalogItem>>(emptyList())
     val ruleCatalog: StateFlow<List<RuleCatalogItem>> = _ruleCatalog.asStateFlow()
@@ -138,6 +142,13 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun setCurrentPlayUrl(url: String) {
         _currentPlayUrl.value = url
+    }
+
+    /**
+     * 设置当前播放集名（供弹幕搜索）
+     */
+    fun setCurrentEpisodeName(name: String) {
+        _currentEpisodeName.value = name
     }
 
     /**

@@ -4,7 +4,7 @@
 
 ## 功能特性
 
-### 📋 规则系统（新增 v1.1.0）
+### 📋 规则系统（v1.1.0）
 - 兼容 Kazumi 规则格式（JSON）
 - 支持 XPath 和 API 两种规则模式
 - 规则自动安装（首次启动自动加载内置规则）
@@ -51,13 +51,32 @@
 - 快捷功能（观看历史/我的收藏/我的下载/消息中心）
 - 更多功能（片单管理/播放设置/清理缓存/帮助与反馈/设置）
 
-### 🎬 播放器
+### 🎬 播放器（v1.2.0）
 - 视频播放控制区（进度条/播放暂停）
+- WebView 视频源嗅探
+- ExoPlayer 集成播放
+- 倍速播放（0.5x ~ 2.0x）
+- 全屏切换
+- 进度条点击跳转
 - 影片基本信息展示
 - 快捷操作（收藏/追更/下载/分享）
 - 选集列表
 - 详情/讨论Tab
 - 猜你喜欢推荐
+
+### 💬 弹幕系统（新增 v1.3.0）
+- 弹弹play API 集成，自动搜索匹配弹幕
+- 自定义 Canvas 高性能弹幕渲染（60fps）
+- 支持滚动、顶部、底部三种弹幕类型
+- 弹幕时间轴与视频同步
+- 弹幕设置面板：
+  - 开关弹幕
+  - 字体大小调节（10sp ~ 28sp）
+  - 透明度调节（20% ~ 100%）
+  - 滚动速度调节（0.5x ~ 3.0x）
+  - 最大显示数控制（10 ~ 100）
+  - 分类开关（滚动/顶部/底部弹幕）
+- 智能集数识别（支持中文/数字集名）
 
 ### 🔍 搜索
 - 搜索历史记录
@@ -90,6 +109,7 @@
 - **导航**: Navigation Compose
 - **图片加载**: Coil
 - **视频播放**: Media3 ExoPlayer
+- **弹幕系统**: 自定义 Canvas 渲染 + 弹弹play API
 - **HTML解析**: Jsoup (规则XPath解析)
 - **JSON解析**: Gson + Jayway JSONPath (API规则)
 - **网络请求**: OkHttp
@@ -108,6 +128,13 @@ app/
 │   │   │   └── MockData.kt        # 模拟数据
 │   │   ├── navigation/
 │   │   │   └── Screens.kt         # 导航路由定义
+│   │   ├── player/
+│   │   │   ├── VideoPlayer.kt       # 播放器(ExoPlayer+弹幕集成)
+│   │   │   └── VideoSourceSniffer.kt # WebView视频嗅探
+│   │   ├── danmaku/
+│   │   │   ├── DanmakuModels.kt     # 弹幕数据模型
+│   │   │   ├── DanmakuView.kt       # 自定义弹幕渲染View
+│   │   │   └── DanDanPlayApi.kt     # 弹弹play API客户端
 │   │   ├── rule/
 │   │   │   ├── RuleModels.kt      # 规则数据模型(兼容Kazumi)
 │   │   │   ├── RuleEngine.kt      # 规则引擎(XPath+API)

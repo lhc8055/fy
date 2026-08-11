@@ -136,6 +136,7 @@ fun ChapterScreen(
                                 episode = episode,
                                 onClick = {
                                     viewModel.setCurrentPlayUrl(episode.url)
+                                    viewModel.setCurrentEpisodeName(episode.name)
                                     navController.navigate(
                                         Screen.Player.createRoute(
                                             searchResult?.url.hashCode().toString() ?: "0"
