@@ -64,7 +64,7 @@
 - 详情/讨论Tab
 - 猜你喜欢推荐
 
-### 💬 弹幕系统（新增 v1.3.0）
+### 💬 弹幕系统（v1.3.0）
 - 弹弹play API 集成，自动搜索匹配弹幕
 - 自定义 Canvas 高性能弹幕渲染（60fps）
 - 支持滚动、顶部、底部三种弹幕类型
@@ -77,6 +77,23 @@
   - 最大显示数控制（10 ~ 100）
   - 分类开关（滚动/顶部/底部弹幕）
 - 智能集数识别（支持中文/数字集名）
+
+### 🎨 元数据增强（新增 v1.4.0）
+- Bangumi (bgm.tv) API 集成
+- 自动搜索匹配番剧/影视元数据
+- 搜索结果增强：
+  - Bangumi 封面图回填（规则无封面时自动补充）
+  - 评分展示
+  - 标签展示
+- 选集页面元数据头部：
+  - 封面/海报展示
+  - 中文/原名显示
+  - 评分与评分人数
+  - 放送日期与集数
+  - 标签列表
+  - 剧情简介
+- 元数据缓存（内存 + 磁盘，7天过期）
+- 智能标题清理（去除集数后缀）
 
 ### 🔍 搜索
 - 搜索历史记录
@@ -110,6 +127,7 @@
 - **图片加载**: Coil
 - **视频播放**: Media3 ExoPlayer
 - **弹幕系统**: 自定义 Canvas 渲染 + 弹弹play API
+- **元数据**: Bangumi (bgm.tv) API
 - **HTML解析**: Jsoup (规则XPath解析)
 - **JSON解析**: Gson + Jayway JSONPath (API规则)
 - **网络请求**: OkHttp
@@ -135,6 +153,10 @@ app/
 │   │   │   ├── DanmakuModels.kt     # 弹幕数据模型
 │   │   │   ├── DanmakuView.kt       # 自定义弹幕渲染View
 │   │   │   └── DanDanPlayApi.kt     # 弹弹play API客户端
+│   │   ├── metadata/
+│   │   │   ├── MetadataModels.kt    # Bangumi元数据模型
+│   │   │   ├── BangumiApi.kt        # Bangumi API客户端
+│   │   │   └── MetadataRepository.kt # 元数据缓存仓库
 │   │   ├── rule/
 │   │   │   ├── RuleModels.kt      # 规则数据模型(兼容Kazumi)
 │   │   │   ├── RuleEngine.kt      # 规则引擎(XPath+API)

@@ -15,14 +15,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.so.movie.R
 import com.so.movie.navigation.Screen
 import com.so.movie.rule.ChapterEpisode
-import com.so.movie.rule.ChapterRoad
 import com.so.movie.ui.theme.*
 import com.so.movie.viewmodel.RuleViewModel
 
@@ -35,6 +39,8 @@ fun ChapterScreen(
     val searchResult by viewModel.selectedSearchResult.collectAsState()
     val chapterResult by viewModel.chapterResult.collectAsState()
     val chapterLoading by viewModel.chapterLoading.collectAsState()
+    val metadata by viewModel.currentMetadata.collectAsState()
+    val metadataLoading by viewModel.metadataLoading.collectAsState()
     var selectedRoad by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -87,6 +93,13 @@ fun ChapterScreen(
 
                 chapterResult?.success == true && chapterResult!!.roads.isNotEmpty() -> {
                     val roads = chapterResult!!.roads
+
+                    // ===== Bangumi 元数据头部 =====
+                    MetadataHeader(
+                        title = searchResult?.title ?: "",
+                        metadata = metadata,
+                        isLoading = metadataLoading
+                    )
 
                     // 线路选择标签
                     if (roads.size > 1) {
@@ -188,6 +201,161 @@ fun ChapterScreen(
     }
 }
 
+/**
+ * Bangumi 元数据头部组件
+ * 展示封面、评分、标签、简介
+ */
+@Composable
+private fun MetadataHeader(
+    title: String,
+    metadata: com.so.movie.metadata.BangumiSubject?,
+    isLoading: Boolean
+) {
+    if (metadata == null && !isLoading) return
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        if (metadata != null) {
+            Column {
+                // 封面 + 信息行
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 封面
+                    if (metadata.coverUrl.isNotEmpty()) {
+                        AsyncImage(
+                            model = metadata.coverUrl,
+                            contentDescription = metadata.displayName,
+                            modifier = Modifier
+                                .size(width = 90.dp, height = 126.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(R.drawable.ic_launcher_foreground),
+                            error = painterResource(R.drawable.ic_launcher_foreground)
+                        )
+                    }
+
+                    // 信息列
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // 中文名
+                        if (metadata.nameCn.isNotBlank()) {
+                            Text(
+                                text = metadata.nameCn,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = TextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        // 原名
+                        if (metadata.name.isNotBlank() && metadata.name != metadata.nameCn) {
+                            Text(
+                                text = metadata.name,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextTertiary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        // 评分
+                        if (metadata.score > 0) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = String.format("%.1f", metadata.score),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color(0xFFFF9800),
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "分",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextTertiary
+                                )
+                                if (metadata.scoreCount > 0) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "${metadata.scoreCount}人评分",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = TextTertiary,
+                                        fontSize = 10.sp
+                                    )
+                                }
+                            }
+                        }
+                        // 放送日期 + 集数
+                        val date = metadata.date.ifBlank { metadata.airDate }
+                        if (date.isNotEmpty() || metadata.eps > 0) {
+                            Text(
+                                text = buildString {
+                                    if (date.isNotEmpty()) append(date)
+                                    if (metadata.eps > 0) {
+                                        if (isNotEmpty()) append(" · ")
+                                        append("${metadata.eps}集")
+                                    }
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextSecondary
+                            )
+                        }
+                        // 标签
+                        if (metadata.tagNames.isNotEmpty()) {
+                            Text(
+                                text = metadata.tagNames.take(5).joinToString(" / "),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TextTertiary,
+                                fontSize = 10.sp,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+
+                // 简介
+                if (metadata.summary.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = metadata.summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 18.sp
+                    )
+                }
+            }
+        } else if (isLoading) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(
+                    color = Primary,
+                    modifier = Modifier.size(14.dp),
+                    strokeWidth = 1.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "加载元数据...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextTertiary
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun EpisodeItem(
     episode: ChapterEpisode,
@@ -224,7 +392,7 @@ private fun EpisodeItem(
             modifier = Modifier.weight(1f)
         )
         Icon(
-            painter = androidx.compose.ui.res.painterResource(android.R.drawable.ic_media_play),
+            painter = painterResource(android.R.drawable.ic_media_play),
             contentDescription = null,
             tint = TextTertiary,
             modifier = Modifier.size(16.dp)

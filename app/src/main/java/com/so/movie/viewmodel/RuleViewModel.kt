@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.so.movie.rule.*
+import com.so.movie.metadata.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,7 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
 
     private val ruleRepository = RuleRepository.getInstance(application)
     private val ruleEngine = RuleEngine()
+    private val metadataRepository = MetadataRepository.getInstance(application)
 
     // 规则列表
     private val _rules = MutableStateFlow<List<Rule>>(emptyList())
@@ -61,6 +63,19 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
     // 下载进度
     private val _downloadStatus = MutableStateFlow<String>("")
     val downloadStatus: StateFlow<String> = _downloadStatus.asStateFlow()
+
+    // ===== 元数据 (Bangumi) =====
+    // 搜索结果的元数据（标题 -> 封面/评分等）
+    private val _searchMetadata = MutableStateFlow<Map<String, BangumiSubject?>>(emptyMap())
+    val searchMetadata: StateFlow<Map<String, BangumiSubject?>> = _searchMetadata.asStateFlow()
+
+    // 当前选中条目的详细元数据
+    private val _currentMetadata = MutableStateFlow<BangumiSubject?>(null)
+    val currentMetadata: StateFlow<BangumiSubject?> = _currentMetadata.asStateFlow()
+
+    // 元数据加载状态
+    private val _metadataLoading = MutableStateFlow(false)
+    val metadataLoading: StateFlow<Boolean> = _metadataLoading.asStateFlow()
 
     private var searchJob: Job? = null
 
@@ -113,6 +128,9 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
 
             _searchResults.value = allResults
             _searchLoading.value = false
+
+            // 异步获取搜索结果的元数据（封面/评分）
+            fetchMetadataForSearch(allResults)
         }
     }
 
@@ -121,6 +139,8 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun getChapters(searchResult: SearchResultItem) {
         _selectedSearchResult.value = searchResult
+        _currentMetadata.value = null
+
         viewModelScope.launch(Dispatchers.IO) {
             _chapterLoading.value = true
             _chapterResult.value = null
@@ -134,6 +154,14 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
             val result = ruleEngine.getChapters(rule, searchResult.url)
             _chapterResult.value = result
             _chapterLoading.value = false
+        }
+
+        // 同时获取 Bangumi 元数据
+        viewModelScope.launch(Dispatchers.IO) {
+            _metadataLoading.value = true
+            val metadata = metadataRepository.getMetadata(searchResult.title)
+            _currentMetadata.value = metadata
+            _metadataLoading.value = false
         }
     }
 
@@ -156,6 +184,45 @@ class RuleViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun clearChapters() {
         _chapterResult.value = null
+        _currentMetadata.value = null
+    }
+
+    /**
+     * 为搜索结果异步获取元数据（封面/评分）
+     */
+    private fun fetchMetadataForSearch(results: List<SearchResultItem>) {
+        if (results.isEmpty()) return
+
+        // 取去重的标题
+        val titles = results.map { it.title }.distinct()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            for (title in titles) {
+                // 检查是否已有缓存
+                if (_searchMetadata.value.containsKey(title)) continue
+
+                val metadata = metadataRepository.getMetadata(title)
+                _searchMetadata.update { current ->
+                    current.toMutableMap().apply { put(title, metadata) }
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取指定标题的元数据（从缓存）
+     */
+    fun getMetadataForTitle(title: String): BangumiSubject? {
+        return _searchMetadata.value[title] ?: _currentMetadata.value?.takeIf { it.displayName.contains(title, true) }
+    }
+
+    /**
+     * 清除元数据缓存
+     */
+    fun clearMetadataCache() {
+        metadataRepository.clearCache()
+        _searchMetadata.value = emptyMap()
+        _currentMetadata.value = null
     }
 
     /**

@@ -74,6 +74,7 @@ import com.so.movie.ui.theme.TextTertiary
 import com.so.movie.ui.theme.Primary
 import com.so.movie.viewmodel.MainViewModel
 import com.so.movie.viewmodel.RuleViewModel
+import com.so.movie.metadata.BangumiSubject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,6 +89,7 @@ fun SearchScreen(
     val showResults = keyword.isNotBlank()
     val ruleResults by ruleViewModel.searchResults.collectAsState()
     val searchLoading by ruleViewModel.searchLoading.collectAsState()
+    val searchMetadata by ruleViewModel.searchMetadata.collectAsState()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -238,6 +240,7 @@ fun SearchScreen(
                         items(ruleResults) { item ->
                             RuleSearchResultCard(
                                 item = item,
+                                metadata = searchMetadata[item.title],
                                 onClick = {
                                     viewModel.addSearchHistory(keyword)
                                     ruleViewModel.getChapters(item)
@@ -507,8 +510,13 @@ private fun SearchSuggestions(
 @Composable
 private fun RuleSearchResultCard(
     item: SearchResultItem,
+    metadata: BangumiSubject? = null,
     onClick: () -> Unit
 ) {
+    // 优先使用规则封面，其次使用 Bangumi 封面
+    val coverUrl = item.cover.ifBlank { metadata?.coverUrl ?: "" }
+    val rating = metadata?.score ?: 0f
+
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -523,9 +531,9 @@ private fun RuleSearchResultCard(
                 .clickable(onClick = onClick)
                 .padding(12.dp)
         ) {
-            if (item.cover.isNotEmpty()) {
+            if (coverUrl.isNotEmpty()) {
                 AsyncImage(
-                    model = item.cover,
+                    model = coverUrl,
                     contentDescription = item.title,
                     modifier = Modifier
                         .size(width = 80.dp, height = 110.dp)
@@ -547,6 +555,39 @@ private fun RuleSearchResultCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                // Bangumi 评分 + 标签
+                if (metadata != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (rating > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color(0xFFFF9800).copy(alpha = 0.1f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = String.format("%.1f", rating),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color(0xFFFF9800),
+                                    fontSize = 10.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
+                        if (metadata.tagNames.isNotEmpty()) {
+                            Text(
+                                text = metadata.tagNames.take(3).joinToString(" / "),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TextTertiary,
+                                fontSize = 10.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+                // 规则来源
                 if (item.ruleName.isNotEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
