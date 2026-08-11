@@ -419,7 +419,7 @@ fun AboutScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "版本 1.1.0",
+                    text = "版本 1.2.0",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextTertiary
                 )

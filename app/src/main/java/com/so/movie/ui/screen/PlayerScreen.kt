@@ -38,6 +38,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -66,6 +67,7 @@ import coil.compose.AsyncImage
 import com.so.movie.R
 import com.so.movie.data.MockData
 import com.so.movie.navigation.Screen
+import com.so.movie.player.VideoPlayer
 import com.so.movie.ui.components.MovieCard
 import com.so.movie.ui.theme.Primary
 import com.so.movie.ui.theme.SOMovieTheme
@@ -73,6 +75,7 @@ import com.so.movie.ui.theme.TextPrimary
 import com.so.movie.ui.theme.TextSecondary
 import com.so.movie.ui.theme.TextTertiary
 import com.so.movie.viewmodel.MainViewModel
+import com.so.movie.viewmodel.RuleViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +83,8 @@ import kotlinx.coroutines.delay
 fun PlayerScreen(
     movieId: String,
     navController: NavController,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel = viewModel(),
+    ruleViewModel: RuleViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val movie = remember(movieId) { viewModel.getMovieById(movieId) ?: MockData.hotPlayingList[0] }
@@ -117,15 +121,19 @@ fun PlayerScreen(
                 .padding(top = padding.calculateTopPadding())
                 .verticalScroll(rememberScrollState())
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
-                    .background(Color.Black)
-            ) {
+            val playUrl by ruleViewModel.currentPlayUrl.collectAsState()
+            if (playUrl.isNotBlank()) {
+                VideoPlayer(
+                    navController = navController,
+                    ruleViewModel = ruleViewModel,
+                    title = movie.title
+                )
+            } else {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .background(Color.Black)
                 ) {
                     AsyncImage(
                         model = movie.cover,
@@ -135,61 +143,19 @@ fun PlayerScreen(
                     )
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .align(Alignment.Center)
+                            .size(56.dp)
                             .clip(CircleShape)
                             .background(Color.Black.copy(alpha = 0.5f))
-                            .clickable { isPlaying = !isPlaying },
+                            .clickable { },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = if (isPlaying) painterResource(android.R.drawable.ic_media_pause)
-                                    else Icons.Default.PlayArrow,
+                            imageVector = Icons.Default.PlayArrow,
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(32.dp)
                         )
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .fillMaxWidth()
-                        .padding(12.dp)
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = formatTime(progress),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontSize = 11.sp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(4.dp)
-                                    .clip(RoundedCornerShape(2.dp))
-                                    .background(Color.White.copy(alpha = 0.3f))
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth((progress.toFloat() / duration))
-                                        .height(4.dp)
-                                        .background(Primary)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = formatTime(duration),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontSize = 11.sp
-                            )
-                        }
                     }
                 }
             }

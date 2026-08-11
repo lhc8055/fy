@@ -132,7 +132,8 @@ fun AppNavHost(
             PlayerScreen(
                 movieId = movieId,
                 navController = navController,
-                viewModel = viewModel
+                viewModel = viewModel,
+                ruleViewModel = ruleViewModel
             )
         }
         composable(Screen.Search.route) {
