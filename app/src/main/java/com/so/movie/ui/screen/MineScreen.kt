@@ -87,6 +87,7 @@ fun MineScreen(navController: NavController) {
                 SectionTitle("更多功能")
                 MenuGroup(
                     items = listOf(
+                        MenuItem(R.drawable.ic_launcher_foreground, "规则管理", onClick = { navController.navigate(Screen.RuleManagement.route) }),
                         MenuItem(R.drawable.ic_launcher_foreground, "片单管理", onClick = { navController.navigate(Screen.Playlist.route) }),
                         MenuItem(R.drawable.ic_launcher_foreground, "播放设置", onClick = { navController.navigate(Screen.PlaySetting.route) }),
                         MenuItem(R.drawable.ic_launcher_foreground, "清理缓存", rightText = "1.32GB", onClick = { /* TODO */ }),

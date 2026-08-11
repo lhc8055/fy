@@ -1,8 +1,28 @@
 # SO影视 - 安卓影视应用
 
-一个功能完整的安卓影视观看应用，采用 Kotlin + Jetpack Compose 开发。
+一个功能完整的安卓影视观看应用，采用 Kotlin + Jetpack Compose 开发。集成规则系统，支持多源搜索和在线播放。
 
 ## 功能特性
+
+### 📋 规则系统（新增 v1.1.0）
+- 兼容 Kazumi 规则格式（JSON）
+- 支持 XPath 和 API 两种规则模式
+- 规则自动安装（首次启动自动加载内置规则）
+- 规则仓库：从 GitHub 远程下载规则
+- 规则导入/导出（JSON / Base64 分享链接）
+- 规则启用/禁用/删除管理
+- 多规则并发搜索
+
+### 🔍 在线搜索（增强）
+- 多源并发搜索（所有启用规则同时搜索）
+- 搜索结果聚合显示
+- 显示来源规则标识
+- 搜索结果带封面图
+
+### 📺 选集页面（新增）
+- 多线路支持（线路切换）
+- 剧集列表展示
+- 一键跳转播放
 
 ### 🏠 首页（推荐）
 - 轮播Banner展示热门推荐
@@ -70,6 +90,9 @@
 - **导航**: Navigation Compose
 - **图片加载**: Coil
 - **视频播放**: Media3 ExoPlayer
+- **HTML解析**: Jsoup (规则XPath解析)
+- **JSON解析**: Gson + Jayway JSONPath (API规则)
+- **网络请求**: OkHttp
 - **架构**: MVVM + ViewModel
 - **最低SDK**: API 24 (Android 7.0)
 - **目标SDK**: API 34 (Android 14)
@@ -85,12 +108,26 @@ app/
 │   │   │   └── MockData.kt        # 模拟数据
 │   │   ├── navigation/
 │   │   │   └── Screens.kt         # 导航路由定义
+│   │   ├── rule/
+│   │   │   ├── RuleModels.kt      # 规则数据模型(兼容Kazumi)
+│   │   │   ├── RuleEngine.kt      # 规则引擎(XPath+API)
+│   │   │   └── RuleRepository.kt  # 规则仓库(下载/存储/管理)
 │   │   ├── ui/
 │   │   │   ├── components/        # 通用组件
 │   │   │   ├── screen/            # 页面
+│   │   │   │   ├── HomeScreen.kt
+│   │   │   │   ├── CategoryScreen.kt
+│   │   │   │   ├── FollowScreen.kt
+│   │   │   │   ├── MineScreen.kt
+│   │   │   │   ├── PlayerScreen.kt
+│   │   │   │   ├── SearchScreen.kt  # 增强多源搜索
+│   │   │   │   ├── ChapterScreen.kt # 选集页面(新增)
+│   │   │   │   ├── RuleManagementScreen.kt # 规则管理(新增)
+│   │   │   │   └── OtherScreens.kt
 │   │   │   └── theme/             # 主题配置
 │   │   ├── viewmodel/
-│   │   │   └── MainViewModel.kt   # ViewModel
+│   │   │   ├── MainViewModel.kt   # 主ViewModel
+│   │   │   └── RuleViewModel.kt   # 规则ViewModel(新增)
 │   │   ├── MainActivity.kt        # 主Activity
 │   │   └── PlayerActivity.kt      # 播放器Activity
 │   └── res/                       # 资源文件

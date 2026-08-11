@@ -25,6 +25,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,15 +41,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,30 +61,43 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.so.movie.R
 import com.so.movie.data.MockData
 import com.so.movie.navigation.Screen
+import com.so.movie.rule.SearchResultItem
 import com.so.movie.ui.components.MovieCard
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.ui.theme.TextPrimary
 import com.so.movie.ui.theme.TextSecondary
 import com.so.movie.ui.theme.TextTertiary
+import com.so.movie.ui.theme.Primary
 import com.so.movie.viewmodel.MainViewModel
+import com.so.movie.viewmodel.RuleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel = viewModel(),
+    ruleViewModel: RuleViewModel = viewModel()
 ) {
     var keyword by remember { mutableStateOf("") }
     val searchHistory by viewModel.searchHistory
     val focusRequester = remember { FocusRequester() }
     val showResults = keyword.isNotBlank()
-    val searchResults = remember(keyword) { viewModel.searchMovies(keyword) }
+    val ruleResults by ruleViewModel.searchResults.collectAsState()
+    val searchLoading by ruleViewModel.searchLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+
+    // 关键词变化时触发规则搜索
+    LaunchedEffect(keyword) {
+        if (keyword.isNotBlank()) {
+            ruleViewModel.searchWithRules(keyword)
+        }
     }
 
     Scaffold(
@@ -153,14 +172,81 @@ fun SearchScreen(
                 .padding(padding)
         ) {
             if (showResults) {
-                SearchResults(
-                    results = searchResults,
-                    keyword = keyword,
-                    onMovieClick = { movie ->
-                        viewModel.addSearchHistory(keyword)
-                        navController.navigate(Screen.Player.createRoute(movie.id))
+                if (searchLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(
+                                color = Primary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                "正在搜索...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextTertiary
+                            )
+                        }
                     }
-                )
+                } else if (ruleResults.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                painter = painterResource(android.R.drawable.ic_menu_search),
+                                contentDescription = null,
+                                tint = TextTertiary,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "未找到 \"$keyword\" 相关内容",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextTertiary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "请检查规则是否启用或尝试其他关键词",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextTertiary,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White)
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "找到 ${ruleResults.size} 个结果",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary
+                        )
+                    }
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(ruleResults) { item ->
+                            RuleSearchResultCard(
+                                item = item,
+                                onClick = {
+                                    viewModel.addSearchHistory(keyword)
+                                    ruleViewModel.getChapters(item)
+                                    navController.navigate(Screen.Chapter.route)
+                                }
+                            )
+                        }
+                    }
+                }
             } else {
                 SearchSuggestions(
                     searchHistory = searchHistory.map { it.keyword },
@@ -411,6 +497,71 @@ private fun SearchSuggestions(
                             thickness = 0.5.dp,
                             modifier = Modifier.padding(start = 48.dp)
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RuleSearchResultCard(
+    item: SearchResultItem,
+    onClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(12.dp)
+        ) {
+            if (item.cover.isNotEmpty()) {
+                AsyncImage(
+                    model = item.cover,
+                    contentDescription = item.title,
+                    modifier = Modifier
+                        .size(width = 80.dp, height = 110.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(R.drawable.ic_launcher_foreground),
+                    error = painterResource(R.drawable.ic_launcher_foreground)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = TextPrimary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (item.ruleName.isNotEmpty()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Primary.copy(alpha = 0.1f))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = item.ruleName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Primary,
+                                fontSize = 10.sp
+                            )
+                        }
                     }
                 }
             }

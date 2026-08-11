@@ -11,8 +11,8 @@ android {
         applicationId = "com.so.movie"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -67,6 +67,13 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
     implementation("androidx.media3:media3-session:1.3.1")
+
+    // 规则系统依赖
+    implementation("org.jsoup:jsoup:1.17.2")                    // HTML 解析
+    implementation("com.google.code.gson:gson:2.10.1")          // JSON 解析
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")        // HTTP 网络请求
+    implementation("com.jayway.jsonpath:json-path:2.9.0")       // JSONPath (API规则)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -32,15 +32,18 @@ import com.so.movie.ui.components.BottomNavigationBar
 import com.so.movie.ui.components.bottomNavItems
 import com.so.movie.ui.screen.AboutScreen
 import com.so.movie.ui.screen.CategoryScreen
+import com.so.movie.ui.screen.ChapterScreen
 import com.so.movie.ui.screen.FollowScreen
 import com.so.movie.ui.screen.HomeScreen
 import com.so.movie.ui.screen.MineScreen
 import com.so.movie.ui.screen.PlaySettingScreen
 import com.so.movie.ui.screen.PlaylistScreen
 import com.so.movie.ui.screen.PlayerScreen
+import com.so.movie.ui.screen.RuleManagementScreen
 import com.so.movie.ui.screen.SearchScreen
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.viewmodel.MainViewModel
+import com.so.movie.viewmodel.RuleViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +68,7 @@ fun MovieApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val viewModel: MainViewModel = viewModel()
+    val ruleViewModel: RuleViewModel = viewModel()
 
     val bottomBarRoutes = bottomNavItems.map { it.route }
     val showBottomBar = currentRoute in bottomBarRoutes
@@ -90,6 +94,7 @@ fun MovieApp() {
         AppNavHost(
             navController = navController,
             viewModel = viewModel,
+            ruleViewModel = ruleViewModel,
             paddingValues = paddingValues
         )
     }
@@ -99,6 +104,7 @@ fun MovieApp() {
 fun AppNavHost(
     navController: NavHostController,
     viewModel: MainViewModel,
+    ruleViewModel: RuleViewModel,
     paddingValues: PaddingValues
 ) {
     NavHost(
@@ -130,7 +136,11 @@ fun AppNavHost(
             )
         }
         composable(Screen.Search.route) {
-            SearchScreen(navController = navController, viewModel = viewModel)
+            SearchScreen(
+                navController = navController,
+                viewModel = viewModel,
+                ruleViewModel = ruleViewModel
+            )
         }
         composable(Screen.Playlist.route) {
             PlaylistScreen(navController = navController)
@@ -140,6 +150,12 @@ fun AppNavHost(
         }
         composable(Screen.About.route) {
             AboutScreen(navController = navController)
+        }
+        composable(Screen.RuleManagement.route) {
+            RuleManagementScreen(navController = navController)
+        }
+        composable(Screen.Chapter.route) {
+            ChapterScreen(navController = navController)
         }
     }
 }
