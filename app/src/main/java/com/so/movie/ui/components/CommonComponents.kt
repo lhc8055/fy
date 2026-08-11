@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,13 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.so.movie.R
 import com.so.movie.data.Movie
 import com.so.movie.ui.theme.Primary
 import com.so.movie.ui.theme.ScoreHigh
@@ -39,6 +39,27 @@ import com.so.movie.ui.theme.ScoreMedium
 import com.so.movie.ui.theme.TextPrimary
 import com.so.movie.ui.theme.TextSecondary
 import com.so.movie.ui.theme.TextTertiary
+
+/** 灰色骨架占位框 */
+@Composable
+fun SkeletonBox(
+    modifier: Modifier = Modifier,
+    cornerRadius: androidx.compose.ui.unit.Dp = 8.dp
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFFE8E8E8),
+                        Color(0xFFF0F0F0),
+                        Color(0xFFE8E8E8)
+                    )
+                )
+            )
+    )
+}
 
 @Composable
 fun MovieCard(
@@ -53,19 +74,15 @@ fun MovieCard(
     ) {
         Card(
             shape = RoundedCornerShape(8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Box {
-                AsyncImage(
-                    model = movie.poster,
-                    contentDescription = movie.title,
+                SkeletonBox(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(2f / 3f),
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(R.drawable.ic_launcher_foreground),
-                    error = painterResource(R.drawable.ic_launcher_foreground)
+                    cornerRadius = 8.dp
                 )
                 Box(
                     modifier = Modifier
@@ -83,7 +100,7 @@ fun MovieCard(
                         text = String.format("%.1f", movie.rating),
                         color = Color.White,
                         fontSize = 10.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -117,21 +134,17 @@ fun MovieBannerCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = movie.cover,
-                contentDescription = movie.title,
+            SkeletonBox(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.ic_launcher_foreground),
-                error = painterResource(R.drawable.ic_launcher_foreground)
+                cornerRadius = 12.dp
             )
             Box(
                 modifier = Modifier
@@ -149,7 +162,7 @@ fun MovieBannerCard(
                         text = movie.title,
                         color = Color.White,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -157,7 +170,7 @@ fun MovieBannerCard(
                             text = String.format("%.1f分", movie.rating),
                             color = Color(0xFFFFD93D),
                             fontSize = 12.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -202,7 +215,7 @@ fun SectionHeader(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = TextPrimary,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.weight(1f))
         if (onMoreClick != null) {
@@ -217,10 +230,10 @@ fun SectionHeader(
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Icon(
-                    painter = painterResource(android.R.drawable.ic_media_next),
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     tint = TextTertiary,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
@@ -243,7 +256,7 @@ fun SearchBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(android.R.drawable.ic_menu_search),
+            imageVector = Icons.Default.Search,
             contentDescription = null,
             tint = TextTertiary,
             modifier = Modifier.size(18.dp)

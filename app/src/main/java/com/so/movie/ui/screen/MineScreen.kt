@@ -1,7 +1,6 @@
 package com.so.movie.ui.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -41,16 +39,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import com.so.movie.R
 import com.so.movie.navigation.Screen
+import com.so.movie.ui.components.SkeletonBox
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.ui.theme.TextPrimary
 import com.so.movie.ui.theme.TextSecondary
@@ -136,14 +132,10 @@ private fun UserProfileCard(navController: NavController) {
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = "https://picsum.photos/seed/guestavatar/200/200",
-            contentDescription = null,
+        SkeletonBox(
             modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape)
-                .border(1.dp, Color(0xFFE5E7EB), CircleShape),
-            placeholder = painterResource(R.drawable.ic_launcher_foreground)
+                .size(72.dp),
+            cornerRadius = 36.dp
         )
         Spacer(modifier = Modifier.width(18.dp))
         Column(

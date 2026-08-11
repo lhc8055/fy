@@ -23,7 +23,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -48,10 +55,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,11 +68,10 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import com.so.movie.R
 import com.so.movie.data.MockData
 import com.so.movie.navigation.Screen
 import com.so.movie.ui.components.MovieCard
+import com.so.movie.ui.components.SkeletonBox
 import com.so.movie.ui.theme.Primary
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.ui.theme.TextPrimary
@@ -128,11 +132,9 @@ fun PlayerScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    AsyncImage(
-                        model = movie.cover,
-                        contentDescription = null,
+                    SkeletonBox(
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        cornerRadius = 0.dp
                     )
                     Box(
                         modifier = Modifier
@@ -143,8 +145,7 @@ fun PlayerScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = if (isPlaying) painterResource(android.R.drawable.ic_media_pause)
-                                    else rememberVectorPainter(image = Icons.Default.PlayArrow),
+                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(36.dp)
@@ -250,12 +251,12 @@ fun PlayerScreen(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 ActionButton(
-                    icon = android.R.drawable.btn_star_big_off,
+                    icon = Icons.Default.FavoriteBorder,
                     label = "收藏",
                     onClick = { /* TODO */ }
                 )
                 ActionButton(
-                    icon = if (isFollowed) android.R.drawable.star_big_on else android.R.drawable.star_big_off,
+                    icon = if (isFollowed) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     label = if (isFollowed) "已追更" else "追更",
                     onClick = {
                         viewModel.toggleFollow(movie)
@@ -263,12 +264,12 @@ fun PlayerScreen(
                     }
                 )
                 ActionButton(
-                    icon = android.R.drawable.stat_sys_download,
+                    icon = Icons.Default.Download,
                     label = "下载",
                     onClick = { /* TODO */ }
                 )
                 ActionButton(
-                    icon = android.R.drawable.ic_menu_share,
+                    icon = Icons.Default.Share,
                     label = "分享",
                     onClick = { /* TODO */ }
                 )
@@ -428,7 +429,7 @@ fun PlayerScreen(
 
 @Composable
 private fun ActionButton(
-    icon: Int,
+    icon: ImageVector,
     label: String,
     onClick: () -> Unit
 ) {
@@ -439,7 +440,7 @@ private fun ActionButton(
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Icon(
-            painter = painterResource(icon),
+            imageVector = icon,
             contentDescription = null,
             tint = TextSecondary,
             modifier = Modifier.size(22.dp)
@@ -478,13 +479,9 @@ private fun CommentItem(comment: com.so.movie.data.Comment) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        AsyncImage(
-            model = comment.avatar,
-            contentDescription = null,
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape),
-            placeholder = painterResource(R.drawable.ic_launcher_foreground)
+        SkeletonBox(
+            modifier = Modifier.size(36.dp),
+            cornerRadius = 18.dp
         )
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -511,7 +508,7 @@ private fun CommentItem(comment: com.so.movie.data.Comment) {
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
-                    painter = painterResource(android.R.drawable.ic_menu_view),
+                    imageVector = Icons.Default.Visibility,
                     contentDescription = null,
                     tint = TextTertiary,
                     modifier = Modifier.size(14.dp)
@@ -525,7 +522,7 @@ private fun CommentItem(comment: com.so.movie.data.Comment) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    painter = painterResource(android.R.drawable.btn_star_big_off),
+                    imageVector = Icons.Default.Star,
                     contentDescription = null,
                     tint = TextTertiary,
                     modifier = Modifier.size(14.dp)

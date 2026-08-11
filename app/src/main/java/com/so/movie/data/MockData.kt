@@ -6,8 +6,8 @@ object MockData {
         Movie(
             id = "1",
             title = "墨雨云间",
-            poster = "https://picsum.photos/seed/moyuyunjian/400/600",
-            cover = "https://picsum.photos/seed/moyuyunjian_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.5f,
             year = 2024,
             area = "大陆",
@@ -23,8 +23,8 @@ object MockData {
         Movie(
             id = "2",
             title = "庆余年 第二季",
-            poster = "https://picsum.photos/seed/qingyunian2/400/600",
-            cover = "https://picsum.photos/seed/qingyunian2_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 9.0f,
             year = 2024,
             area = "大陆",
@@ -43,8 +43,8 @@ object MockData {
         Movie(
             id = "2",
             title = "庆余年 第二季",
-            poster = "https://picsum.photos/seed/qingyunian2/400/600",
-            cover = "https://picsum.photos/seed/qingyunian2_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 9.0f,
             year = 2024,
             area = "大陆",
@@ -60,8 +60,8 @@ object MockData {
         Movie(
             id = "3",
             title = "长相思 第二季",
-            poster = "https://picsum.photos/seed/changxiangsi2/400/600",
-            cover = "https://picsum.photos/seed/changxiangsi2_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.8f,
             year = 2024,
             area = "大陆",
@@ -77,8 +77,8 @@ object MockData {
         Movie(
             id = "1",
             title = "墨雨云间",
-            poster = "https://picsum.photos/seed/moyuyunjian/400/600",
-            cover = "https://picsum.photos/seed/moyuyunjian_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.5f,
             year = 2024,
             area = "大陆",
@@ -97,8 +97,8 @@ object MockData {
         Movie(
             id = "4",
             title = "流浪地球2",
-            poster = "https://picsum.photos/seed/liulangdiqiu2/400/600",
-            cover = "https://picsum.photos/seed/liulangdiqiu2_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.3f,
             year = 2023,
             area = "大陆",
@@ -114,8 +114,8 @@ object MockData {
         Movie(
             id = "5",
             title = "孤注一掷",
-            poster = "https://picsum.photos/seed/guzhuyizhi/400/600",
-            cover = "https://picsum.photos/seed/guzhuyizhi_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 7.1f,
             year = 2023,
             area = "大陆",
@@ -131,8 +131,8 @@ object MockData {
         Movie(
             id = "6",
             title = "封神第一部",
-            poster = "https://picsum.photos/seed/fengshen1/400/600",
-            cover = "https://picsum.photos/seed/fengshen1_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 7.8f,
             year = 2023,
             area = "大陆",
@@ -148,8 +148,8 @@ object MockData {
         Movie(
             id = "7",
             title = "热辣滚烫",
-            poster = "https://picsum.photos/seed/relaguntang/400/600",
-            cover = "https://picsum.photos/seed/relaguntang_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 7.8f,
             year = 2024,
             area = "大陆",
@@ -165,8 +165,8 @@ object MockData {
         Movie(
             id = "8",
             title = "飞驰人生2",
-            poster = "https://picsum.photos/seed/feichirensheng2/400/600",
-            cover = "https://picsum.photos/seed/feichirensheng2_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 7.9f,
             year = 2024,
             area = "大陆",
@@ -185,8 +185,8 @@ object MockData {
         Movie(
             id = "9",
             title = "唐朝诡事录之西行",
-            poster = "https://picsum.photos/seed/tangchao9/400/600",
-            cover = "https://picsum.photos/seed/tangchao9_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.0f,
             year = 2024,
             area = "大陆",
@@ -202,8 +202,8 @@ object MockData {
         Movie(
             id = "10",
             title = "狂飙",
-            poster = "https://picsum.photos/seed/kuangbiao/400/600",
-            cover = "https://picsum.photos/seed/kuangbiao_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.5f,
             year = 2023,
             area = "大陆",
@@ -219,8 +219,8 @@ object MockData {
         Movie(
             id = "11",
             title = "去有风的地方",
-            poster = "https://picsum.photos/seed/quyoufeng/400/600",
-            cover = "https://picsum.photos/seed/quyoufeng_cover/1080/600",
+            poster = "",
+            cover = "",
             rating = 8.6f,
             year = 2023,
             area = "大陆",
@@ -263,11 +263,11 @@ object MockData {
     )
 
     val playlists = listOf(
-        PlaylistItem("1", "高分经典电影", "https://picsum.photos/seed/playlist1/400/300", 32, 128000, "精选豆瓣高分电影合集", "经典"),
-        PlaylistItem("2", "人生必看电影", "https://picsum.photos/seed/playlist2/400/300", 45, 256000, "一生必看的经典影片", "人生"),
-        PlaylistItem("3", "豆瓣高分榜", "https://picsum.photos/seed/playlist3/400/300", 50, 512000, "豆瓣评分TOP电影", "高分"),
-        PlaylistItem("4", "周末必看剧集", "https://picsum.photos/seed/playlist4/400/300", 18, 98000, "适合周末追的好剧", "剧集"),
-        PlaylistItem("5", "动漫神作榜", "https://picsum.photos/seed/playlist5/400/300", 32, 420000, "必看动漫经典作品", "动漫")
+        PlaylistItem("1", "高分经典电影", "", 32, 128000, "精选豆瓣高分电影合集", "经典"),
+        PlaylistItem("2", "人生必看电影", "", 45, 256000, "一生必看的经典影片", "人生"),
+        PlaylistItem("3", "豆瓣高分榜", "", 50, 512000, "豆瓣评分TOP电影", "高分"),
+        PlaylistItem("4", "周末必看剧集", "", 18, 98000, "适合周末追的好剧", "剧集"),
+        PlaylistItem("5", "动漫神作榜", "", 32, 420000, "必看动漫经典作品", "动漫")
     )
 
     val searchHistory = listOf(
@@ -304,9 +304,9 @@ object MockData {
     )
 
     val comments = listOf(
-        Comment("1", "u1", "影视爱好者", "https://picsum.photos/seed/user1/100/100", "这部剧真的太好看了！剧情紧凑，演员演技在线！", System.currentTimeMillis() - 7200000, 128, 15),
-        Comment("2", "u2", "追剧小能手", "https://picsum.photos/seed/user2/100/100", "期待第二季好久了，终于等到了！", System.currentTimeMillis() - 14400000, 89, 8),
-        Comment("3", "u3", "古装迷", "https://picsum.photos/seed/user3/100/100", "画面制作精良，服化道都很用心。", System.currentTimeMillis() - 28800000, 56, 3)
+        Comment("1", "u1", "影视爱好者", "user1/100/100", "这部剧真的太好看了！剧情紧凑，演员演技在线！", System.currentTimeMillis() - 7200000, 128, 15),
+        Comment("2", "u2", "追剧小能手", "user2/100/100", "期待第二季好久了，终于等到了！", System.currentTimeMillis() - 14400000, 89, 8),
+        Comment("3", "u3", "古装迷", "user3/100/100", "画面制作精良，服化道都很用心。", System.currentTimeMillis() - 28800000, 56, 3)
     )
 
     val categoryTypes = listOf("电影", "电视剧", "综艺", "动漫")

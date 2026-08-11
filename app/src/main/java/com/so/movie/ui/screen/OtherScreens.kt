@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,17 +48,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import com.so.movie.R
 import com.so.movie.data.MockData
+import com.so.movie.ui.components.SkeletonBox
 import com.so.movie.ui.theme.Primary
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.ui.theme.TextPrimary
@@ -156,16 +156,11 @@ private fun PlaylistCard(
             .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = playlist.cover,
-                contentDescription = playlist.title,
+            SkeletonBox(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(4f / 3f)
-                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.ic_launcher_foreground),
-                error = painterResource(R.drawable.ic_launcher_foreground)
+                    .aspectRatio(4f / 3f),
+                cornerRadius = 0.dp
             )
             Column(
                 modifier = Modifier
@@ -316,7 +311,7 @@ private fun OptionGroup(
                 )
                 if (index == selectedIndex) {
                     Icon(
-                        painter = painterResource(android.R.drawable.checkbox_on_background),
+                        imageVector = Icons.Default.Check,
                         contentDescription = null,
                         tint = Primary,
                         modifier = Modifier.size(20.dp)
@@ -404,12 +399,15 @@ fun AboutScreen(navController: NavController) {
                     .padding(vertical = 48.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
-                    tint = Primary,
-                    modifier = Modifier.size(80.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("SO", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "SO影视",
@@ -484,7 +482,7 @@ private fun MenuRow(
             Spacer(modifier = Modifier.width(6.dp))
         }
         Icon(
-            imageVector = Icons.Default.ChevronRight,
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
             tint = TextTertiary,
             modifier = Modifier.size(18.dp)

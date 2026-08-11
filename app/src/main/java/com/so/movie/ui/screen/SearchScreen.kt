@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,7 +51,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,7 +58,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.so.movie.R
 import com.so.movie.data.MockData
 import com.so.movie.navigation.Screen
 import com.so.movie.ui.components.MovieCard
@@ -212,7 +212,7 @@ private fun SearchResults(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
-                        painter = painterResource(android.R.drawable.ic_menu_search),
+                        imageVector = Icons.Default.Search,
                         contentDescription = null,
                         tint = TextTertiary,
                         modifier = Modifier.size(64.dp)
@@ -273,7 +273,7 @@ private fun SearchSuggestions(
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        painter = painterResource(android.R.drawable.ic_menu_delete),
+                        imageVector = Icons.Default.Delete,
                         contentDescription = "清空",
                         tint = TextTertiary,
                         modifier = Modifier
@@ -297,7 +297,7 @@ private fun SearchSuggestions(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painter = painterResource(android.R.drawable.ic_menu_recent_history),
+                                imageVector = Icons.Default.History,
                                 contentDescription = null,
                                 tint = TextTertiary,
                                 modifier = Modifier.size(18.dp)

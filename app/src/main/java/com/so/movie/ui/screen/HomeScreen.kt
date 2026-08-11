@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,12 +43,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.so.movie.R
 import com.so.movie.data.MockData
 import com.so.movie.data.Movie
 import com.so.movie.navigation.Screen
@@ -55,6 +57,7 @@ import com.so.movie.ui.components.MovieBannerCard
 import com.so.movie.ui.components.MovieCard
 import com.so.movie.ui.components.SearchBar
 import com.so.movie.ui.components.SectionHeader
+import com.so.movie.ui.theme.Primary
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.ui.theme.TextPrimary
 import com.so.movie.ui.theme.TextSecondary
@@ -84,12 +87,15 @@ fun HomeScreen(navController: NavController) {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_launcher_foreground),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("SO", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "推荐",
@@ -101,7 +107,7 @@ fun HomeScreen(navController: NavController) {
                 actions = {
                     IconButton(onClick = { /* TODO: 历史 */ }) {
                         Icon(
-                            painter = painterResource(android.R.drawable.ic_menu_recent_history),
+                            imageVector = Icons.Default.History,
                             contentDescription = "历史",
                             tint = TextSecondary
                         )

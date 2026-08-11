@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,8 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,12 +47,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import com.so.movie.R
 import com.so.movie.data.FollowItem
 import com.so.movie.data.FollowStatus
 import com.so.movie.data.MockData
 import com.so.movie.navigation.Screen
+import com.so.movie.ui.components.SkeletonBox
 import com.so.movie.ui.theme.Primary
 import com.so.movie.ui.theme.SOMovieTheme
 import com.so.movie.ui.theme.TextPrimary
@@ -146,7 +144,7 @@ fun FollowScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            painter = painterResource(android.R.drawable.ic_menu_my_calendar),
+                            imageVector = Icons.Default.Inbox,
                             contentDescription = null,
                             tint = TextTertiary,
                             modifier = Modifier.size(64.dp)
@@ -200,16 +198,11 @@ private fun FollowItemCard(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            AsyncImage(
-                model = item.movie.poster,
-                contentDescription = item.movie.title,
+            SkeletonBox(
                 modifier = Modifier
                     .width(90.dp)
-                    .aspectRatio(2f / 3f)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.ic_launcher_foreground),
-                error = painterResource(R.drawable.ic_launcher_foreground)
+                    .aspectRatio(2f / 3f),
+                cornerRadius = 8.dp
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(
