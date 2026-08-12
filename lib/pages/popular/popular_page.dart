@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:kazumi/pages/popular/popular_controller.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
@@ -514,7 +515,7 @@ class _PopularPageState extends State<PopularPage> {
                         height: 52,
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(StyleString.imgRadius.x),
+                            bottom: StyleString.imgRadius,
                           ),
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
