@@ -12,8 +12,8 @@ import 'package:kazumi/pages/popular/popular_module.dart';
 import 'package:kazumi/pages/route_error_page.dart';
 import 'package:kazumi/pages/search/search_module.dart';
 import 'package:kazumi/pages/settings/settings_module.dart';
-import 'package:kazumi/pages/timeline/timeline_controller.dart';
-import 'package:kazumi/pages/timeline/timeline_module.dart';
+import 'package:kazumi/pages/category/category_controller.dart';
+import 'package:kazumi/pages/category/category_module.dart';
 import 'package:kazumi/pages/video/video_module.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
@@ -42,7 +42,7 @@ final tabModule = createModule(
     c
       // Tab state survives tab switches, but is released with the whole shell.
       ..addSingleton<PopularController>(PopularController.new)
-      ..addSingleton<TimelineController>(TimelineController.new)
+      ..addSingleton<CategoryController>(CategoryController.new)
       ..route(
         '/',
         child: (context, state) => const IndexPage(),
@@ -57,7 +57,7 @@ final tabModule = createModule(
               child: (context, state) => const SizedBox.shrink(),
             )
             ..module(popularModule)
-            ..module(timelineModule)
+            ..module(categoryModule)
             ..module(collectModule)
             ..module(myModule);
         },
