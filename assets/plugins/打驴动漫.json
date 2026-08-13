@@ -11,7 +11,7 @@
     "adBlocker": false,
     "userAgent": "",
     "baseURL": "https://www.dalvdm.cc/",
-    "searchUUL": "https://www.dalvdm.cc/index.php/vod/search.html?wd=@keyword",
+    "searchURL": "https://www.dalvdm.cc/index.php/vod/search.html?wd=@keyword",
     "searchList": "//div[@class='vod-detail style-detail cor4 search-list']",
     "searchName": "//div/div[2]/a",
     "searchResult": "//div[i]/div[2]/a",

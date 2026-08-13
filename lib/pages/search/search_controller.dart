@@ -38,6 +38,9 @@ abstract class _SearchPageController with Store {
   bool isTimeOut = false;
 
   @observable
+  String searchErrorMsg = '';
+
+  @observable
   bool notShowWatchedBangumis = false;
 
   @observable
@@ -87,6 +90,7 @@ abstract class _SearchPageController with Store {
     }
     isLoading = true;
     isTimeOut = false;
+    searchErrorMsg = '';
     SearchParser parser = SearchParser(input);
     final filterState = parser.toFilterState();
     String? idString = filterState.id.isEmpty ? null : filterState.id;
@@ -117,6 +121,9 @@ abstract class _SearchPageController with Store {
           scoreRange: filterState.scoreRange,
           weekdays: filterState.weekdays);
       if (page == null) {
+        if (!fetchedAnyPage && bangumiList.isEmpty) {
+          searchErrorMsg = '搜索服务连接失败，请检查网络或稍后重试';
+        }
         break;
       }
       fetchedAnyPage = true;

@@ -279,7 +279,7 @@ class BangumiApi {
             : [">=0", "<=99999"];
 
     final filter = <String, dynamic>{
-      "type": [2],
+      "type": [2, 6],
       "tag": tags,
       "rank": rankFilter,
       "nsfw": false

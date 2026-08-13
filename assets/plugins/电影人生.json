@@ -11,7 +11,7 @@
     "adBlocker": false,
     "userAgent": "",
     "baseURL": "https://dyrsok.com/",
-    "searchUUL": "https://dyrsok.com/s.html?name=@keyword",
+    "searchURL": "https://dyrsok.com/s.html?name=@keyword",
     "searchList": "//main/div[3]//div",
     "searchName": "//div/h3",
     "searchResult": "//a",

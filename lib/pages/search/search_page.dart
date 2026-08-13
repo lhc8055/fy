@@ -334,11 +334,15 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(
             child: Observer(builder: (context) {
               if (searchPageController.isTimeOut) {
+                final isNetworkError =
+                    searchPageController.searchErrorMsg.isNotEmpty;
                 return Center(
                   child: SizedBox(
                     height: 400,
                     child: GeneralErrorWidget(
-                      errMsg: '什么都没有找到 (;´༎ຶД༎ຶ`)',
+                      errMsg: isNetworkError
+                          ? searchPageController.searchErrorMsg
+                          : '什么都没有找到 (;´༎ຶД༎ຶ`)',
                       actions: [
                         GeneralErrorButton(
                           onPressed: () {
