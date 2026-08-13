@@ -1,0 +1,28 @@
+{
+    "api": "4",
+    "type": "anime",
+    "name": "剧集屋",
+    "version": "2.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://jjwu9.com/",
+    "searchURL": "https://jjwu9.com/index.php/vod/search.html?wd=@keyword&submit=",
+    "searchList": "//div[2]/div/div[1]/div/div/div[2]/ul//li",
+    "searchName": "//div[2]/h3/a",
+    "searchResult": "//div[2]/p[4]/a[2]",
+    "chapterRoads": "//div[2]/div/div[1]/div[3]/div/div[2]/ul",
+    "chapterResult": "//li/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "热播之家",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.rebozj.pro/",
+    "searchURL": "https://www.rebozj.pro/search/-------------.html?wd=@keyword&submit=",
+    "searchList": "//div[1]/div/div/div[2]/ul//li",
+    "searchName": "//div/div/h4/a",
+    "searchResult": "//div/div/h4/a",
+    "chapterRoads": "//div[1]/div[2]/div/div/div/div[3]/div[2]//div",
+    "chapterResult": "//ul/li/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

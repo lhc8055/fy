@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "omofun",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://omofun01.xyz/",
+    "searchURL": "https://omofun01.xyz/vod/search.html?wd=@keyword",
+    "searchList": "//div[@class='module-card-item module-item']",
+    "searchName": ".//div[@class='module-card-item-title']/a",
+    "searchResult": ".//div[@class='module-card-item-title']/a/@href",
+    "chapterRoads": "\t//div[@class='module-play-list-content module-play-list-base']",
+    "chapterResult": ".//a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

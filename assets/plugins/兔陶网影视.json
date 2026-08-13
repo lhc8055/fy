@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "兔陶网影视",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.tutaow.com/",
+    "searchURL": "https://www.tutaow.com/search/-------------.html?wd=@keyword&submit=",
+    "searchList": "//div[2]/div/div[2]/div/div/div[1]/div/div[2]/div/ul//li",
+    "searchName": "//div/div/div[2]/div[1]/a",
+    "searchResult": "//div/div[2]/div/div[2]/a",
+    "chapterRoads": "//div[2]/div[2]/div/div/div/div[2]/div[2]//div",
+    "chapterResult": "//div/div/ul/li/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

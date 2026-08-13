@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "开心影院",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.kxyytv.com/",
+    "searchURL": "https://www.kxyytv.com/vodsearch/-------------.html?wd=@keyword",
+    "searchList": "//div[2]/div[2]/div/div[2]//div",
+    "searchName": "//div/div/div/a/em",
+    "searchResult": "//div/div/div/a",
+    "chapterRoads": "//div[2]/div[3]/div/div//div",
+    "chapterResult": "//div/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": true,
+        "captchaType": 1,
+        "captchaImage": "//img[@id='verifyCode']",
+        "captchaInput": "//input[@name='verify']",
+        "captchaButton": "//a[@class='input-group-text btn btn-green']"
+    }
+}

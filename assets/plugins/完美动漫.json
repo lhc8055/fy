@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "完美动漫",
+    "version": "10.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.wmdm.cc/",
+    "searchURL": "https://www.wmdm.cc/dmso/so.html?wd=@keyword",
+    "searchList": "//div[3]/div[2]/div/div/ul//li",
+    "searchName": "//div[2]/h3/a",
+    "searchResult": "//div[2]/h3/a",
+    "chapterRoads": "//div[3]/div[2]/div[2]/div[2]/div[1]/div[2]//div",
+    "chapterResult": "//ul/li/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "api": "4",
+    "type": "anime",
+    "name": "tsdm",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "userAgent": "",
+    "baseURL": "https://tsdm.cc/",
+    "searchURL": "https://tsdm.cc/search?q=@keyword",
+    "searchList": "//div[3]/section/ul//li",
+    "searchName": "//div/div[2]/a/div",
+    "searchResult": "//div/div[2]/a",
+    "chapterRoads": "//div[3]/div[1]/div[3]/section/ul",
+    "chapterResult": "//li/a",
+    "referer": ""
+}

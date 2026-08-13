@@ -1,0 +1,28 @@
+{
+    "api": "4",
+    "type": "anime",
+    "name": "我的",
+    "version": "1.2",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.dalvdm.cc/",
+    "searchUUL": "https://www.dalvdm.cc/index.php/vod/search.html?wd=@keyword",
+    "searchList": "//div[@class='vod-detail style-detail cor4 search-list']",
+    "searchName": "//div/div[2]/a",
+    "searchResult": "//div[i]/div[2]/a",
+    "chapterRoads": "//ul[@class='anthology-list-play size']",
+    "chapterResult": "//li/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": true,
+        "captchaType": 1,
+        "captchaImage": "//img[@class='ds-verify-img']",
+        "captchaInput": "//input[@name='verify']",
+        "captchaButton": "//button[@class='button verify-sumit top20']"
+    }
+}

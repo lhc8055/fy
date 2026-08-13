@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "电影人生",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://dyrsok.com/",
+    "searchUUL": "https://dyrsok.com/s.html?name=@keyword",
+    "searchList": "//main/div[3]//div",
+    "searchName": "//div/h3",
+    "searchResult": "//a",
+    "chapterRoads": "//main/div[2]/div/div[1]/div[2]/div/div[5]/div[4]/div",
+    "chapterResult": "//a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

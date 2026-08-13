@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "八号影视",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.bahaotv.com/",
+    "searchURL": "https://www.bahaotv.com/so.html?wd=@keyword",
+    "searchList": "//main/div/div/div/div[2]/div//div",
+    "searchName": "//a/div/div[2]/div[1]/div",
+    "searchResult": "//a",
+    "chapterRoads": "//main/div/div/div/div[3]/div[2]/div[2]//div",
+    "chapterResult": "//div/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchInput": "",
+        "captchaButton": ""
+    }
+}

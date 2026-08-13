@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "937影视",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.937tv.vip/",
+    "searchUUL": "https://www.937tv.vip/vodsearch/-------------.html?wd=@keyword",
+    "searchList": "//div[1]/div[2]/div/div/div[2]/div//div",
+    "searchName": "//div[2]/div[1]/a/strong",
+    "searchResult": "//div[3]/a[2]",
+    "chapterRoads": "//div[2]/div[2]/div/div[2]//div",
+    "chapterResult": "//div/div/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchaInput": "",
+        "captchaButton": ""
+    }
+}

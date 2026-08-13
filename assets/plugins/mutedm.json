@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "mutefun",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.91mute.com/",
+    "searchURL": "https://www.91mute.com/vodsearch/-------------.html?wd=@keyword",
+    "searchList": "//div[1]/div[3]/div/div/div[3]/div//div",
+    "searchName": "//div[2]/div[1]/a/strong",
+    "searchResult": "//div[3]/a[2]",
+    "chapterRoads": "//div[2]/div[2]/div/div[3]//div",
+    "chapterResult": "//div/div/a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": true,
+        "captchaType": 1,
+        "captchaImage": "//img[@class='mac_verify_img']",
+        "captchaInput": "//input[@name='verify']",
+        "captchaButton": "//input[@class='verify_submit submit_btn btnverify']"
+    }
+}

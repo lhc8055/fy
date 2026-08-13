@@ -1,0 +1,28 @@
+{
+    "api": "6",
+    "type": "anime",
+    "name": "EE",
+    "version": "1.0",
+    "muliSources": true,
+    "useWebview": true,
+    "useNativePlayer": true,
+    "usePost": false,
+    "useLegacyParser": false,
+    "adBlocker": false,
+    "userAgent": "",
+    "baseURL": "https://www.ezdmw.site/",
+    "searchURL": "https://www.ezdmw.site/Index/search_some?searchText=@keyword&page=0",
+    "searchList": "//section/section//div",
+    "searchName": "//a/p",
+    "searchResult": "//a",
+    "chapterRoads": "//div[4]/section[1]",
+    "chapterResult": "//a",
+    "referer": "",
+    "antiCrawlerConfig": {
+        "enabled": false,
+        "captchaType": 1,
+        "captchaImage": "",
+        "captchInput": "",
+        "captchaButton": ""
+    }
+}
