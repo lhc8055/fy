@@ -4,6 +4,7 @@ import 'package:kazumi/request/core/dio_logger_interceptor.dart';
 import 'package:kazumi/request/core/network_config.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/storage/storage.dart';
+import 'package:kazumi/utils/bangumi_mirror_credentials.dart';
 import 'package:kazumi/utils/http_headers.dart';
 
 class DioFactory {
@@ -94,6 +95,13 @@ class _BangumiMirrorInterceptor extends Interceptor {
     'next.bgm.tv',
   };
 
+  /// Whether the mirror credentials were injected at compile time.
+  /// When false, signed endpoints (POST /v0/search/subjects) must bypass
+  /// the mirror and hit the official API directly.
+  static final bool _hasMirrorCredentials =
+      bangumiMirrorCredentials['id']!.isNotEmpty &&
+          bangumiMirrorCredentials['value']!.isNotEmpty;
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final enableBangumiProxy =
@@ -105,6 +113,16 @@ class _BangumiMirrorInterceptor extends Interceptor {
 
     final uri = options.uri;
     if (!_mirrorableHosts.contains(uri.host)) {
+      handler.next(options);
+      return;
+    }
+
+    // Search POST requests require a valid signature. If credentials are
+    // missing (non-CI build), bypass the mirror and use the official API.
+    if (options.method == 'POST' &&
+        uri.path == '/v0/search/subjects' &&
+        !_hasMirrorCredentials) {
+      KazumiLogger().d('Bangumi mirror bypassed for search (no credentials)');
       handler.next(options);
       return;
     }

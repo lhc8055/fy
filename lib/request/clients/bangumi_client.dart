@@ -103,6 +103,12 @@ class BangumiClient {
     if (!enableBangumiProxy) {
       return false;
     }
+    // Skip signing when credentials were not injected at compile time.
+    final hasCredentials = bangumiMirrorCredentials['id']!.isNotEmpty &&
+        bangumiMirrorCredentials['value']!.isNotEmpty;
+    if (!hasCredentials) {
+      return false;
+    }
     final path = Uri.parse(url).path;
     if (method == 'POST' && path == '/v0/search/subjects') {
       return true;
